@@ -59,10 +59,15 @@ const Home = () => {
       />
     </div>
 
-    <div className='bg-red-600 flex'>
+    <div className='mx-6 mt-12'>
+      <h1 className='text-2xl font-bold'>Products</h1>
+    </div>
+
+    <div className='mx-6 mt-4 flex '>
       {products.map((product) => (
         <ProductCard
           key={product._id}
+          _id={product._id}
           name={product.name}
           scale={product.scale}
           price={product.price}

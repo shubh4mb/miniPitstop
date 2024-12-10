@@ -1,13 +1,24 @@
 // import React from 'react'
+import { useNavigate } from 'react-router-dom';
 
-const ProductCard = ({ name, scale, price, card_image, brand, buttonColor, cardColor }) => {
+
+
+const ProductCard = ({ _id,name, scale, price, card_image, brand, buttonColor, cardColor }) => {
+  
+  
+  const navigate = useNavigate();
+  const handleCardClick = () => {
+    navigate(`/product/${_id}`);
+  };
   return (
     <div className={`rounded-lg p-4  text-black w-64 m-4`}  style={{
       background: `linear-gradient(to right, black, ${cardColor || 'black'})`,
       padding: '20px',
       borderRadius: '8px',
       color: '#fff'
-    }}>
+    }}
+    onClick={handleCardClick}
+    >
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-bold">{name}</h2>
         <i className="fas fa-heart"></i>

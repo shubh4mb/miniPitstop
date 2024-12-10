@@ -16,6 +16,7 @@ import Home from "./pages/User/Home";
 import UserProtectedRoute from "./components/protectedRoutes/UserProtectedRoutes";
 import Series from "./pages/Admin/Series";
 import AdminLogin from "./pages/Admin/AdminLogin";
+import Product from "./pages/User/Product";
 
 function App() {
   return (
@@ -43,7 +44,11 @@ function App() {
         <Route  element={<UserLayout />}>
           <Route path="/" element={<Navigate to="/login" replace />} />
        
-
+          <Route path='product/:productId' element={
+            <UserProtectedRoute requiredRole="user">
+              <Product/>
+            </UserProtectedRoute>
+          } />
           <Route path="/home" element={<UserProtectedRoute requiredRole="user"><Home /></UserProtectedRoute>} />
 
         </Route>
