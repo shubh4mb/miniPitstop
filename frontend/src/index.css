@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*{
+  padding:0;
+  margin:0;
+  box-sizing: border-box;
+}
+
+@layer components {
+ .user-glass-effect {
+    @apply bg-white/50 backdrop-blur-md rounded-lg;
+  } 
+  .admin-glass-effect {
+    @apply bg-white/10 backdrop-blur-md rounded-lg;
+  } 
+  
+  .user-glass-effect-hover {
+    @apply hover:bg-white/20 hover:backdrop-blur-lg transition-all duration-300;
+  }
+
+  .admin-glass-effect-hover {
+    @apply hover:bg-white/20 hover:backdrop-blur-lg transition-all duration-300;
+  }
+}
+
+/* Default background for user pages */
+.user-layout {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  
+}
+
+.user-layout::before {
+  content: '';
+  position: fixed;
+  top: -20px;
+  left: -20px;
+  right: -20px;
+  bottom: -20px;
+  background-image: url('/modern-empty-room.jpg');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  filter: blur(70px);
+  transform: scale(1);
+  z-index: -2;
+}
+
+.user-layout::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  
+  z-index: -1;
+}
+
+/* Background for admin pages */
+.admin-layout {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.admin-layout::before {
+  content: '';
+  position: fixed;
+  top: -20px;
+  left: -20px;
+  right: -20px;
+  bottom: -20px;
+  background-image: url('/1000_F_613434134_h7UkLpyobuaGU9ZHES8jJ3nVTFNELquc.jpg');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  filter: blur(20px);
+  transform: scale(1);
+  z-index: -2;
+}
+
+.admin-layout::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: -1;
+}
