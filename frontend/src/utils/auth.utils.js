@@ -12,7 +12,7 @@ export const clearAuth = () => {
 export const isAuth = async () => {
     try {
         const response = await axiosInstance.get('/api/auth/verify');
-        return response.data.isAuthenticated;
+        return response;
     } catch (error) {
         console.error('Auth check failed:', error);
         return false;

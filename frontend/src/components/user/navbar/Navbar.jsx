@@ -1,5 +1,5 @@
 import  { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import {  useNavigate } from 'react-router-dom';
 import { clearAuth } from '../../../utils/auth.utils';
 
 const Navbar = () => {
@@ -16,7 +16,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="user-glass-effect mx-6 my-2 p-4 text-gray-600 relative z-50">
+    <nav className="user-glass-effect  my-2 p-4 text-gray-600 relative z-50">
       <div className="container mx-auto flex justify-between items-center">
         <div className="text-2xl text-red-600 font-bold tracking-tight hover:text-red-700 transition-colors">
           miniPitstop
@@ -59,12 +59,14 @@ const Navbar = () => {
             {dropdownOpen && (
               <div className="absolute right-0 mt-3 w-48 rounded-xl bg-white shadow-lg ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 z-[100]">
                 <div className="py-1">
-                  <a href="#" className="group flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="mr-3 h-5 w-5 text-gray-400 group-hover:text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div
+                    onClick={()=>navigate('/profile/dashboard')}
+                     className="group flex items-center px-4 py-2 text-sm normal-text-with-hover">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="mr-3 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                     Profile
-                  </a>
+                  </div>
                   <a href="#" className="group flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600">
                     <svg xmlns="http://www.w3.org/2000/svg" className="mr-3 h-5 w-5 text-gray-400 group-hover:text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />

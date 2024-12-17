@@ -54,7 +54,7 @@ export const getAllProducts = async (req, res) => {
              products = await Product.find({isActive:true})
         .populate('brand','name').populate('series','name');
         }
-        console.log(req.user);
+        
         
            
     res.status(HttpStatus.OK).json({ success: true, message: HttpMessage.OK, products });

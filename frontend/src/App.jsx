@@ -17,7 +17,10 @@ import UserProtectedRoute from "./components/protectedRoutes/UserProtectedRoutes
 import Series from "./pages/Admin/Series";
 import AdminLogin from "./pages/Admin/AdminLogin";
 import Product from "./pages/User/Product";
-
+import Profile from "./pages/User/Profile.jsx";
+import UserAccountLayout from "./components/layouts/UserAccountLayout";
+import Address from "./pages/User/Address";
+import Addresses from "./pages/User/Addresses";
 function App() {
   return (
     <BrowserRouter future={{ 
@@ -50,7 +53,14 @@ function App() {
             </UserProtectedRoute>
           } />
           <Route path="/home" element={<UserProtectedRoute requiredRole="user"><Home /></UserProtectedRoute>} />
+        
 
+        </Route>
+
+        <Route element={<UserAccountLayout />}>
+          <Route path="/profile/dashboard" element={<UserProtectedRoute requiredRole="user"><Profile /></UserProtectedRoute>} />  
+          <Route path="/profile/address" element={<UserProtectedRoute requiredRole="user"><Address /></UserProtectedRoute>} />
+          <Route path="/profile/addresses" element={<UserProtectedRoute requiredRole="user"><Addresses /></UserProtectedRoute>} />
         </Route>
 
         <Route path="/admin/login" element={<AdminLogin/>} />

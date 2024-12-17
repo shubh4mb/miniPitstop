@@ -54,7 +54,7 @@ const Login = () => {
   // Form submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("working");
+   
     
     setLoading(true);
 

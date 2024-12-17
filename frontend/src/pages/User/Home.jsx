@@ -63,7 +63,7 @@ const Home = () => {
       <h1 className='text-2xl font-bold'>Products</h1>
     </div>
 
-    <div className='mx-6 mt-4 flex '>
+    <div className='mx-6 mt-4 flex justify-evenly '>
       {products.map((product) => (
         <ProductCard
           key={product._id}

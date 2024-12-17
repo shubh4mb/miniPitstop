@@ -10,7 +10,7 @@
 
 @layer components {
  .user-glass-effect {
-    @apply bg-white/50 backdrop-blur-md rounded-lg;
+    @apply bg-white/35 backdrop-blur-md rounded-lg;
   } 
   .admin-glass-effect {
     @apply bg-white/10 backdrop-blur-md rounded-lg;
@@ -22,6 +22,9 @@
 
   .admin-glass-effect-hover {
     @apply hover:bg-white/20 hover:backdrop-blur-lg transition-all duration-300;
+  }
+  .normal-text-with-hover{
+    @apply text-gray-700  hover:text-red-600 transition-all duration-300;
   }
 }
 

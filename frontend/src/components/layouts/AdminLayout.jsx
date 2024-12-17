@@ -5,10 +5,10 @@ import Sidebar from '../admin/sidebar/Sidebar.jsx';
 
 const AdminLayout = () => {
   return (
-    <div className="admin-layout min-h-screen">
+    <div className="admin-layout min-h-screen px-6">
       <Navbar />
 
-      <div className="flex gap-4 max-w-[1400px] mx-auto">
+      <div className="flex gap-4 ">
         <div className="w-[18%] min-h-screen">
           <Sidebar />
         </div>

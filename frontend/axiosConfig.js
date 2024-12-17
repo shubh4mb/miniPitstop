@@ -49,10 +49,13 @@ instance.interceptors.response.use(
         }
 
         // Enhance error message for better user feedback
+
         const errorMessage = error.response?.data?.message || error.message;
         const enhancedError = new Error(errorMessage);
         enhancedError.originalError = error;
         enhancedError.statusCode = error.response?.status;
+        // console.log(enhancedError);
+        
         
         return Promise.reject(enhancedError);
     }

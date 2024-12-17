@@ -1,21 +1,29 @@
 import { Navigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { isAuth, getUserRole } from '../../utils/auth.utils';
+import { isAuth,} from '../../utils/auth.utils';
+import { toast } from 'react-toastify';
+
 
 const UserProtectedRoute = ({ children, requiredRole }) => {
   const [loading, setLoading] = useState(true);
   const [authenticated, setAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState(null);
+  const [isActive, setIsActive] = useState("");
 
   useEffect(() => {
     const checkAuth = async () => {
+      
+      
       try {
-        const [authStatus, role] = await Promise.all([
-          isAuth(),
-          getUserRole()
-        ]);
+        const response = await isAuth();
+        
+        
+        const authStatus = response.data.isAuthenticated;
+        const role = response.data.role;
+        const isActive = response.data.isActive;
         setAuthenticated(authStatus);
         setUserRole(role);
+        setIsActive(isActive);
       } catch (error) {
         console.error('Auth check failed:', error);
         setAuthenticated(false);
@@ -26,10 +34,15 @@ const UserProtectedRoute = ({ children, requiredRole }) => {
     };
 
     checkAuth();
-  }, []);
+  });
 
   if (loading) {
     return <div>Loading...</div>; // Or your loading component
+  }
+
+  if(isActive === false){ 
+    toast.error('Your account is blocked');
+    return <Navigate to="/" replace />;
   }
 
   if (!authenticated) {

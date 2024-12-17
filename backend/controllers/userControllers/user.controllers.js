@@ -1,57 +1,59 @@
 import User from "../../models/user_model.js";
-import { HttpStatus, HttpMessage } from "../../constants/http.constants.js";
+import { HttpStatus, HttpMessage } from "../../constants/http.constants.js"
+import Address from "../../models/address_model.js";
 
-export const fetchUsers = async (req, res) => {
+
+export const fetchUserDetails = async (req, res) => {
     try {
-        const users = await User.find();
+        
+        
+        const user = await User.findById(req.user.userId).select('-password');
+       
+        
         res.status(HttpStatus.OK).json({
             success: true,
             message: HttpMessage.OK,
-            users,
+            user
         });
     } catch (error) {
-        console.error("Error in fetchAllUsers:", error);
+        console.error("Error in fetchUserDetails:", error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: HttpMessage.INTERNAL_SERVER_ERROR,
             error: process.env.NODE_ENV === "development" ? error.message : undefined,
         });
     }
-};
+}
 
-export const updateUserStatus = async (req, res) => {
+export const updateUserDetails = async (req, res) => {
     try {
-        const { userId } = req.params;
-        const { isActive } = req.body;
+        const { fullName, username , phone } = req.body;
 
-        // Find existing user    
-        const user = await User.findById(userId);
-        if (!user) {
+        const user = await User.findById(req.user.userId);
+        if (!user) {    
             return res.status(HttpStatus.NOT_FOUND).json({
                 success: false,
                 message: HttpMessage.NOT_FOUND
             });
         }
 
-        // Update user status
-        const updatedUser = await User.findByIdAndUpdate(
-            userId,
-            { isActive: Boolean(isActive) },
-            { new: true }
-        );        
+        user.fullName = fullName;
+        user.username = username;
+        user.phone = phone;
+        await user.save();
+
         res.status(HttpStatus.OK).json({
             success: true,
             message: HttpMessage.UPDATED,
-            user: updatedUser
+            user
         });
-
     } catch (error) {
-        console.error("Error in updateUserStatus:", error);
+        console.error("Error in updateUserDetails:", error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: HttpMessage.INTERNAL_SERVER_ERROR,
             error: process.env.NODE_ENV === "development" ? error.message : undefined,
-        });        
+        });
     }
-};
+}
 

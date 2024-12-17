@@ -194,7 +194,7 @@ export const resendOTP = async (req, res) => {
 
 export const login = async (req, res) => {
   const { email, password } = req.body;
-  console.log("working");
+  
   
 
   try {
@@ -208,6 +208,15 @@ export const login = async (req, res) => {
       });
     }
 
+    
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(HttpStatus.UNAUTHORIZED).json({ 
+        success: false,
+        message: "Wrong Credentials "
+      });
+    }
+    
     if(user.isActive === false){
       return res.status(HttpStatus.FORBIDDEN).json({ 
         success: false,
@@ -215,19 +224,19 @@ export const login = async (req, res) => {
       });
     } 
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return res.status(HttpStatus.UNAUTHORIZED).json({ 
-        success: false,
-        message: HttpMessage.UNAUTHORIZED
-      });
-    }
+    // if(user.isRefreshTokenExpired()){
+    //   const refreshToken = jwt.sign({userId:user._id, role: "user", email:user.email, fullName:user.fullName}, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
+    // const hashedToken = await bcrypt.hash(refreshToken, 10);
+    // user.refreshToken = hashedToken;
+    // await user.save();
+    // }
+
    
-    const accessToken = jwt.sign({userId:user._id, role: "user", email:user.email, fullName:user.fullName}, process.env.JWT_SECRET, { expiresIn: '15m' });
+    const accessToken = jwt.sign({userId:user._id, role: "user", email:user.email, fullName:user.fullName}, process.env.JWT_SECRET, { expiresIn: '5m' });
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       sameSite: 'strict',
-      maxAge: 15 * 60 * 1000 // 15 minutes in milliseconds
+      maxAge: 5 * 60 * 1000 // 15 minutes in milliseconds
     })
     res.status(HttpStatus.OK).json({
       success: true,
@@ -360,9 +369,31 @@ export const verify = async (req, res) => {
 
     // Verify the token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.userId);
+    const admin = await Admin.findById(decoded.adminId);
+    
+
+    if (!user && !admin) {
+      
+      return res.status(HttpStatus.UNAUTHORIZED).json({
+        isAuthenticated: false
+      });
+    }
+    if(user){
     res.json({
-      isAuthenticated: true
+      isAuthenticated: true,
+      role: decoded.role,
+      isActive: user.isActive
     });
+  }
+  if(admin){    
+    res.json({
+      isAuthenticated: true,
+      role: "admin",
+      isActive: true
+    });
+  }
+    
   } catch (error) {
     res.status(HttpStatus.UNAUTHORIZED).json({
       isAuthenticated: false
@@ -408,7 +439,7 @@ export const logout = async (req, res) => {
 };
 
 export const adminLogin = async (req, res) => {
-  console.log("working");
+  
   
   const {email,password} =req.body;
   try{
@@ -426,7 +457,7 @@ export const adminLogin = async (req, res) => {
         message: HttpMessage.UNAUTHORIZED
       });
     }
-    const accessToken = jwt.sign({ role: "admin", email:admin.email, fullName:admin.fullName}, process.env.JWT_SECRET, { expiresIn: '15m' });
+    const accessToken = jwt.sign({adminId:admin._id, role: "admin", email:admin.email, fullName:admin.fullName}, process.env.JWT_SECRET, { expiresIn: '15m' });
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       sameSite: 'strict',

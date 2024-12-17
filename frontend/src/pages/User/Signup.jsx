@@ -109,8 +109,8 @@ const Signup = () => {
       }
     } catch (error) {
       console.error('Login error:', error);
-      if (error.response?.data?.message) {
-        toast.error(error.response.data.message);
+      if (error.message) {
+        toast.error(error.message);
       } else if (error.message === 'Network Error') {
         toast.error('Unable to connect to server. Please try again later.');
       } else {
@@ -151,6 +151,8 @@ const Signup = () => {
       }
       
     } catch (error) {
+      console.log(error);
+      
       // Check if it's a Google auth user
       if (error.response?.data?.authProvider === 'google') {
         toast.info(error.response.data.message);
@@ -159,9 +161,9 @@ const Signup = () => {
           ...prev,
           email: ''
         }));
-      } else if (error.response?.status === 409) {
+      } else if (error.statusCode=== 409) {
         // Handle other conflicts (duplicate email/username)
-        toast.error(error.response.data.message);
+        toast.error(error.message);
         setFormData(prev => ({
           ...prev,
           email: '',
@@ -169,7 +171,7 @@ const Signup = () => {
         }));
       } else {
         // Handle other errors
-        toast.error(error.response?.data?.message || 'An error occurred during signup');
+        toast.error(error.message || 'An error occurred during signup');
       }
     } finally {
       setLoading(false);
@@ -177,7 +179,7 @@ const Signup = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
+    <div className="flex items-center justify-center min-h-screen bg-red-600">
       <div className="w-full min-h-[500px] max-w-4xl h-auto md:h-[75%] bg-white rounded-lg shadow-md flex flex-col md:flex-row gap-5 p-5 md:p-0">
         {showOtp ? (
           <Otp />
