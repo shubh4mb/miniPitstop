@@ -328,9 +328,7 @@ const Login = () => {
 
         <div className="mt-6 text-center text-sm">
           <span className="text-gray-600">Dont have an account? </span>
-          <Link href="/signup" className="text-red-600 hover:text-red-800 font-medium">
-            Sign up
-          </Link>
+          <span onClick={() => navigate('/signup')} className="text-red-600 hover:text-red-800 cursor-pointer">Sign up</span>
         </div>
       </div>
     </div>

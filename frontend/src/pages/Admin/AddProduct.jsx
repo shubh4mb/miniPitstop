@@ -61,6 +61,71 @@ const AddProduct = () => {
 
   const scales = ['1:18', '1:24', '1:32', '1:43', '1:64'];
 
+  const [cropperSettings, setCropperSettings] = useState({
+    card_image: {
+      aspectRatio: 21/9,
+      minWidth: 700,
+      minHeight: 400,
+      customRatio: { width: 21, height: 9 }
+    },
+    product_image: {
+      aspectRatio: 1,
+      minWidth: 300,
+      minHeight: 300,
+      customRatio: { width: 1, height: 1 }
+    }
+  });
+
+  const aspectRatioOptions = [
+    { label: '16:9', value: 16/9 },
+    { label: '21:9', value: 21/9 },
+    { label: '4:3', value: 4/3 },
+    { label: '1:1', value: 1 },
+    { label: 'Custom', value: 'custom' }
+  ];
+
+  const handleAspectRatioChange = (e) => {
+    const selectedValue = e.target.value;
+    const imageType = cropperData.imageType === 'card_image' ? 'card_image' : 'product_image';
+    
+    if (selectedValue === 'custom') {
+      setCropperSettings(prev => ({
+        ...prev,
+        [imageType]: {
+          ...prev[imageType],
+          aspectRatio: prev[imageType].customRatio.width / prev[imageType].customRatio.height
+        }
+      }));
+    } else {
+      setCropperSettings(prev => ({
+        ...prev,
+        [imageType]: {
+          ...prev[imageType],
+          aspectRatio: parseFloat(selectedValue)
+        }
+      }));
+    }
+  };
+
+  const handleCustomRatioChange = (dimension, value) => {
+    const numValue = parseInt(value) || 1;
+    const imageType = cropperData.imageType === 'card_image' ? 'card_image' : 'product_image';
+    
+    setCropperSettings(prev => ({
+      ...prev,
+      [imageType]: {
+        ...prev[imageType],
+        customRatio: {
+          ...prev[imageType].customRatio,
+          [dimension]: numValue
+        },
+        aspectRatio: dimension === 'width' 
+          ? numValue / prev[imageType].customRatio.height 
+          : prev[imageType].customRatio.width / numValue
+      }
+    }));
+  };
+
   useEffect(() => {
     fetchBrands();
     
@@ -655,15 +720,63 @@ const AddProduct = () => {
           <h2 className="text-xl font-semibold mb-4">
             Crop {cropperData.imageType === 'card_image' ? 'Card' : 'Product'} Image
           </h2>
+          
+          <div className="mb-4 space-y-2">
+            <div className="flex items-center space-x-4">
+              <label className="font-medium">Aspect Ratio:</label>
+              <select 
+                className="border rounded px-2 py-1"
+                onChange={handleAspectRatioChange}
+                value={
+                  cropperSettings[cropperData.imageType === 'card_image' ? 'card_image' : 'product_image'].aspectRatio === 
+                  cropperSettings[cropperData.imageType === 'card_image' ? 'card_image' : 'product_image'].customRatio.width / 
+                  cropperSettings[cropperData.imageType === 'card_image' ? 'card_image' : 'product_image'].customRatio.height 
+                    ? 'custom' 
+                    : cropperSettings[cropperData.imageType === 'card_image' ? 'card_image' : 'product_image'].aspectRatio
+                }
+              >
+                {aspectRatioOptions.map(option => (
+                  <option key={option.label} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            
+            {cropperSettings[cropperData.imageType === 'card_image' ? 'card_image' : 'product_image'].aspectRatio === 
+              (cropperSettings[cropperData.imageType === 'card_image' ? 'card_image' : 'product_image'].customRatio.width / 
+               cropperSettings[cropperData.imageType === 'card_image' ? 'card_image' : 'product_image'].customRatio.height) && (
+              <div className="flex items-center space-x-4">
+                <input
+                  type="number"
+                  min="1"
+                  className="border rounded px-2 py-1 w-20"
+                  value={cropperSettings[cropperData.imageType === 'card_image' ? 'card_image' : 'product_image'].customRatio.width}
+                  onChange={(e) => handleCustomRatioChange('width', e.target.value)}
+                  placeholder="Width"
+                />
+                <span>:</span>
+                <input
+                  type="number"
+                  min="1"
+                  className="border rounded px-2 py-1 w-20"
+                  value={cropperSettings[cropperData.imageType === 'card_image' ? 'card_image' : 'product_image'].customRatio.height}
+                  onChange={(e) => handleCustomRatioChange('height', e.target.value)}
+                  placeholder="Height"
+                />
+              </div>
+            )}
+          </div>
+
           {cropperData.imageUrl && (
             <ImageCropper
               imageUrl={cropperData.imageUrl}
               onCropComplete={handleCropComplete}
               onCancel={handleCropCancel}
-              aspectRatio={cropperData.imageType === 'card_image' ? 4/3 : 1}
+              aspectRatio={cropperSettings[cropperData.imageType === 'card_image' ? 'card_image' : 'product_image'].aspectRatio}
               circularCrop={false}
-              minWidth={cropperData.imageType === 'card_image' ? 400 : 300}
-              minHeight={cropperData.imageType === 'card_image' ? 300 : 300}
+              minWidth={cropperSettings[cropperData.imageType === 'card_image' ? 'card_image' : 'product_image'].minWidth}
+              minHeight={cropperSettings[cropperData.imageType === 'card_image' ? 'card_image' : 'product_image'].minHeight}
             />
           )}
         </div>

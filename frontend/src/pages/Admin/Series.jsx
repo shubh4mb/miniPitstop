@@ -71,11 +71,11 @@ const Series = () => {
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Brands</h1>
+        <h1 className="text-2xl font-bold">Series</h1>
         <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
          onClick={() => navigate('/admin/addSeries')}
          >
-          Add Brand
+          Add Series
         </button>
       </div>
 

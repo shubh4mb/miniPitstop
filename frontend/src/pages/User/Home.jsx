@@ -47,7 +47,7 @@ const Home = () => {
 
 
   return (<>
-    <div className="mt-4 mx-6">
+    <div className="mt-4">
       <Banner 
         title="miniPitstop"
         description="Your one-stop destination for all scale models cars . We offer a wide range of services to meet your needs."
@@ -59,25 +59,27 @@ const Home = () => {
       />
     </div>
 
-    <div className='mx-6 mt-12'>
+    <div className=' mt-12'>
       <h1 className='text-2xl font-bold'>Products</h1>
     </div>
 
-    <div className='mx-6 mt-4 flex justify-evenly '>
-      {products.map((product) => (
-        <ProductCard
-          key={product._id}
-          _id={product._id}
-          name={product.name}
-          scale={product.scale}
-          price={product.price}
-          card_image={product.card_image?.url}
-          brand={brands.find(b => b._id === product.brand)?.name}
-          buttonColor={product.buttonColor}
-          cardColor={product.cardColor}
-        />
-      ))}
-    </div>
+  
+      <div className="mt-4 grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5  justify-items-center">
+        {products.map((product) => (
+          <ProductCard
+            key={product._id}
+            _id={product._id}
+            name={product.name}
+            scale={product.scale}
+            price={product.price}
+            card_image={product.card_image?.url}
+            brand={product.brand.name}
+            buttonColor={product.buttonColor}
+            cardColor={product.cardColor}
+          />
+        ))}
+      </div>
+ 
     </>
   );
 };

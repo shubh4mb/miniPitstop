@@ -12,6 +12,7 @@ export const addAddress = async (req, res) => {
                 message: HttpMessage.NOT_FOUND
             });
         }
+        
         const newAddress = new Address({
             fullName,
             address,

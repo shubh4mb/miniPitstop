@@ -6,7 +6,8 @@ const otpSlice = createSlice({
     showOtp: false,
     email: '',
     attempts: 0,
-    maxAttempts: 3
+    maxAttempts: 3,
+    otpExpiry: null
   },
   reducers: {
     showOtpComponent: (state, action) => {
@@ -18,6 +19,7 @@ const otpSlice = createSlice({
       state.showOtp = false;
       state.email = '';
       state.attempts = 0;
+      state.otpExpiry = null;
     },
     incrementAttempt: (state) => {
       state.attempts += 1;
@@ -25,7 +27,11 @@ const otpSlice = createSlice({
         state.showOtp = false;
         state.email = '';
         state.attempts = 0;
+        state.otpExpiry = null;
       }
+    },
+    setOtpExpiry: (state, action) => {
+      state.otpExpiry = action.payload;
     }
   },
 });
@@ -33,7 +39,8 @@ const otpSlice = createSlice({
 export const { 
   showOtpComponent, 
   hideOtpComponent, 
-  incrementAttempt
+  incrementAttempt,
+  setOtpExpiry
 } = otpSlice.actions;
 
 export default otpSlice.reducer;

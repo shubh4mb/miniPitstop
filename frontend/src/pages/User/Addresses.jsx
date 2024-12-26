@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
-import { getAddresses , deleteAddress } from '../../api/user.api';
+import { getAddresses, deleteAddress } from '../../api/user.api';
 import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
+import Address from './Address';
 
 const Addresses = () => {
   const [addresses, setAddresses] = useState([]);
   const [selectedDefault, setSelectedDefault] = useState(null);
-  const navigate = useNavigate();
+  const [showAddressForm, setShowAddressForm] = useState(false);
+  const [editingAddress, setEditingAddress] = useState(null);
 
   useEffect(() => {
     fetchAddresses();
@@ -16,7 +17,6 @@ const Addresses = () => {
     try {
       const response = await getAddresses();
       setAddresses(response.addresses);
-      // Set the default address if any
       const defaultAddress = response.addresses.find(addr => addr.default);
       if (defaultAddress) {
         setSelectedDefault(defaultAddress._id);
@@ -28,14 +28,12 @@ const Addresses = () => {
   };
 
   const handleEdit = (address) => {
-    navigate(`/profile/address`, {
-      state: { addressData: address, isEditing: true }
-    });
+    setEditingAddress(address);
+    setShowAddressForm(true);
   };
 
   const handleDelete = async (address) => {
     try {
-      // TODO: Add API call to delete address
       await deleteAddress(address._id);
       toast.success('Address deleted successfully');
       fetchAddresses();
@@ -57,8 +55,29 @@ const Addresses = () => {
   };
 
   const handleAddNew = () => {
-    navigate('/profile/address');
+    setEditingAddress(null);
+    setShowAddressForm(true);
   };
+
+  const handleAddressSubmitSuccess = () => {
+    setShowAddressForm(false);
+    setEditingAddress(null);
+    fetchAddresses();
+  };
+
+  if (showAddressForm) {
+    return (
+      <Address
+        addressData={editingAddress}
+        isEditing={!!editingAddress}
+        onCancel={() => {
+          setShowAddressForm(false);
+          setEditingAddress(null);
+        }}
+        onSuccess={handleAddressSubmitSuccess}
+      />
+    );
+  }
 
   return (
     <div className="w-full p-4">
@@ -81,7 +100,7 @@ const Addresses = () => {
           {addresses.map((address) => (
             <div
               key={address._id}
-              className=" rounded-lg p-4 shadow-md hover:shadow-md transition-shadow user-glass-effect"
+              className="rounded-lg p-4 shadow-md hover:shadow-md transition-shadow user-glass-effect"
             >
               <div className="flex items-start justify-between mb-2">
                 <div>
@@ -89,7 +108,7 @@ const Addresses = () => {
                   <p className="text-gray-600">{address.phone}</p>
                 </div>
                 <div className="flex items-center space-x-2">
-                <button
+                  <button
                     onClick={() => handleEdit(address)}
                     className="text-blue-500 hover:text-blue-700"
                   >

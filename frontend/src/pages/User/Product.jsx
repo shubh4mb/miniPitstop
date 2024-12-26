@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { getProduct } from '../../api/admin.api';
+import { addToCart } from '../../api/user.api';
 import MagnifyImage from '../../components/MagnifyImage';
 
 const Product = () => {
@@ -47,6 +48,15 @@ const Product = () => {
       </div>
     );
   }
+  const handleAddToCart = async(_id) => {
+    try{
+      const response = await addToCart(_id);
+      console.log(response);
+      toast.success('Product added to cart successfully');
+    }catch(error){
+      console.error('Error adding to cart:', error);
+    }
+  };
 
   const handleImageClick = (imageUrl, index) => {
     setMainImage(imageUrl);
@@ -134,11 +144,24 @@ const Product = () => {
               <span className="text-gray-700">Stock</span>
               <span className="font-medium">{product.stock} units</span>
             </div>
+            <div className="flex items-center justify-between">
+              {/* <span className="text-gray-700">Stock</span> */}
+              <span className="font-medium ">
+                {product.stock === 0 
+                  ? 'Out of Stock' 
+                  : product.stock < 10 
+                    ? 'Few stocks available only' 
+                    : 'Available'}
+              </span>
+            </div>
+
           </div>
 
           <button
             style={{ backgroundColor: product.buttonColor }}
             className="w-full py-3 px-8 rounded-full text-white font-semibold hover:opacity-90 transition-opacity"
+            onClick={()=>handleAddToCart(product._id)}
+            
           >
             Add to Cart
           </button>

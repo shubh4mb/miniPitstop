@@ -93,10 +93,10 @@ const ImageCropper = ({
             console.error('Canvas is empty');
             return;
           }
-          blob.name = 'cropped.jpeg';
+          blob.name = 'cropped.png';
           const croppedImageUrl = URL.createObjectURL(blob);
           resolve({ url: croppedImageUrl, blob });
-        }, 'image/jpeg', 1);
+        }, 'image/png', 1);
       });
     } catch (e) {
       console.error('Error creating cropped image:', e);

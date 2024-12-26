@@ -8,6 +8,8 @@ import { addProduct, updateProduct , updateProductStatus } from '../controllers/
 import { addBrand , updateBrandStatus , updateBrand  } from '../controllers/adminControllers/brand.controllers.js';
 import { addSeries } from '../controllers/adminControllers/series.controllers.js';
 import { fetchUsers , updateUserStatus } from '../controllers/adminControllers/user.controllers.js';
+import { fetchAllOrders , updateOrderStatus } from '../controllers/adminControllers/order.controllers.js';
+
 
 const router = express.Router();
 router.use(verifyToken);
@@ -62,5 +64,7 @@ router.post('/series', addSeries);
 
 router.get('/users',fetchUsers)
 router.patch('/users/:userId/status', updateUserStatus)
+router.get('/orders',fetchAllOrders)
+router.patch('/orders/:orderId/status',updateOrderStatus)
 
 export default router;

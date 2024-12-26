@@ -21,6 +21,12 @@ import Profile from "./pages/User/Profile.jsx";
 import UserAccountLayout from "./components/layouts/UserAccountLayout";
 import Address from "./pages/User/Address";
 import Addresses from "./pages/User/Addresses";
+import Shop from "./pages/User/Shop";
+import Cart from "./pages/User/Cart";
+import Checkout from "./pages/User/Checkout";
+import OrderHistory from "./pages/User/OrderHistory";
+import Order from "./pages/Admin/Order";
+
 function App() {
   return (
     <BrowserRouter future={{ 
@@ -44,23 +50,26 @@ function App() {
         {/* User Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path='checkout' element={<Checkout/>}/>
         <Route  element={<UserLayout />}>
           <Route path="/" element={<Navigate to="/login" replace />} />
-       
+
           <Route path='product/:productId' element={
             <UserProtectedRoute requiredRole="user">
               <Product/>
             </UserProtectedRoute>
           } />
           <Route path="/home" element={<UserProtectedRoute requiredRole="user"><Home /></UserProtectedRoute>} />
-        
-
-        </Route>
+          <Route path="/shop" element={<UserProtectedRoute requiredRole="user"><Shop /></UserProtectedRoute>} />
+         
+        </Route> 
 
         <Route element={<UserAccountLayout />}>
           <Route path="/profile/dashboard" element={<UserProtectedRoute requiredRole="user"><Profile /></UserProtectedRoute>} />  
           <Route path="/profile/address" element={<UserProtectedRoute requiredRole="user"><Address /></UserProtectedRoute>} />
           <Route path="/profile/addresses" element={<UserProtectedRoute requiredRole="user"><Addresses /></UserProtectedRoute>} />
+          <Route path="/profile/cart" element={<UserProtectedRoute requiredRole="user"><Cart /></UserProtectedRoute>} />
+          <Route path="/profile/orderhistory" element={<UserProtectedRoute requiredRole="user"><OrderHistory /></UserProtectedRoute>} />
         </Route>
 
         <Route path="/admin/login" element={<AdminLogin/>} />
@@ -115,6 +124,11 @@ function App() {
           <Route path="series" element={
             <UserProtectedRoute requiredRole="admin">
               <Series />
+            </UserProtectedRoute>
+          } />
+          <Route path="orders" element={
+            <UserProtectedRoute requiredRole="admin">
+              <Order />
             </UserProtectedRoute>
           } />
         

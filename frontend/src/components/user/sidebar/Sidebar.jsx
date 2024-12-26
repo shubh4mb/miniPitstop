@@ -4,7 +4,7 @@ import { NavLink } from 'react-router-dom';
     const menuItems = [
         { path: '/profile/dashboard', label: 'Profile', icon: '📊' },
         { path: '/profile/addresses', label: 'Address', icon: '👥' },
-        { path: '/profile/brands', label: 'Cart', icon: '🔧' },
+        { path: '/profile/cart', label: 'Cart', icon: '🔧' },
         { path: '/profile/products', label: 'Wallet', icon: '📅' },
         {path: '/profile/series', label: 'Wishlist', icon: '📅'},
         { path: '/profile/settings', label: 'Logout', icon: '⚙️' },

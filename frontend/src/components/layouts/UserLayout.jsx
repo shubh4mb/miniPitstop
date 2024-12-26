@@ -4,7 +4,7 @@ import Navbar from '../user/navbar/Navbar';
 
 const UserLayout = () => {
   return (
-    <div className="user-layout">
+    <div className="user-layout px-6 ">
       <Navbar />
       <Outlet />
     </div>
