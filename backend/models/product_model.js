@@ -80,7 +80,55 @@ const productSchema= new mongoose.Schema({
       cardColor: {
         type: String,
         required: true
-      }    
+      } ,
+      // variance:[
+      //   {
+      //     color: {
+      //       type: String,
+      //       required: true
+      //     },
+      //     stock: {
+      //       type: Number,
+      //       required: true
+      //     },
+      //     price: {
+      //       type: Number,
+      //       required: true
+      //     },
+      //     card_images: [
+      //       {
+      //         public_id: {
+      //           type: String,
+      //           required: true
+      //         },
+      //         url: {
+      //           type: String,
+      //           required: true
+      //         }
+      //       }
+      //     ],
+      //     images: [
+      //       {
+      //         public_id: {
+      //           type: String,
+      //           required: true
+      //         },
+      //         url: {
+      //           type: String,
+      //           required: true
+      //         }
+      //       }
+      //     ],
+      //     buttonColor: {
+      //       type: String,
+      //       required: true
+      //     },
+      //     cardColor: {
+      //       type: String,
+      //       required: true
+      //     }
+      //   }
+      // ]  
 },{timestamps: true})
 
 const Product = mongoose.model('Product', productSchema);

@@ -8,9 +8,9 @@ export const getProduct = async (req, res) => {
         const { id } = req.params;
 
         const product = await Product.findById(id)
-        .populate('brand','name').populate('series','name');
+        .populate('brand','name','logo','offer').populate('series','name','offer');
         // console.log(product);
-        
+    
     if (!product) {
         return res.status(HttpStatus.NOT_FOUND).json({
             success: false,

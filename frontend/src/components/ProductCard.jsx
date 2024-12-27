@@ -12,12 +12,13 @@ const ProductCard = ({ _id, name, scale, price, card_image, brand, buttonColor, 
   const handleCardClick = () => {
     navigate(`/product/${_id}`);
   };
-  const handleAddToCart = async(_id) => {
-    try{
+  const handleAddToCart = async(e, _id) => {
+    e.stopPropagation(); // This prevents the click from bubbling up to the parent div
+    try {
       const response = await addToCart(_id);
       console.log(response);
       toast.success('Product added to cart successfully');
-    }catch(error){
+    } catch(error) {
       console.error('Error adding to cart:', error);
     }
   };
@@ -55,7 +56,7 @@ const ProductCard = ({ _id, name, scale, price, card_image, brand, buttonColor, 
             className={`px-4 py-2 rounded-lg text-sm font-semibold hover:shadow-lg transition-all ${buttonColor || 'bg-blue-500'
               }`}
             style={{ background: buttonColor || 'blue' }}
-            onClick={()=>handleAddToCart(_id)}
+            onClick={(e) => handleAddToCart(e, _id)}
           >
             Add to Cart
           </button>

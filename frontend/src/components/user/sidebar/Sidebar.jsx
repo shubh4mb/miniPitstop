@@ -5,8 +5,8 @@ import { NavLink } from 'react-router-dom';
         { path: '/profile/dashboard', label: 'Profile', icon: '📊' },
         { path: '/profile/addresses', label: 'Address', icon: '👥' },
         { path: '/profile/cart', label: 'Cart', icon: '🔧' },
-        { path: '/profile/products', label: 'Wallet', icon: '📅' },
-        {path: '/profile/series', label: 'Wishlist', icon: '📅'},
+        { path: '/profile/orderhistory', label: 'Orders', icon: '📅' },
+        
         { path: '/profile/settings', label: 'Logout', icon: '⚙️' },
       ];
     return (
