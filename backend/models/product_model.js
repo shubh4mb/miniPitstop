@@ -80,7 +80,7 @@ const productSchema= new mongoose.Schema({
       cardColor: {
         type: String,
         required: true
-      } ,
+      } 
       // variance:[
       //   {
       //     color: {

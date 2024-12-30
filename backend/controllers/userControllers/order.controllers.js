@@ -7,10 +7,16 @@ export const placeOrder = async (req, res) => {
     try {
         const { items, totalAmount, shippingAddress, paymentMethod } = req.body;
         const userId = req.user.userId;
+        console.log();
+        
+        let total = 0;
 
         // Check stock availability for all items
         for (const item of items) {
-            const product = await Product.findById(item.product);
+            let maxOffer = 0;
+            const product = await Product.findById(item.product).populate('brand','offer').populate('series','offer');
+            maxOffer = Math.max(product.offer, product.brand.offer, product.series.offer);
+            total+=item.quantity*item.price - (item.quantity*item.price*maxOffer)/100;
             if (!product || product.stock < item.quantity) {
                 return res.status(HttpStatus.BAD_REQUEST).json({
                     success: false,
@@ -23,7 +29,7 @@ export const placeOrder = async (req, res) => {
         const order = new Order({
             user: userId,
             items,
-            totalAmount,
+            totalAmount: total,
             shippingAddress,
             paymentMethod,
             orderStatus: 'pending',

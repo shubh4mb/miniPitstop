@@ -236,7 +236,7 @@ export const login = async (req, res) => {
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       sameSite: 'strict',
-      maxAge: 60 * 60 * 1000 //  minutes in milliseconds
+      maxAge: 30 * 60 * 1000 // 30 minutes in milliseconds
     })
     res.status(HttpStatus.OK).json({
       success: true,

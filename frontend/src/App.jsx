@@ -26,6 +26,9 @@ import Cart from "./pages/User/Cart";
 import Checkout from "./pages/User/Checkout";
 import OrderHistory from "./pages/User/OrderHistory";
 import Order from "./pages/Admin/Order";
+import AddBanner from "./pages/Admin/AddBanner";
+import AddCoupons from "./pages/Admin/AddCoupons";
+import Coupons from "./pages/Admin/Coupon";
 
 function App() {
   return (
@@ -132,8 +135,28 @@ function App() {
               <Order />
             </UserProtectedRoute>
           } />
-        
+          <Route path="addBanner" element={
+            <UserProtectedRoute requiredRole="admin">
+              <AddBanner />
+            </UserProtectedRoute>
+          } />
+          <Route path="addcoupon" element={
+            <UserProtectedRoute requiredRole="admin">
+              <AddCoupons />
+            </UserProtectedRoute>
+          } />
+          <Route path="coupons" element={
+            <UserProtectedRoute requiredRole="admin">
+              <Coupons />
+            </UserProtectedRoute>
+          } />
+           <Route path="coupon/:id" element={
+            <UserProtectedRoute requiredRole="admin">
+              <AddCoupons />
+            </UserProtectedRoute>
+          } />
         </Route>
+       
       </Routes>
     </BrowserRouter>
   );

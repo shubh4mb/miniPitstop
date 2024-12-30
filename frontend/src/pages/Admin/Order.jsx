@@ -28,14 +28,29 @@ const Order = () => {
   const handleOrderUpdate = async (orderId, newStatus) => {
     try {
       const response = await updateOrderStatus(orderId, newStatus);
+      // setOrders(orders.map((orders) =>{
+      //   const updatedOrder = [ ...orders ];
+      //   return updatedOrder.map((order) => {
+      //     if (order._id === orderId) {
+      //       order.orderStatus = newStatus;
+      //     }
+      //     return order;
+      //   });
+      // } 
+      
+      // ));
+
       if (response.success) {
+        console.log("wrorjdsf");
+        
         // Update the order in the local state
         setOrders(orders.map(order => 
           order._id === orderId 
-            ? { ...order, status: newStatus }
+            ? { ...order, orderStatus: newStatus }
             : order
         ));
         toast.success('Order status updated successfully');
+
       } else {
         toast.error('Failed to update order status');
       }

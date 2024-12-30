@@ -8,8 +8,9 @@ export const getProduct = async (req, res) => {
         const { id } = req.params;
 
         const product = await Product.findById(id)
-        .populate('brand','name','logo','offer').populate('series','name','offer');
-        // console.log(product);
+            .populate('brand', 'name logo offer')
+            .populate('series', 'name offer');
+            // console.log(product);
     
     if (!product) {
         return res.status(HttpStatus.NOT_FOUND).json({
@@ -67,9 +68,9 @@ export const getAllProducts = async (req, res) => {
 
 export const filterProducts = async (req, res) => {
     try {
-        console.log("Filter API called");
+        // console.log("Filter API called");
         const { priceRange, brands, scale, sortBy, page = 1, limit = 10 } = req.body;
-        console.log(priceRange, brands, scale, sortBy, page, limit);
+        // console.log(priceRange, brands, scale, sortBy, page, limit);
 
         // Build filter query
         let query = {};

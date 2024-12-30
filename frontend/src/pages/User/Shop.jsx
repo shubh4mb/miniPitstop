@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import FilterBar from '../../components/user/filterBar/FilterBar';
 import ProductCard from '../../components/ProductCard';
 import { filteredProducts } from '../../api/user.api';
@@ -71,27 +72,46 @@ const Shop = () => {
         ) : (
           <>
             {/* Product Grid */}
-            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <motion.div 
+              className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+            >
               {products.map((product) => (
-                <ProductCard
+                <motion.div
                   key={product._id}
-                  _id={product._id}
-                  name={product.name}
-                  scale={product.scale}
-                  price={product.price}
-                  card_image={product.card_image?.url}
-                  brand={product.brand.name}
-                  buttonColor={product.buttonColor}
-                  cardColor={product.cardColor}
-                />
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                  whileHover={{ scale: 1.03 }}
+                >
+                  <ProductCard
+                    _id={product._id}
+                    name={product.name}
+                    scale={product.scale}
+                    price={product.price}
+                    card_image={product.card_image?.url}
+                    brand={product.brand.name}
+                    buttonColor={product.buttonColor}
+                    cardColor={product.cardColor}
+                  />
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
 
             {/* Numbered Pagination */}
-            <div className="flex justify-center mt-6 space-x-2">
+            <motion.div 
+              className="flex justify-center mt-6 space-x-2"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+            >
               {Array.from({ length: totalPages }, (_, index) => (
-                <button
+                <motion.button
                   key={index}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
                   className={`px-3 py-2 rounded-lg ${
                     currentPage === index + 1
                       ? 'bg-blue-500 text-white'
@@ -100,9 +120,9 @@ const Shop = () => {
                   onClick={() => handlePageChange(index + 1)}
                 >
                   {index + 1}
-                </button>
+                </motion.button>
               ))}
-            </div>
+            </motion.div>
           </>
         )}
       </div>

@@ -447,3 +447,55 @@ export const updateOrderStatus = async (orderId, status) => {
     throw error;
   }
 };
+
+
+export const addCoupon = async (formData) => {
+  try {
+    const response = await axiosInstance.post('/api/admin/addcoupon', formData);
+    return response.data;
+  } catch (error) {
+    console.error('Error adding coupon:', error);
+    throw error;
+  }
+};
+
+export const fetchCoupons = async () => {
+  try {
+    const response = await axiosInstance.get('/api/admin/coupons');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching coupons:', error);
+    throw error;
+  }
+};
+
+export const updateCouponStatus = async (couponId, isActive) => {
+  try {
+    const response = await axiosInstance.patch(`/api/admin/coupons/${couponId}/status`, { isActive });
+    return response.data;
+  } catch (error) {
+    console.error('Error updating coupon status:', error);
+    throw error;
+  }
+};
+
+export const fetchCoupon = async (id) => {
+  try {
+    const response = await axiosInstance.get(`/api/admin/coupon/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching coupon:', error);
+    throw error;
+  }
+};
+
+
+export const updateCoupon = async (couponId, formData) => {
+  try {
+    const response = await axiosInstance.patch(`/api/admin/coupon/${couponId}`, formData);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating coupon:', error);
+    throw error;
+  }
+}; 

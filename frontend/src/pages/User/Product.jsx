@@ -13,12 +13,17 @@ const Product = () => {
   const [loading, setLoading] = useState(true);
   const [mainImage, setMainImage] = useState(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [offer, setOffer] = useState(0);
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         const response = await getProduct(productId);
         setProduct(response.product);
+
+        // Set the highest offer among product, brand and series
+        setOffer(Math.max(response.product.offer, response.product.brand.offer, response.product.series.offer));
+
         // Set the first image as main image initially
         if (response.product.images && response.product.images.length > 0) {
           setMainImage(response.product.images[0].url);
@@ -64,40 +69,43 @@ const Product = () => {
   };
 
   // Calculate discounted price
-  const discountedPrice = product.price - (product.price * (product.offer / 100));
+  const discountedPrice = product.price - (product.price * (offer / 100));
 
   return (
     <div className="container mx-auto px-4 py-8 user-glass-effect">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Image Gallery Section */}
-        <div className="space-y-4">
-          {/* Main Image */}
-          <div className="aspect-square overflow-hidden rounded-lg bg-gray-100">
-            <MagnifyImage src={mainImage || product.card_image.url} alt={product.name} />
-           
+        <div className="relative">
+            <div className="flex gap-4">
+              {/* Thumbnail Images - Vertical Column */}
+              <div className="flex flex-col gap-3 w-24">
+                {product.images.map((image, index) => (
+                  <button
+                    key={image.public_id}
+                    onClick={() => handleImageClick(image.url, index)}
+                    className={`aspect-square w-full overflow-hidden rounded-lg transform transition-all duration-200 hover:scale-105 ${
+                      selectedImageIndex === index 
+                        ? 'ring-2 ring-blue-500 shadow-md' 
+                        : 'ring-1 ring-gray-200 hover:ring-blue-300'
+                    }`}
+                  >
+                    <img
+                      src={image.url}
+                      alt={`${product.name} view ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+
+              {/* Main Image */}
+              <div className="flex-1">
+                <div className="aspect-square overflow-hidden rounded-xl bg-gray-50 shadow-inner transition-all duration-300 hover:shadow-lg">
+                  <MagnifyImage src={mainImage || product.card_image.url} alt={product.name} />
+                </div>
+              </div>
+            </div>
           </div>
-          
-          {/* Thumbnail Images */}
-          <div className="grid grid-cols-4 gap-4">
-            {product.images.map((image, index) => (
-              <button
-                key={image.public_id}
-                onClick={() => handleImageClick(image.url, index)}
-                className={`aspect-square overflow-hidden rounded-lg ${
-                  selectedImageIndex === index 
-                    ? 'ring-2 ring-blue-500' 
-                    : 'ring-1 ring-gray-200'
-                }`}
-              >
-                <img
-                  src={image.url}
-                  alt={`${product.name} view ${index + 1}`}
-                  className="w-full h-full object-cover"
-                />
-              </button>
-            ))}
-          </div>
-        </div>
 
         {/* Product Details Section */}
         <div className="space-y-6">
@@ -110,13 +118,15 @@ const Product = () => {
             <p className="text-2xl font-semibold text-gray-900">
               ₹{discountedPrice.toFixed(2)}
             </p>
-            {product.offer > 0 && (
+            
+
+            {offer > 0 && (
               <>
                 <p className="text-lg text-gray-500 line-through">
                   ₹{product.price.toFixed(2)}
                 </p>
                 <p className="text-lg font-semibold text-green-600">
-                  {product.offer}% OFF
+                  {offer}% OFF
                 </p>
               </>
             )}
@@ -160,10 +170,9 @@ const Product = () => {
           <button
             style={{ backgroundColor: product.buttonColor }}
             className="w-full py-3 px-8 rounded-full text-white font-semibold hover:opacity-90 transition-opacity"
-            onClick={()=>handleAddToCart(product._id)}
-            
+            onClick={()=>handleAddToCart(product._id)}           
           >
-            Add to Cart
+            {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
           </button>
         </div>
       </div>
