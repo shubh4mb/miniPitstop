@@ -42,23 +42,23 @@ export const updateOrderStatus = async (req, res) => {
             });
         }
 
-        // Validate status transitions
-        const validTransitions = {
-            'pending': ['confirmed', 'cancelled'],
-            'confirmed': ['shipped', 'cancelled'],
-            'shipped': ['delivered', 'cancelled'],
-            'delivered': ['return_requested'],
-            'return_requested': ['returned', 'delivered'], // Can either accept or reject return
-            'returned': [],
-            'cancelled': []
-        };
+        // // Validate status transitions
+        // const validTransitions = {
+        //     'pending': ['confirmed', 'cancelled'],
+        //     'confirmed': ['shipped', 'cancelled'],
+        //     'shipped': ['delivered', 'cancelled'],
+        //     'delivered': ['return_requested'],
+        //     'return_requested': ['returned', 'delivered'], // Can either accept or reject return
+        //     'returned': [],
+        //     'cancelled': []
+        // };
 
-        if (!validTransitions[order.orderStatus].includes(status)) {
-            return res.status(400).json({
-                success: false,
-                message: 'Invalid status transition'
-            });
-        }
+        // if (!validTransitions[order.orderStatus].includes(status)) {
+        //     return res.status(400).json({
+        //         success: false,
+        //         message: 'Invalid status transition'
+        //     });
+        // }
 
         // Update the order
         order.orderStatus = status;
@@ -77,6 +77,34 @@ export const updateOrderStatus = async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Error updating order status'
+        });
+    }
+};
+
+export const getOrder = async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        const order = await Order.findById(orderId)
+            .populate('user', 'name email')
+            .populate('items.product', 'name price card_image');
+
+        if (!order) {
+            return res.status(404).json({
+                success: false,
+                message: 'Order not found'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            order
+        });
+    } catch (error) {
+        console.error('Error fetching order details:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching order details'
+
         });
     }
 };

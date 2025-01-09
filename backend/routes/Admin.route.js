@@ -8,9 +8,9 @@ import { addProduct, updateProduct , updateProductStatus } from '../controllers/
 import { addBrand , updateBrandStatus , updateBrand  } from '../controllers/adminControllers/brand.controllers.js';
 import { addSeries } from '../controllers/adminControllers/series.controllers.js';
 import { fetchUsers , updateUserStatus } from '../controllers/adminControllers/user.controllers.js';
-import { fetchAllOrders , updateOrderStatus } from '../controllers/adminControllers/order.controllers.js';
+import { fetchAllOrders , updateOrderStatus , getOrder} from '../controllers/adminControllers/order.controllers.js';
 import { addCoupon, fetchAllCoupons , fetchCoupon , updateCoupon} from '../controllers/adminControllers/coupon.controllers.js';
-
+import { getSalesReport, getRevenueChartData } from '../controllers/adminControllers/salesReport.controllers.js';
 const router = express.Router();
 router.use(verifyToken);
 
@@ -66,11 +66,16 @@ router.get('/users',fetchUsers)
 router.patch('/users/:userId/status', updateUserStatus)
 router.get('/orders',fetchAllOrders)
 router.patch('/orders/:orderId/status',updateOrderStatus)
+router.get('/order/:orderId',getOrder)
 
 // Coupon routes
 router.post('/addcoupon', addCoupon)
 router.get('/coupons', fetchAllCoupons)
 router.get('/coupon/:id', fetchCoupon)
 router.patch('/coupon/:couponId', updateCoupon)
+
+//SALES REPORT ROUTES
+router.get('/sales-report', getSalesReport);
+router.get('/sales-report/revenue-chart', getRevenueChartData);
 
 export default router;

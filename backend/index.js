@@ -1,14 +1,14 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express from 'express';
 import mongoose from 'mongoose'
-import dotenv from 'dotenv';
 import cors from 'cors'
 import cookieParser from 'cookie-parser';
 import userRoute from './routes/User.route.js'
 import authRoute from './routes/Auth.route.js'
 import adminRoute from './routes/Admin.route.js'
 import { errorHandler } from './middleware/error.middleware.js';
-
-dotenv.config();
 
 const app=express()
 app.use(express.json()); 

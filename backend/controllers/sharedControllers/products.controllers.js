@@ -57,7 +57,7 @@ export const getAllProducts = async (req, res) => {
         }
         
         
-           
+　　 　 　
     res.status(HttpStatus.OK).json({ success: true, message: HttpMessage.OK, products });
 
     } catch (error) {
@@ -69,11 +69,16 @@ export const getAllProducts = async (req, res) => {
 export const filterProducts = async (req, res) => {
     try {
         // console.log("Filter API called");
-        const { priceRange, brands, scale, sortBy, page = 1, limit = 10 } = req.body;
+        const { priceRange, brands, scale, sortBy, page = 1, limit = 10, search } = req.body;
         // console.log(priceRange, brands, scale, sortBy, page, limit);
 
         // Build filter query
         let query = {};
+
+        // Search filter
+        if (search) {
+            query.name = { $regex: search, $options: 'i' };
+        }
 
         // Price range filter
         if (priceRange && (priceRange.min > 0 || priceRange.max < 10000)) {
@@ -139,4 +144,36 @@ export const filterProducts = async (req, res) => {
     }
 };
 
- 
+export const searchedProducts = async (req, res) => {
+    try {
+        const searchTerm = req.query.searchTerm?.trim();
+        
+        if (!searchTerm) {
+            return res.status(HttpStatus.BAD_REQUEST).json({ 
+                success: false, 
+                message: 'Search term is required' 
+            });
+        }
+
+        const products = await Product.find(
+            { name: { $regex: searchTerm, $options: 'i' } }
+        )
+        .limit(5)
+        .select('name card_image price'); 
+        // console.log(products);
+        
+
+        res.status(HttpStatus.OK).json({ 
+            success: true, 
+            message: HttpMessage.OK, 
+            products 
+        });
+
+    } catch (error) {
+        console.error('Error in searchProducts:', error);
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ 
+            success: false, 
+            message: HttpMessage.INTERNAL_SERVER_ERROR 
+        });
+    }
+};

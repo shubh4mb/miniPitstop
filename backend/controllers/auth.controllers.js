@@ -13,10 +13,6 @@ import { validateSignupData } from "../utils/validation.utils.js";
 // Make sure dotenv is configured to load environment variables
 dotenv.config();
 
-
-
-
-
 export const signup = async (req, res) => {
   const { fullName, username, email, phone, password } = req.body;
 
@@ -224,19 +220,24 @@ export const login = async (req, res) => {
       });
     } 
 
-    // if(user.isRefreshTokenExpired()){
-    //   const refreshToken = jwt.sign({userId:user._id, role: "user", email:user.email, fullName:user.fullName}, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
-    // const hashedToken = await bcrypt.hash(refreshToken, 10);
-    // user.refreshToken = hashedToken;
-    // await user.save();
-    // }
+    // 30 minutes in seconds
+    const tokenExpiryTime = 30 * 60;
+    
+    const accessToken = jwt.sign(
+      {
+        userId: user._id, 
+        role: "user", 
+        email: user.email, 
+        fullName: user.fullName
+      }, 
+      process.env.JWT_SECRET, 
+      { expiresIn: `${tokenExpiryTime}s` }
+    );
 
-   
-    const accessToken = jwt.sign({userId:user._id, role: "user", email:user.email, fullName:user.fullName}, process.env.JWT_SECRET, { expiresIn: '5m' });
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       sameSite: 'strict',
-      maxAge: 30 * 60 * 1000 // 30 minutes in milliseconds
+      maxAge: tokenExpiryTime * 1000 // Convert to milliseconds for cookie maxAge
     })
     res.status(HttpStatus.OK).json({
       success: true,
@@ -483,3 +484,184 @@ export const adminLogin = async (req, res) => {
     })
   }
 }
+
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    // Find user
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(HttpStatus.NOT_FOUND).json({ 
+        success: false,
+        message: HttpMessage.NOT_FOUND 
+      });
+    }
+
+    // Generate OTP
+    const otp = crypto.randomInt(100000, 999999).toString();
+
+    // Find existing OTP document or create new one
+    let otpDoc = await OTP.findOne({ email });
+    
+    if (otpDoc) {
+      // Check if max attempts reached
+      if (otpDoc.isMaxAttemptsReached()) {
+        return res.status(HttpStatus.TOO_MANY_REQUESTS).json({
+          success: false,
+          message: 'Too many attempts. Please try again later.'
+        });
+      }
+
+      // Update existing OTP document
+      otpDoc.otp = otp;
+      otpDoc.attempts = 0;
+      otpDoc.otpExpiresAt = new Date(Date.now() + 120 * 1000); // 120 seconds
+      otpDoc.schemaExpiresAt = new Date(Date.now() + 6 * 60 * 1000); // 6 minutes
+    } else {
+      // Create new OTP document
+      otpDoc = new OTP({
+        email,
+        otp,
+        userData: {
+          fullName: user.fullName,
+          username: user.username || email,
+          phone: user.phone || '',
+          password: user.password
+        }
+      });
+    }
+
+    await otpDoc.save();
+    await sendOTPEmail(email, otp);
+
+    res.status(HttpStatus.OK).json({ 
+      success: true,
+      message: 'OTP has been sent to your email' 
+    });
+  } catch (error) {
+    console.error('Error in forgotPassword:', error);
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ 
+      success: false,
+      message: HttpMessage.INTERNAL_SERVER_ERROR 
+    });
+  }
+};
+
+export const verifyForgotPasswordOTP = async (req, res) => {
+  console.log("working");
+  
+  try {
+    const { email, otp } = req.body;
+    
+    const otpDoc = await OTP.findOne({ email });
+    if (!otpDoc || !otpDoc.otp) {
+      return res.status(HttpStatus.NOT_FOUND).json({
+        success: false,
+        message: 'No OTP request found'
+      });
+    }
+
+    // Check if OTP is expired
+    if (otpDoc.isOtpExpired()) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'OTP has expired'
+      });
+    }
+
+    // Check if schema is expired
+    if (otpDoc.isSchemaExpired()) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'Reset password session expired'
+      });
+    }
+
+    // Verify OTP
+    if (otpDoc.otp !== otp) {
+      await otpDoc.incrementAttempts();
+      
+      if (otpDoc.isMaxAttemptsReached()) {
+        return res.status(400).json({
+          success: false,
+          message: 'Too many incorrect attempts. Please request a new OTP.'
+        });
+      }
+
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'Invalid OTP'
+      });
+    }
+
+    // Clear OTP after successful verification
+    otpDoc.otp = null;
+    await otpDoc.save();
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'OTP verified successfully'
+    });
+  } catch (error) {
+    console.error('Error in verifyForgotPasswordOTP:', error);
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: HttpMessage.INTERNAL_SERVER_ERROR
+    });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  try {
+    // console.log("workingggg");
+    
+    const { email, newPassword } = req.body;
+    
+    // const otpDoc = await OTP.findOne({ email });
+    // if (!otpDoc) {
+    //   return res.status(HttpStatus.NOT_FOUND).json({
+    //     success: false,
+    //     message: 'Reset password session not found'
+    //   });
+    // }
+
+    // // Check if schema is expired
+    // if (otpDoc.isSchemaExpired()) {
+    //   return res.status(HttpStatus.BAD_REQUEST).json({
+    //     success: false,
+    //     message: 'Reset password session expired'
+    //   });
+    // }
+
+    // Update user password
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(HttpStatus.NOT_FOUND).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Hash the new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    
+    user.password = hashedPassword;
+    await user.save();
+
+    // Delete OTP document after password reset
+    await OTP.deleteOne({ email });
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'Password reset successful'
+    });
+  } catch (error) {
+    console.error('Error in resetPassword:', error);
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: HttpMessage.INTERNAL_SERVER_ERROR
+    });
+  }
+};

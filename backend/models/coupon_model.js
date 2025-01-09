@@ -48,13 +48,13 @@ const couponSchema = new mongoose.Schema({
     userLimit: {
         type: Number,
         required: true,
-        min: 0
+        min: 1,
+        default: 1
     },
     usedCount: {
         type: Number,
         default: 0
     },
-    
     isActive: {
         type: Boolean,
         default: true
@@ -70,11 +70,11 @@ couponSchema.index({ code: 1 });
 couponSchema.index({ expiryDate: 1 });
 couponSchema.index({ isActive: 1 });
 
-// Add methods to check coupon validity
-couponSchema.methods.isValid = function(userId, cartAmount) {
+// Check if coupon is valid for a user
+couponSchema.methods.isValidForUser = async function(userId, cartAmount) {
     const now = new Date();
     
-    // Check if coupon is active and not expired
+    // Check if coupon is active and within valid dates
     if (!this.isActive || now < this.startDate || now > this.expiryDate) {
         return {
             valid: false,
@@ -82,15 +82,15 @@ couponSchema.methods.isValid = function(userId, cartAmount) {
         };
     }
 
-    // Check usage limit
-    if (this.usedCount >= this.usageLimit) {
+    // Check overall usage limit
+    if (this.usageLimit > 0 && this.usedCount >= this.usageLimit) {
         return {
             valid: false,
             message: 'Coupon usage limit exceeded'
         };
     }
 
-    // Check minimum amount
+    // Check minimum amount requirement
     if (cartAmount < this.minAmount) {
         return {
             valid: false,
@@ -98,12 +98,16 @@ couponSchema.methods.isValid = function(userId, cartAmount) {
         };
     }
 
-    // Check per user limit
-    const userUsage = this.usedBy.find(u => u.userId.toString() === userId.toString());
-    if (userUsage && userUsage.usedCount >= this.userLimit) {
+    // Check user's usage limit
+    const user = await mongoose.model('User').findById(userId);
+    const userCouponUsage = user.appliedCoupon.find(c => 
+        c.coupon.toString() === this._id.toString()
+    );
+
+    if (userCouponUsage && userCouponUsage.count >= this.userLimit) {
         return {
             valid: false,
-            message: 'You have exceeded the usage limit for this coupon'
+            message: `You can only use this coupon ${this.userLimit} time${this.userLimit > 1 ? 's' : ''}`
         };
     }
 
@@ -125,6 +129,32 @@ couponSchema.methods.calculateDiscount = function(cartAmount) {
 
     // Cap discount at maxRedemableAmount
     return Math.min(discountAmount, this.maxRedemableAmount);
+};
+
+// Track coupon usage
+couponSchema.methods.trackUsage = async function(userId) {
+    // Increment overall usage count
+    this.usedCount += 1;
+
+    // Update user's usage count
+    const user = await mongoose.model('User').findById(userId);
+    const existingUsage = user.appliedCoupon.find(c => 
+        c.coupon.toString() === this._id.toString()
+    );
+
+    if (existingUsage) {
+        existingUsage.count += 1;
+    } else {
+        user.appliedCoupon.push({
+            coupon: this._id,
+            count: 1
+        });
+    }
+
+    await Promise.all([
+        this.save(),
+        user.save()
+    ]);
 };
 
 const Coupon = mongoose.model('Coupon', couponSchema);

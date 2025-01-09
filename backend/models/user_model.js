@@ -41,10 +41,17 @@ const userSchema= new mongoose.Schema({
         type: Boolean,
         default: true
     },
-    appliedCoupons: {
-        type: [String],
-        default: []
+appliedCoupon:[{
+    coupon: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Coupon',
+        required: true
     },
+    count: {
+        type: Number,
+        default: 1
+    }
+}],
 
  
 },{timestamps: true})

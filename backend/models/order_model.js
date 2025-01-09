@@ -51,7 +51,7 @@ const orderSchema = new mongoose.Schema({
   paymentMethod: {
     type: String,
     required: true,
-    enum: ['cod', 'card', 'upi']
+    enum: ['cod', 'card', 'upi','razorpay']
   },
   paymentStatus: {
     type: String,
@@ -76,7 +76,25 @@ const orderSchema = new mongoose.Schema({
   orderDate: {
     type: Date,
     default: Date.now
-  }
+  },
+  couponApplied: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Coupon',
+    default: null
+  },
+  subTotalBeforeOffer: {
+    type: Number,
+    default: 0
+  },
+  subTotalAfterOffer: {
+    type: Number,
+    default: 0
+  },
+  couponDiscount: {
+    type: Number,
+    default: 0
+  },
+
 }, { 
   timestamps: true,
   toJSON: { virtuals: true },
