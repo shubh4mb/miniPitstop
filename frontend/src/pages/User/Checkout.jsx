@@ -1,20 +1,70 @@
 import { useState, useEffect } from 'react';
-import { getAddresses } from '../../api/user.api';
-import { toast } from 'react-toastify';
-import { placeOrder } from '../../api/user.api';
+import { getAddresses, placeOrder, createRazorpayOrder, verifyRazorpayPayment } from '../../api/user.api';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import Address from './Address';
 
 const Checkout = () => {
+
   const [step, setStep] = useState(1);
   const [addresses, setAddresses] = useState([]);
   const [selectedAddress, setSelectedAddress] = useState(null);
-  const [showAllAddresses, setShowAllAddresses] = useState(false);
+  const [showAddressForm, setShowAddressForm] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
+  const [razorpayOrder, setRazorpayOrder] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
-  
+
   const cartItems = location.state?.cartItems || [];
   const total = location.state?.total || 0;
+  const appliedCoupon = location.state?.coupon || null;
+
+  const calculateDiscount = () => {
+    if (!appliedCoupon) return 0;
+
+    const subtotal = calculateTotal();
+    if (subtotal < appliedCoupon.minAmount) {
+      return 0;
+    }
+
+    let discount = 0;
+    if (appliedCoupon.discountType === 'percentage') {
+      discount = (subtotal * appliedCoupon.discount) / 100;
+    } else {
+      discount = appliedCoupon.discount;
+    }
+
+    // Apply maximum redemption amount limit
+    if (appliedCoupon.maxRedemableAmount && discount > appliedCoupon.maxRedemableAmount) {
+      discount = appliedCoupon.maxRedemableAmount;
+    }
+
+    return discount;
+  };
+
+  const calculateTotalWithoutOffer = () => {
+    return cartItems.reduce((total, item) => {
+      return total + (item.product.originalPrice || item.product.price) * item.quantity;
+    }, 0);
+  };
+
+  const calculateTotal = () => {
+    return cartItems.reduce((total, item) => {
+      const maxOffer = Math.max(
+        item.product.offer || 0,
+        item.product.brand?.offer || 0,
+        item.product.series?.offer || 0
+      );
+      const priceAfterOffer = item.product.price - (item.product.price * maxOffer) / 100;
+      return total + (priceAfterOffer * item.quantity);
+    }, 0);
+  };
+
+  const getFinalTotal = () => {
+    const subtotal = calculateTotal();
+    const couponDiscount = calculateDiscount();
+    return subtotal - couponDiscount;
+  };
 
   useEffect(() => {
     if (!location.state?.cartItems) {
@@ -25,22 +75,48 @@ const Checkout = () => {
     fetchAddresses();
   }, [location.state, navigate]);
 
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.async = true;
+    document.body.appendChild(script);
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
   const fetchAddresses = async () => {
     try {
       const response = await getAddresses();
       setAddresses(response.addresses);
-      // Set default address as selected
       const defaultAddress = response.addresses.find(addr => addr.default);
       if (defaultAddress) {
         setSelectedAddress(defaultAddress);
       } else if (response.addresses.length > 0) {
-        // If no default address, select the first one
         setSelectedAddress(response.addresses[0]);
       }
     } catch (error) {
       toast.error('Failed to fetch addresses');
       console.error(error);
     }
+  };
+
+  const handleAddressSelect = (address) => {
+    setSelectedAddress(address);
+  };
+
+  const handleAddNewAddress = () => {
+    setShowAddressForm(true);
+  };
+
+  const handleAddressFormSuccess = () => {
+    setShowAddressForm(false);
+    fetchAddresses();
+    toast.success('Address added successfully');
+  };
+
+  const handleAddressFormCancel = () => {
+    setShowAddressForm(false);
   };
 
   const handleNext = () => {
@@ -59,43 +135,168 @@ const Checkout = () => {
     setStep(prev => prev - 1);
   };
 
-  const handleChangeAddress = () => {
-    setShowAllAddresses(true);
+  const handleRazorpayPayment = async () => {
+    try {
+      const orderData = {
+        items: cartItems,
+        totalAmount: getFinalTotal(),
+        shippingAddress: selectedAddress,
+        appliedCoupon: appliedCoupon?._id
+      };
+
+      const { success, order, orderDetails } = await createRazorpayOrder(orderData);
+
+      if (!success) {
+        toast.error('Error creating payment order');
+        return;
+      }
+
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        amount: order.amount,
+        currency: order.currency,
+        name: 'MiniPitstop',
+        description: 'Payment for your order',
+        order_id: order.id,
+        handler: async function (response) {
+          try {
+            console.log('Razorpay response:', response);
+            const verifyData = {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              orderDetails: {
+                items: cartItems,
+                totalAmount: getFinalTotal(),
+                shippingAddress: selectedAddress,
+                appliedCoupon: appliedCoupon?._id,
+                subTotalBeforeOffer: calculateTotalWithoutOffer(),
+                subTotalAfterOffer: calculateTotal(),
+                couponDiscount: calculateDiscount()
+              }
+            };
+            console.log('Payment verification data:', verifyData);
+
+            const verificationResult = await verifyRazorpayPayment(verifyData);
+
+            if (verificationResult.success) {
+              toast.success('Payment successful and order placed!');
+              navigate('/orders');
+            } else {
+              toast.error(verificationResult.message || 'Payment verification failed');
+            }
+          } catch (error) {
+            console.error('Payment verification error:', error);
+            toast.error(error.response?.data?.message || 'Error verifying payment');
+          }
+        },
+        prefill: {
+          name: selectedAddress.fullName,
+          contact: selectedAddress.phone
+        },
+        theme: {
+          color: '#000000'
+        }
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (error) {
+      console.error('Razorpay payment error:', error);
+      toast.error('Error initiating payment');
+    }
   };
 
-  const handleAddressSelect = (address) => {
-    setSelectedAddress(address);
-    setShowAllAddresses(false);
+  const handlePlaceOrder = async (paymentMethod) => {
+    try {
+      const orderData = {
+        items: cartItems,
+        totalAmount: getFinalTotal(),
+        shippingAddress: selectedAddress,
+        paymentMethod,
+        appliedCoupon: appliedCoupon?._id
+      };
+
+      const data = await placeOrder(orderData);
+      if (data.success) {
+        toast.success('Order placed successfully!');
+        navigate('/orders');
+      }
+    } catch (error) {
+      console.error('Order placement error:', error);
+      toast.error('Error placing order');
+    }
   };
 
   const handlePaymentMethodSelect = (method) => {
     setSelectedPaymentMethod(method);
   };
 
-  const handlePlaceOrder = async () => {
-    try {
-        console.log("working");
-        
-      const orderData = {
-        items: cartItems,
-        totalAmount: total,
-        shippingAddress: selectedAddress,
-        paymentMethod: selectedPaymentMethod
-      };
-      await placeOrder(orderData);
-      toast.success('Order placed successfully!');
-      navigate('/orders'); // Navigate to orders page after successful order
-    } catch (error) {
-      console.error('Error placing order:', error);
-      toast.error(error.message || 'Failed to place order');
-    }
-  };
-
   const paymentMethods = [
-    { id: 'cod', name: 'Cash on Delivery', icon: '💵' },
-    { id: 'card', name: 'Credit/Debit Card', icon: '💳' },
-    { id: 'upi', name: 'UPI', icon: '📱' },
+    { id: 'cod', name: 'Cash on Delivery', icon: '' },
+    { id: 'razorpay', name: 'Pay with Razorpay', icon: '' },
   ];
+
+  const renderStep1 = () => {
+    if (showAddressForm) {
+      return (
+        <div className="max-w-2xl mx-auto">
+          <Address
+            onSuccess={handleAddressFormSuccess}
+            onCancel={handleAddressFormCancel}
+          />
+        </div>
+      );
+    }
+
+    return (
+      <div className="max-w-2xl mx-auto">
+        <h2 className="text-2xl font-bold mb-4">Select Delivery Address</h2>
+        <div className="space-y-4">
+          {addresses.map((address) => (
+            <div
+              key={address._id}
+              className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                selectedAddress?._id === address._id
+                  ? 'border-black bg-gray-50'
+                  : 'border-gray-200 hover:border-gray-300'
+              }`}
+              onClick={() => handleAddressSelect(address)}
+            >
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="font-semibold">{address.fullName}</h3>
+                  <p className="text-gray-600 mt-1">{address.address}</p>
+                  <p className="text-gray-600">
+                    {address.city}, {address.state} - {address.pincode}
+                  </p>
+                  <p className="text-gray-600">Phone: {address.phone}</p>
+                </div>
+                <div className="mt-2">
+                  <input
+                    type="radio"
+                    checked={selectedAddress?._id === address._id}
+                    onChange={() => handleAddressSelect(address)}
+                    className="h-4 w-4 text-black focus:ring-black border-gray-300"
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+          
+          <button
+            onClick={handleAddNewAddress}
+            className="w-full py-3 px-4 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-gray-400 hover:text-gray-700 transition-colors flex items-center justify-center gap-2"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+            </svg>
+            Add New Address
+          </button>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="user-layout max-w-4xl mx-auto p-4">
@@ -112,70 +313,7 @@ const Checkout = () => {
       {/* Content */}
       <div className="mt-8">
         {step === 1 && (
-          <div>
-            {!showAllAddresses ? (
-              // Show selected address
-              <div className="mb-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold">Delivery Address</h2>
-                  <button
-                    onClick={handleChangeAddress}
-                    className="text-blue-600 hover:text-blue-800 text-sm"
-                  >
-                    Change Address
-                  </button>
-                </div>
-                {selectedAddress ? (
-                  <div className="border rounded-lg p-4 shadow-sm">
-                    <h3 className="font-semibold text-lg">{selectedAddress.fullName}</h3>
-                    <p className="text-gray-600 mb-1">{selectedAddress.phone}</p>
-                    <p className="text-gray-800">{selectedAddress.address}</p>
-                    <p className="text-gray-800">
-                      {selectedAddress.city}, {selectedAddress.state} - {selectedAddress.pincode}
-                    </p>
-                  </div>
-                ) : (
-                  <p className="text-red-600">No delivery address available. Please add an address.</p>
-                )}
-              </div>
-            ) : (
-              // Show address selection
-              <div>
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold">Select Delivery Address</h2>
-                  <button
-                    onClick={() => setShowAllAddresses(false)}
-                    className="text-blue-600 hover:text-blue-800 text-sm"
-                  >
-                    Cancel
-                  </button>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {addresses.map((address) => (
-                    <div
-                      key={address._id}
-                      className={`border rounded-lg p-4 cursor-pointer transition-all ${
-                        selectedAddress?._id === address._id
-                          ? 'border-blue-500 bg-blue-50'
-                          : 'border-gray-200 hover:border-blue-300'
-                      }`}
-                      onClick={() => handleAddressSelect(address)}
-                    >
-                      <h3 className="font-semibold text-lg">{address.fullName}</h3>
-                      <p className="text-gray-600 mb-1">{address.phone}</p>
-                      <p className="text-gray-800">{address.address}</p>
-                      <p className="text-gray-800">
-                        {address.city}, {address.state} - {address.pincode}
-                      </p>
-                      {address.default && (
-                        <span className="inline-block mt-2 text-sm text-blue-600">Default Address</span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
+          renderStep1()
         )}
 
         {step === 2 && (
@@ -204,28 +342,36 @@ const Checkout = () => {
             </div>
 
             {/* Order Summary */}
-            <div>
-              <div className="border rounded-lg p-6">
-                <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
-                <div className="space-y-3">
-                  {cartItems.map((item) => (
-                    <div key={item.product._id} className="flex justify-between text-sm">
-                      <span>{item.product.name} × {item.quantity}</span>
-                      <span>Rs. {item.product.price * item.quantity}</span>
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
+              <div className="space-y-3">
+                <div className="space-y-2 mb-4">
+                  <div className="flex justify-between">
+                    <span>Price</span>
+                    <span>₹{calculateTotalWithoutOffer().toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-green-600">
+                    <span>Product Discount</span>
+                    <span>- ₹{(calculateTotalWithoutOffer() - calculateTotal()).toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between font-medium">
+                    <span>Subtotal</span>
+                    <span>₹{calculateTotal().toFixed(2)}</span>
+                  </div>
+                  {appliedCoupon && (
+                    <div className="flex justify-between text-green-600">
+                      <span>Coupon Discount ({appliedCoupon.code})</span>
+                      <span>- ₹{calculateDiscount().toFixed(2)}</span>
                     </div>
-                  ))}
-                  <div className="border-t pt-3 mt-3">
-                    <div className="flex justify-between text-sm">
-                      <span>Subtotal</span>
-                      <span>Rs. {total}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span>Shipping</span>
-                      <span>Free</span>
-                    </div>
-                    <div className="flex justify-between font-semibold text-lg mt-3">
-                      <span>Total</span>
-                      <span>Rs. {total}</span>
+                  )}
+                  <div className="flex justify-between">
+                    <span>Shipping</span>
+                    <span>Free</span>
+                  </div>
+                  <div className="border-t pt-2 mt-2">
+                    <div className="flex justify-between font-semibold text-lg">
+                      <span>Total Amount</span>
+                      <span>₹{getFinalTotal().toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
@@ -255,7 +401,13 @@ const Checkout = () => {
         )}
         {step === 2 && (
           <button
-            onClick={handlePlaceOrder}
+            onClick={() => {
+              if (selectedPaymentMethod === 'razorpay') {
+                handleRazorpayPayment();
+              } else {
+                handlePlaceOrder(selectedPaymentMethod);
+              }
+            }}
             className="ml-auto px-6 py-2 bg-black text-white rounded-md hover:bg-gray-800"
             disabled={!selectedPaymentMethod}
           >

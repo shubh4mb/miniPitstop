@@ -1,21 +1,35 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useSearchParams } from 'react-router-dom';
 import FilterBar from '../../components/user/filterBar/FilterBar';
 import ProductCard from '../../components/ProductCard';
 import { filteredProducts } from '../../api/user.api';
 import { toast } from 'react-toastify';
 
 const Shop = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [currentFilters, setCurrentFilters] = useState({
+    priceRange: { min: 0, max: 10000 },
+    brands: [],
+    scale: [],
+    sortBy: 'default',
+  });
   const itemsPerPage = 8; // Number of products per page
 
   const fetchFilteredProducts = async (filters, page = 1) => {
     try {
       setLoading(true);
-      const response = await filteredProducts({ ...filters, page, limit: itemsPerPage });
+      const searchQuery = searchParams.get('search');
+      const response = await filteredProducts({ 
+        ...filters, 
+        page, 
+        limit: itemsPerPage,
+        search: searchQuery 
+      });
       setProducts(response.products);
       setTotalPages(response.totalPages || Math.ceil(response.totalCount / itemsPerPage)); // Calculate total pages if not provided
       setLoading(false);
@@ -26,30 +40,22 @@ const Shop = () => {
   };
 
   useEffect(() => {
-    fetchFilteredProducts({
-      priceRange: { min: 0, max: 10000 },
-      brands: [],
-      scale: [],
-      sortBy: 'default',
-    });
-  }, []);
+    fetchFilteredProducts(currentFilters);
+  }, [searchParams]); // Re-fetch when search params change
 
   const handleFilterChange = async (filters) => {
     setCurrentPage(1); // Reset to page 1 on filter change
+    setCurrentFilters(filters);
     await fetchFilteredProducts(filters, 1);
   };
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
-    fetchFilteredProducts(
-      {
-        priceRange: { min: 0, max: 10000 },
-        brands: [],
-        scale: [],
-        sortBy: 'default',
-      },
-      page
-    );
+    fetchFilteredProducts(currentFilters, page);
+  };
+
+  const clearSearch = () => {
+    setSearchParams({});
   };
 
   return (
@@ -61,6 +67,27 @@ const Shop = () => {
 
       {/* Products and Pagination */}
       <div className="w-full md:w-[82%] rounded-lg">
+        {/* Heading */}
+        <div className=" text-center">
+          <h1 className="text-3xl font-bold text-gray-800">
+            {searchParams.get('search') ? 'Search Results' : 'Our Products'}
+          </h1>
+          {searchParams.get('search') && (
+            <div className="flex items-center justify-center gap-2 mt-2">
+              <p className="text-gray-500">
+                Showing results for "{searchParams.get('search')}"
+              </p>
+              <button
+                onClick={clearSearch}
+                className="text-red-600 hover:text-red-700 text-sm font-medium hover:underline"
+              >
+                View all products
+              </button>
+            </div>
+          )}
+          <p className="text-gray-500 mt-2">Browse our products and services</p>
+        </div>
+
         {loading ? (
           <div className="flex justify-center items-center h-64">
             <p>Loading products...</p>

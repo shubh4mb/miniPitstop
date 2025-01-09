@@ -7,19 +7,23 @@ const otpSlice = createSlice({
     email: '',
     attempts: 0,
     maxAttempts: 3,
-    otpExpiry: null
+    otpExpiry: null,
+    verificationType: 'signup' // 'signup' or 'forgotPassword'
   },
   reducers: {
     showOtpComponent: (state, action) => {
       state.showOtp = true;
-      state.email = action.payload;
+      state.email = action.payload.email;
       state.attempts = 0;
+      state.otpExpiry = action.payload.otpExpiry;
+      state.verificationType = action.payload.type || 'signup';
     },
     hideOtpComponent: (state) => {
       state.showOtp = false;
       state.email = '';
       state.attempts = 0;
       state.otpExpiry = null;
+      state.verificationType = 'signup';
     },
     incrementAttempt: (state) => {
       state.attempts += 1;

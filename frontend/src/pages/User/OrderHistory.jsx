@@ -56,6 +56,7 @@ const OrderHistory = () => {
                         key={order._id} 
                         order={order} 
                         onOrderUpdate={fetchOrders}
+                        
                     />
                 ))}
             </div>

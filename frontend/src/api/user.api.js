@@ -152,3 +152,74 @@ export const returnOrder = async (orderId) => {
         throw error.response?.data || error.message;
     }
 };
+
+export const getSingleOrder = async (orderId) => {
+    try {
+        const response = await axiosInstance.get(`/api/user/order/${orderId}`);
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || error.message;
+    }
+};
+
+export const searchBar = async (query) => {
+  try {
+    console.log(query);
+    
+    const response = await axiosInstance.get(`/api/user/products/search?searchTerm=${query}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error searching products:', error);
+    throw error;
+  }
+};
+
+export const fetchWishlist = async () => {
+  try {
+    const response = await axiosInstance.get('/api/user/wishlist');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching wishlist:', error);
+    throw error;
+  }
+};
+
+export const addToWishlist = async (productId) => {
+  try {
+    const response = await axiosInstance.post('/api/user/wishlist', { productId });
+    return response.data;
+  } catch (error) {
+    console.error('Error adding to wishlist:', error);
+    throw error;
+  }
+};
+
+export const fetchAllAvailableCoupons = async () => {
+  try {
+    const response = await axiosInstance.get('/api/user/allCoupons');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching available coupons:', error);
+    throw error;
+  }
+};
+
+export const createRazorpayOrder = async (orderData) => {
+  try {
+    const response = await axiosInstance.post('/api/user/razorpay/create-order', orderData);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating Razorpay order:', error);
+    throw error;
+  }
+};
+
+export const verifyRazorpayPayment = async (paymentData) => {
+  try {
+    const response = await axiosInstance.post('/api/user/razorpay/verify', paymentData);
+    return response.data;
+  } catch (error) {
+    console.error('Error verifying Razorpay payment:', error);
+    throw error;
+  }
+};

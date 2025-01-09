@@ -22,6 +22,7 @@ const AddCoupons = () => {
         maxQuantity: 0,
         usageLimit: 0,
         userLimit: 0,
+    
         startDate: ''
     });
 

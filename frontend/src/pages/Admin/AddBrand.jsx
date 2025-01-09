@@ -24,9 +24,17 @@ const AddBrand = () => {
   const [cropperData, setCropperData] = useState({
     isOpen: false,
     imageUrl: null,
-    type: null, // 'logo' or 'banner'
+    type: null,
+    aspectRatio: 1
   });
   const [loading, setLoading] = useState(false);
+
+  // Add custom ratio states
+  const [customRatio, setCustomRatio] = useState({
+    width: 1,
+    height: 1
+  });
+  const [useCustomRatio, setUseCustomRatio] = useState(false);
 
   const isEditMode = !!brandId
 
@@ -114,9 +122,21 @@ const AddBrand = () => {
       setCropperData({
         isOpen: true,
         imageUrl,
-        type: name
+        type: name,
+        aspectRatio: name === 'logo' ? 1 : 32/9
       });
+      // Reset custom ratio when opening cropper
+      setCustomRatio({ width: 1, height: 1 });
+      setUseCustomRatio(false);
     }
+  };
+
+  const handleCustomRatioChange = (e) => {
+    const { name, value } = e.target;
+    setCustomRatio(prev => ({
+      ...prev,
+      [name]: parseFloat(value) || 1
+    }));
   };
 
   const handleCropComplete = ({ url, blob }) => {
@@ -383,13 +403,59 @@ const AddBrand = () => {
           <h2 className="text-xl font-semibold mb-4">
             Crop {cropperData.type === 'logo' ? 'Logo' : 'Banner'} Image
           </h2>
+
+          {/* Custom Ratio Controls */}
+          <div className="mb-4 space-y-2">
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="useCustomRatio"
+                checked={useCustomRatio}
+                onChange={(e) => setUseCustomRatio(e.target.checked)}
+                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <label htmlFor="useCustomRatio" className="text-sm font-medium text-gray-700">
+                Use Custom Ratio
+              </label>
+            </div>
+
+            {useCustomRatio && (
+              <div className="flex space-x-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Width</label>
+                  <input
+                    type="number"
+                    name="width"
+                    value={customRatio.width}
+                    onChange={handleCustomRatioChange}
+                    min="0.1"
+                    step="0.1"
+                    className="mt-1 block w-20 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Height</label>
+                  <input
+                    type="number"
+                    name="height"
+                    value={customRatio.height}
+                    onChange={handleCustomRatioChange}
+                    min="0.1"
+                    step="0.1"
+                    className="mt-1 block w-20 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
           {cropperData.imageUrl && (
             <ImageCropper
               imageUrl={cropperData.imageUrl}
               onCropComplete={handleCropComplete}
               onCancel={() => setCropperData({ isOpen: false, imageUrl: null, type: null })}
-              aspectRatio={cropperData.type === 'logo' ? 1 : 32/9}
-              circularCrop={cropperData.type === 'logo'}
+              aspectRatio={useCustomRatio ? customRatio.width / customRatio.height : (cropperData.type === 'logo' ? 1 : 32/9)}
+              circularCrop={cropperData.type === 'logo' && !useCustomRatio}
               minWidth={cropperData.type === 'logo' ? 300 : 1200}
               minHeight={cropperData.type === 'logo' ? 300 : 514}
             />

@@ -148,3 +148,33 @@ export const adminLogin = async (formData) => {
   }
 
 };  
+
+export const forgotPassword = async (email) => {
+  try {
+    const response = await axiosInstance.post('/api/auth/forgotPassword', { email });
+    return response.data;
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    throw error;
+  }
+};
+
+export const verifyForgotPasswordOTP= async (email, otp) => {
+  try {
+    const response = await axiosInstance.post('/api/auth/verifyForgotPasswordOTP', { email, otp });
+    return response.data;
+  } catch (error) {
+    console.error('Verify forgot password error:', error);
+    throw error;
+  }
+};
+
+export const resetPassword = async (email, newPassword) => {
+  try {
+    const response = await axiosInstance.post('/api/auth/resetPassword', { email, newPassword });
+    return response.data;
+  } catch (error) {
+    console.error('Reset password error:', error);
+    throw error;
+  }
+};

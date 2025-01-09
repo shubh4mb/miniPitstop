@@ -40,9 +40,21 @@ const CartProductCard = ({
                   {product.name}
                 </h2>
                 <p className="text-sm text-gray-300">Scale: {product.scale}</p>
-                <p className="text-lg text-green-400 font-medium mt-1">
-                  Rs. {product.price}
-                </p>
+                <div className="mt-1">
+                  <p className="text-lg text-green-400 font-medium">
+                    Rs. {product.price.toFixed(2)}
+                  </p>
+                  {product.maxOffer > 0 && (
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm text-gray-400 line-through">
+                        Rs. {product.originalPrice.toFixed(2)}
+                      </p>
+                      <span className="text-sm text-green-400">
+                        -{product.maxOffer}% off
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
               <button 
                 onClick={() => onRemove(product._id)}
@@ -71,7 +83,7 @@ const CartProductCard = ({
                 </button>
               </div>
               <p className="ml-auto text-lg font-semibold text-green-400">
-                Total: Rs. {product.price * quantity}
+                Total: Rs. {(product.price * quantity).toFixed(2)}
               </p>
             </div>
           </div>

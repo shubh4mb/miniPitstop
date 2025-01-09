@@ -5,18 +5,21 @@ import {
   incrementAttempt,
   setOtpExpiry
 } from '../redux_store/slices/auth/otpSlice';
-import { verifyOTP, resendOTP } from '../api/auth.api';
+import { verifyOTP, resendOTP, verifyForgotPasswordOTP } from '../api/auth.api';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import ResetPassword from './ResetPassword';
 
 const Otp = () => {
   const [otp, setOtp] = useState(new Array(6).fill("")); 
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
+  const [showResetPassword, setShowResetPassword] = useState(false);
   
   const inputRefs = useRef([]);
   const timerRef = useRef(null);
+  const dismountTimerRef = useRef(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   
@@ -24,6 +27,26 @@ const Otp = () => {
   const attempts = useSelector((state) => state.otp.attempts);
   const maxAttempts = useSelector((state) => state.otp.maxAttempts);
   const otpExpiry = useSelector((state) => state.otp.otpExpiry);
+  const verificationType = useSelector((state) => state.otp.verificationType);
+
+  // Set up dismount timer (6 minutes)
+  useEffect(() => {
+    dismountTimerRef.current = setTimeout(() => {
+      toast.error('OTP session expired. Please try again.');
+      dispatch(hideOtpComponent());
+      if (verificationType === 'signup') {
+        navigate('/signup');
+      } else {
+        navigate('/login');
+      }
+    }, 6 * 60 * 1000); // 6 minutes
+
+    return () => {
+      if (dismountTimerRef.current) {
+        clearTimeout(dismountTimerRef.current);
+      }
+    };
+  }, [dispatch, navigate, verificationType]);
 
   // Initialize timer from Redux state
   useEffect(() => {
@@ -34,24 +57,11 @@ const Otp = () => {
   }, [otpExpiry]);
 
   useEffect(() => {
-    // Focus first input
-    if (inputRefs.current[0]) {
-      inputRefs.current[0].focus();
-    }
-
-    // Send initial OTP if needed
-    if (!otpExpiry || Date.now() >= otpExpiry) {
-      handleResendOTP();
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
     if (timeLeft > 0) {
       timerRef.current = setInterval(() => {
         setTimeLeft(prevTime => {
           if (prevTime <= 1) {
             clearInterval(timerRef.current);
-            dispatch(setOtpExpiry(null));
             return 0;
           }
           return prevTime - 1;
@@ -64,41 +74,44 @@ const Otp = () => {
         clearInterval(timerRef.current);
       }
     };
-  }, [timeLeft, dispatch]);
+  }, [timeLeft]);
 
-  const handleResendOTP = async () => {
-    if (resending || timeLeft > 0) return;
+  const handleVerifyOTP = async () => {
+    if (loading || otp.some(digit => !digit)) return;
 
-    setResending(true);
+    setLoading(true);
     try {
-      const response = await resendOTP(email);
-      setResending(false);
+      const otpValue = otp.join('');
+      let response;
+
+      if (verificationType === 'forgotPassword') {
+        response = await verifyForgotPasswordOTP(email, otpValue);
+        if (response.success) {
+          toast.success(response.message || 'OTP verified successfully');
+          setShowResetPassword(true);
+        }
+      } else {
+        response = await verifyOTP(email, otpValue);
+        if (response.success) {
+          toast.success(response.message || 'OTP verified successfully');
+          dispatch(hideOtpComponent());
+          navigate('/login');
+        }
+      }
+    } catch (error) {
+      console.error('Error verifying OTP:', error);
+      dispatch(incrementAttempt());
       
-      // Reset timer and store expiry in Redux
-      const newExpiry = Date.now() + 120 * 1000; // 120 seconds from now
-      dispatch(setOtpExpiry(newExpiry));
-      setTimeLeft(120);
+      const errorMessage = error.response?.data?.message || error.message || 'Invalid OTP';
+      toast.error(errorMessage);
       
-      // Clear existing OTP fields
+      // Clear OTP fields on error
       setOtp(new Array(6).fill(""));
       if (inputRefs.current[0]) {
         inputRefs.current[0].focus();
       }
-
-      toast.success(response.data.message || 'New OTP sent successfully');
-    } catch (error) {
-      console.error('Error resending OTP:', error);
-      setResending(false);
-      const errorMessage = error.message || 'Failed to resend OTP';
-      
-      if (error.response?.status === 404 || errorMessage.includes('expired')) {
-        toast.error('Registration session expired. Please sign up again.');
-        dispatch(hideOtpComponent());
-        navigate('/signup');
-        return;
-      }
-      
-      toast.error(errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -123,82 +136,96 @@ const Otp = () => {
     }
   };
 
-  const handleVerifyOTP = async () => {
-    if (loading || otp.some(digit => !digit)) return;
-
-    setLoading(true);
+  const handleResendOTP = async () => {
+    if (timeLeft > 0) return;
+    
+    setResending(true);
     try {
-      const otpValue = otp.join('');
-      const response = await verifyOTP(email, otpValue);
-      setLoading(false);
-      toast.success(response.data.message || 'OTP verified successfully');
-      dispatch(hideOtpComponent());
-      navigate('/login');
-    } catch (error) {
-      console.error('Error verifying OTP:', error);
-      setLoading(false);
-      dispatch(incrementAttempt());
-      
-      const errorMessage = error.response?.data?.message || error.message || 'Invalid OTP';
-      toast.error(errorMessage);
-      
-      // Clear OTP fields on error
-      setOtp(new Array(6).fill(""));
-      if (inputRefs.current[0]) {
-        inputRefs.current[0].focus();
+      const response = await resendOTP(email);
+      if (response.message) {
+        setTimeLeft(120); // Restart 120 seconds timer
+        toast.success(response.message || 'OTP resent successfully');
       }
+    } catch (error) {
+      toast.error(error.message || 'Failed to resend OTP');
+    } finally {
+      setResending(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full mx-4">
-        <h2 className="text-2xl font-bold text-center mb-6">Enter OTP</h2>
-        <p className="text-gray-600 text-center mb-6">
-          We've sent a verification code to<br />
-          <span className="font-medium">{email}</span>
-        </p>
-        
-        <div className="flex justify-center gap-2 mb-6">
-          {otp.map((digit, index) => (
-            <input
-              key={index}
-              type="text"
-              maxLength="1"
-              value={digit}
-              ref={el => inputRefs.current[index] = el}
-              onChange={e => handleChange(e, index)}
-              onKeyDown={e => handleKeyDown(e, index)}
-              className="w-12 h-12 border-2 rounded-lg text-center text-xl font-bold"
-            />
-          ))}
-        </div>
+    <>
+      {showResetPassword ? (
+        <ResetPassword email={email} onSuccess={() => dispatch(hideOtpComponent())} />
+      ) : (
+        <div className="min-h-screen flex items-center justify-center bg-red-600 py-12 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-md w-full space-y-8 bg-white p-6 rounded-lg shadow-lg">
+            <div>
+              <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                Enter Verification Code
+              </h2>
+              <p className="mt-2 text-center text-sm text-gray-600">
+                We've sent a code to {email}
+              </p>
+            </div>
 
-        <div className="text-center mb-6">
-          <p className="text-gray-600 mb-2">
-            Time remaining: {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
-          </p>
-          <button
-            onClick={handleResendOTP}
-            disabled={timeLeft > 0 || resending}
-            className={`text-blue-600 hover:text-blue-800 ${(timeLeft > 0 || resending) ? 'opacity-50 cursor-not-allowed' : ''}`}
-          >
-            {resending ? 'Sending...' : 'Resend OTP'}
-          </button>
-          <p className="text-sm text-gray-500 mt-1">
-            Attempts remaining: {maxAttempts - attempts}
-          </p>
-        </div>
+            <div className="mt-8 space-y-6">
+              <div className="flex justify-center gap-2">
+                {otp.map((digit, index) => (
+                  <input
+                    key={index}
+                    ref={el => inputRefs.current[index] = el}
+                    type="text"
+                    maxLength="1"
+                    className="w-12 h-12 text-center text-2xl border rounded-lg focus:outline-none focus:border-red-500"
+                    value={digit}
+                    onChange={(e) => handleChange(e, index)}
+                    onKeyDown={(e) => handleKeyDown(e, index)}
+                    disabled={loading}
+                  />
+                ))}
+              </div>
 
-        <button
-          onClick={handleVerifyOTP}
-          disabled={loading || otp.some(digit => !digit)}
-          className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {loading ? 'Verifying...' : 'Verify OTP'}
-        </button>
-      </div>
-    </div>
+              <div>
+                <button
+                  onClick={handleVerifyOTP}
+                  disabled={loading || otp.some(digit => !digit)}
+                  className={`w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white 
+                    ${loading || otp.some(digit => !digit)
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500'
+                    }`}
+                >
+                  {loading ? 'Verifying...' : 'Verify'}
+                </button>
+              </div>
+
+              <div className="text-center">
+                <p className="text-sm text-gray-600">
+                  {timeLeft > 0 ? (
+                    `Resend code in ${timeLeft}s`
+                  ) : (
+                    <button
+                      onClick={handleResendOTP}
+                      disabled={resending}
+                      className="text-red-600 hover:text-red-500 font-medium focus:outline-none"
+                    >
+                      {resending ? 'Sending...' : 'Resend code'}
+                    </button>
+                  )}
+                </p>
+              </div>
+
+              {attempts > 0 && (
+                <div className="text-center text-sm text-gray-600">
+                  <p>Attempts remaining: {maxAttempts - attempts}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

@@ -10,6 +10,8 @@ const Sidebar = () => {
     { path: '/admin/products', label: 'products', icon: '📅' },
     {path: '/admin/series', label: 'Series', icon: '📅'},
     { path: '/admin/orders', label: 'Orders', icon: '⚙️' },
+    {path: '/admin/coupons', label: 'Coupons', icon: '📅'},
+    {path: '/admin/salesReport', label: 'Sales Report', icon: '📅'},
   ];
 
   return (

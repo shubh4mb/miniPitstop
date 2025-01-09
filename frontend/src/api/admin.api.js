@@ -1,5 +1,6 @@
 import axiosInstance from '../../axiosConfig.js';
 
+
 export const addBrand = async (formData) => {
   try {
     // Convert blob to File object
@@ -438,16 +439,23 @@ export const getAllOrders = async () => {
   }
 };
 
+export const getSingleOrder = async (orderId) => {
+  try {
+    const response = await axiosInstance.get(`/api/admin/order/${orderId}`);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};
+
 export const updateOrderStatus = async (orderId, status) => {
   try {
     const response = await axiosInstance.patch(`/api/admin/orders/${orderId}/status`, { status });
     return response.data;
   } catch (error) {
-    console.error('Error updating order status:', error);
-    throw error;
+    throw error.response?.data || error.message;
   }
 };
-
 
 export const addCoupon = async (formData) => {
   try {
@@ -499,3 +507,43 @@ export const updateCoupon = async (couponId, formData) => {
     throw error;
   }
 }; 
+
+// Get sales report data
+export const getSalesReport = async (timeFilter, startDate = null, endDate = null) => {
+    try {
+        const params = { timeFilter };
+        if (timeFilter === 'custom') {
+            params.startDate = startDate;
+            params.endDate = endDate;
+        }
+
+        console.log('Calling sales report API with params:', params);
+        const response = await axiosInstance.get('/api/admin/sales-report', { params });
+        console.log('Sales report API response:', response.data);
+        return response.data;
+    } catch (error) {
+        console.error('Sales report API error:', error);
+        console.error('Error response:', error.response?.data);
+        throw error.response?.data || error.message;
+    }
+};
+
+// Get revenue chart data
+export const getRevenueChartData = async (timeFilter, startDate = null, endDate = null) => {
+    try {
+        const params = { timeFilter };
+        if (timeFilter === 'custom') {
+            params.startDate = startDate;
+            params.endDate = endDate;
+        }
+
+        console.log('Calling revenue chart API with params:', params);
+        const response = await axiosInstance.get('/api/admin/sales-report/revenue-chart', { params });
+        console.log('Revenue chart API response:', response.data);
+        return response.data;
+    } catch (error) {
+        console.error('Revenue chart API error:', error);
+        console.error('Error response:', error.response?.data);
+        throw error.response?.data || error.message;
+    }
+};

@@ -127,6 +127,8 @@ const Signup = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  
+
   // Form submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -147,7 +149,11 @@ const Signup = () => {
       if (res.status === 201) {
         // Show success message and dispatch OTP component
         toast.success(res.data.message || 'Please verify your email.');
-        dispatch(showOtpComponent(formData.email));
+        dispatch(showOtpComponent({
+          email: formData.email,
+          type: 'signup',
+          otpExpiry: Date.now() + 120 * 1000 // 120 seconds
+        }));
       }
       
     } catch (error) {
@@ -178,12 +184,14 @@ const Signup = () => {
     }
   };
 
+  if (showOtp) {
+    return <Otp />;
+  }
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-red-600">
       <div className="w-full min-h-[500px] max-w-4xl h-auto md:h-[75%] bg-white rounded-lg shadow-md flex flex-col md:flex-row gap-5 p-5 md:p-0">
-        {showOtp ? (
-          <Otp />
-        ) : (
+      
           <div className="w-full md:w-[48%] p-5 md:p-7">
             <h2 className="text-2xl font-bold text-center mb-6">Sign Up</h2>
             
@@ -378,7 +386,7 @@ const Signup = () => {
               Continue with Google
             </button>
           </div>
-        )}
+        
 
         {/* Background Image Section */}
         {/* <div className="hidden md:block bg-black w-full md:w-[52%]  rounded-tr-lg rounded-br-lg"></div> */}

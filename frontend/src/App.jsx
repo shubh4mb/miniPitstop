@@ -29,6 +29,11 @@ import Order from "./pages/Admin/Order";
 import AddBanner from "./pages/Admin/AddBanner";
 import AddCoupons from "./pages/Admin/AddCoupons";
 import Coupons from "./pages/Admin/Coupon";
+import SingleOrder from "./pages/User/SingleOrder";
+import AdminSingleOrder from "./pages/Admin/SingleOrder";
+import Wishlist from "./pages/User/Wishlist";
+import SalesReport from "./pages/Admin/SalesReport";
+
 
 function App() {
   return (
@@ -64,7 +69,7 @@ function App() {
           } />
           <Route path="/home" element={<UserProtectedRoute requiredRole="user"><Home /></UserProtectedRoute>} />
           <Route path="/shop" element={<UserProtectedRoute requiredRole="user"><Shop /></UserProtectedRoute>} />
-         
+          
         </Route> 
 
         <Route element={<UserAccountLayout />}>
@@ -73,11 +78,13 @@ function App() {
           <Route path="/profile/addresses" element={<UserProtectedRoute requiredRole="user"><Addresses /></UserProtectedRoute>} />
           <Route path="/profile/cart" element={<UserProtectedRoute requiredRole="user"><Cart /></UserProtectedRoute>} />
           <Route path="/profile/orderhistory" element={<UserProtectedRoute requiredRole="user"><OrderHistory /></UserProtectedRoute>} />
+          <Route path="/profile/order/:orderId" element={<UserProtectedRoute requiredRole="user"><SingleOrder /></UserProtectedRoute>} />
+          <Route path="/profile/wishlist" element={<UserProtectedRoute requiredRole="user"><Wishlist /></UserProtectedRoute>} />
         </Route>
 
         <Route path="/admin/login" element={<AdminLogin/>} />
         
-        <Route path="/admin" element={<AdminLayout />}>
+        <Route path="/admin" element={<UserProtectedRoute requiredRole="admin"><AdminLayout /></UserProtectedRoute>}>
           <Route index element={<Navigate to="/admin/login" replace />} />
           <Route path="login" element={<AdminLogin/>} />
           <Route path="dashboard" element={
@@ -135,6 +142,11 @@ function App() {
               <Order />
             </UserProtectedRoute>
           } />
+          <Route path="order/:orderId" element={
+            <UserProtectedRoute requiredRole="admin">
+              <AdminSingleOrder />
+            </UserProtectedRoute>
+          } />
           <Route path="addBanner" element={
             <UserProtectedRoute requiredRole="admin">
               <AddBanner />
@@ -153,6 +165,11 @@ function App() {
            <Route path="coupon/:id" element={
             <UserProtectedRoute requiredRole="admin">
               <AddCoupons />
+            </UserProtectedRoute>
+          } />
+          <Route path="salesReport" element={
+            <UserProtectedRoute requiredRole="admin">
+              <SalesReport />
             </UserProtectedRoute>
           } />
         </Route>

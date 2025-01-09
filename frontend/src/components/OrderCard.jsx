@@ -2,8 +2,11 @@ import  { useState } from 'react';
 import { format } from 'date-fns';
 import { cancelOrder, returnOrder } from '../api/user.api';
 import ConfirmationModal from './ConfirmationModal';
+import {useNavigate} from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 const OrderCard = ({ order, onOrderUpdate, isAdmin = false }) => {
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [showCancelModal, setShowCancelModal] = useState(false);
@@ -67,6 +70,7 @@ const OrderCard = ({ order, onOrderUpdate, isAdmin = false }) => {
             await onOrderUpdate(order._id, newStatus);
         } catch (err) {
             setError(err.message || 'Failed to update order status');
+            toast.error(err.message || 'Failed to update order status');
         } finally {
             setLoading(false);
         }
@@ -89,7 +93,8 @@ const OrderCard = ({ order, onOrderUpdate, isAdmin = false }) => {
 
         return nextStatusValue ? (
             <button
-                onClick={() => handleStatusUpdate(nextStatusValue)}
+
+                onClick={(e) => { e.stopPropagation(); handleStatusUpdate(nextStatusValue) }}
                 disabled={loading}
                 className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
             >
@@ -98,10 +103,20 @@ const OrderCard = ({ order, onOrderUpdate, isAdmin = false }) => {
         ) : null;
     };
 
+    const getOrderDetailPath = () => {
+        if (isAdmin) {
+            return `/admin/order/${order._id}`;
+        }
+        return `/profile/order/${order._id}`;
+    };
+
     return (
         <>
-            <div className="bg-white rounded-lg shadow-md p-6 mb-4">
-                <div className="flex justify-between items-center mb-4">
+            <div className="bg-white rounded-lg shadow-md p-6 mb-4" 
+                onClick={() => navigate(getOrderDetailPath())}
+                style={{ cursor: 'pointer' }}
+            >
+                <div className="flex justify-between items-center mb-4" >
                     <h3 className="text-lg font-semibold text-gray-800">
                         Order #{order._id.slice(-6)}
                     </h3>
@@ -133,7 +148,7 @@ const OrderCard = ({ order, onOrderUpdate, isAdmin = false }) => {
                     <div className="flex items-center space-x-4">
                         {showCancelButton && (
                             <button
-                                onClick={() => setShowCancelModal(true)}
+                                onClick={(e) => {e.stopPropagation(); setShowCancelModal(true)}}
                                 disabled={loading}
                                 className="px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 disabled:opacity-50"
                             >
@@ -142,7 +157,7 @@ const OrderCard = ({ order, onOrderUpdate, isAdmin = false }) => {
                         )}
                         {showReturnButton && (
                             <button
-                                onClick={() => setShowReturnModal(true)}
+                                onClick={(e) => {e.stopPropagation(); setShowReturnModal(true)}}
                                 disabled={loading}
                                 className="px-4 py-2 text-sm font-medium text-purple-600 hover:text-purple-700 disabled:opacity-50"
                             >
