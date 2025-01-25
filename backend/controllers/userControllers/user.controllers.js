@@ -5,11 +5,7 @@ import bcrypt from 'bcrypt';
 
 export const fetchUserDetails = async (req, res) => {
     try {
-        
-        
         const user = await User.findById(req.user.userId).select('-password');
-       
-        
         res.status(HttpStatus.OK).json({
             success: true,
             message: HttpMessage.OK,
@@ -57,36 +53,42 @@ export const updateUserDetails = async (req, res) => {
     }
 }
 
-export const resetPassword = async (req, res) => {
+export const changePassword = async (req, res) => {
     try {
-        const { email, newPassword } = req.body;
-
-        const user = await User.findOne({ email });
+        const { oldPassword, newPassword } = req.body;
+        const user = await User.findById(req.user.userId);
         if (!user) {
             return res.status(HttpStatus.NOT_FOUND).json({
                 success: false,
                 message: 'User not found'
             });
         }
-
-        // Hash the new password
+        if (oldPassword === newPassword) {
+            return res.status(HttpStatus.BAD_REQUEST).json({
+                success: false,
+                message: 'New password cannot be the same as old password'
+            });
+        }
+        const passwordStrengthRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        if (!passwordStrengthRegex.test(newPassword)) {
+            return res.status(HttpStatus.BAD_REQUEST).json({
+                success: false,
+                message: 'Password must be at least 8 characters long and include uppercase, lowercase, number, and special character.'
+            });
+        }
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(newPassword, salt);
-
-        // Update user's password
         user.password = hashedPassword;
         await user.save();
-
-        res.status(HttpStatus.OK).json({
+        return res.status(HttpStatus.OK).json({
             success: true,
-            message: 'Password reset successfully'
+            message: 'Password changed successfully'
         });
     } catch (error) {
-        console.error("Error in resetPassword:", error);
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        console.error('Error changing password:', error);
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
-            message: HttpMessage.INTERNAL_SERVER_ERROR,
-            error: process.env.NODE_ENV === "development" ? error.message : undefined,
+            message: 'Internal Server Error'
         });
     }
 };

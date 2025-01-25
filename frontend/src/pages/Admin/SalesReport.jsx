@@ -1,28 +1,9 @@
 import { useState, useEffect } from 'react';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from 'chart.js';
-import { Bar } from 'react-chartjs-2';
-import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear } from 'date-fns';
+import { format } from 'date-fns';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
-import { getSalesReport, getRevenueChartData } from '../../api/admin.api';
+import { getSalesReport, downloadSalesReport } from '../../api/admin.api';
 import { toast } from 'react-hot-toast';
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-);
 
 const SalesReport = () => {
   const [timeFilter, setTimeFilter] = useState('today');
@@ -69,266 +50,150 @@ const SalesReport = () => {
     fetchSalesData();
   }, [timeFilter, customDateRange]);
 
-  // Prepare chart data
-  const chartData = {
-    labels: orders.map(order => format(new Date(order.orderDate), 
-      timeFilter === 'today' ? 'HH:mm' : 
-      timeFilter === 'week' ? 'EEE' : 
-      timeFilter === 'month' ? 'dd MMM' : 
-      timeFilter === 'year' ? 'MMM' :
-      'dd MMM'
-    )),
-    datasets: [
-      {
-        label: 'Sales Revenue',
-        data: orders.map(order => order.totalAmount),
-        backgroundColor: 'rgba(53, 162, 235, 0.5)',
-        borderColor: 'rgb(53, 162, 235)',
-        borderWidth: 1,
-      },
-    ],
+  const handleDownload = async () => {
+    try {
+      const { startDate, endDate } = timeFilter === 'custom' ? customDateRange : {};
+      const response = await downloadSalesReport(timeFilter, startDate, endDate);
+      
+      if (response.success) {
+        // Create a blob from the Excel data
+        const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'sales-report.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+      } else {
+        toast.error(response.message || 'Failed to download report');
+      }
+    } catch (error) {
+      console.error('Error downloading report:', error);
+      toast.error(error.message || 'Failed to download report');
+    }
   };
-
-  const chartOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'top',
-      },
-      title: {
-        display: true,
-        text: 'Sales Revenue Over Time',
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        title: {
-          display: true,
-          text: 'Revenue (₹)',
-        },
-      },
-    },
-  };
-
-  const handleCustomDateSubmit = () => {
-    setTimeFilter('custom');
-    setShowCustomDatePicker(false);
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
-      </div>
-    );
-  }
 
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Sales Report</h1>
-        <div className="flex items-center space-x-2">
-          {['today', 'week', 'month', 'year'].map((filter) => (
-            <button
-              key={filter}
-              onClick={() => {
-                setTimeFilter(filter);
-                setShowCustomDatePicker(false);
-              }}
-              className={`px-4 py-2 rounded-md ${
-                timeFilter === filter
-                  ? 'bg-black text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              {filter.charAt(0).toUpperCase() + filter.slice(1)}
-            </button>
-          ))}
-          <button
-            onClick={() => setShowCustomDatePicker(!showCustomDatePicker)}
-            className={`px-4 py-2 rounded-md ${
-              timeFilter === 'custom'
-                ? 'bg-black text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            Custom
-          </button>
-        </div>
+        <button
+          onClick={handleDownload}
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        >
+          Download Report
+        </button>
       </div>
 
-      {/* Custom Date Range Picker */}
-      {showCustomDatePicker && (
-        <div className="mb-6 p-4 bg-white rounded-lg shadow-md">
-          <div className="flex items-center space-x-4">
+      {/* Time Filter */}
+      <div className="mb-6">
+        <select
+          value={timeFilter}
+          onChange={(e) => {
+            setTimeFilter(e.target.value);
+            if (e.target.value === 'custom') {
+              setShowCustomDatePicker(true);
+            } else {
+              setShowCustomDatePicker(false);
+            }
+          }}
+          className="border rounded-md px-3 py-2"
+        >
+          <option value="today">Today</option>
+          <option value="week">This Week</option>
+          <option value="month">This Month</option>
+          <option value="year">This Year</option>
+          <option value="custom">Custom Range</option>
+        </select>
+
+        {showCustomDatePicker && (
+          <div className="mt-4 flex gap-4">
             <div>
-              <label className="block text-sm text-gray-600 mb-1">Start Date</label>
+              <label className="block text-sm font-medium text-gray-700">Start Date</label>
               <DatePicker
                 selected={customDateRange.startDate}
                 onChange={date => setCustomDateRange(prev => ({ ...prev, startDate: date }))}
-                className="px-3 py-2 border rounded-md"
-                dateFormat="dd/MM/yyyy"
+                className="border rounded-md px-3 py-2"
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-600 mb-1">End Date</label>
+              <label className="block text-sm font-medium text-gray-700">End Date</label>
               <DatePicker
                 selected={customDateRange.endDate}
                 onChange={date => setCustomDateRange(prev => ({ ...prev, endDate: date }))}
-                className="px-3 py-2 border rounded-md"
-                dateFormat="dd/MM/yyyy"
-                minDate={customDateRange.startDate}
+                className="border rounded-md px-3 py-2"
               />
             </div>
-            <button
-              onClick={handleCustomDateSubmit}
-              className="mt-6 px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800"
-            >
-              Apply
-            </button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white p-4 rounded-lg shadow-md">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="bg-white p-4 rounded-lg shadow">
           <h3 className="text-gray-500 text-sm">Total Orders</h3>
           <p className="text-2xl font-bold">{statistics.totalOrders}</p>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow-md">
+        <div className="bg-white p-4 rounded-lg shadow">
           <h3 className="text-gray-500 text-sm">Total Revenue</h3>
           <p className="text-2xl font-bold">₹{statistics.totalRevenue.toFixed(2)}</p>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow-md">
+        <div className="bg-white p-4 rounded-lg shadow">
           <h3 className="text-gray-500 text-sm">Average Order Value</h3>
           <p className="text-2xl font-bold">₹{statistics.averageOrderValue.toFixed(2)}</p>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow-md">
-          <h3 className="text-gray-500 text-sm">Total Coupon Savings</h3>
-          <p className="text-2xl font-bold text-green-600">₹{statistics.couponStats.totalDiscount.toFixed(2)}</p>
+        <div className="bg-white p-4 rounded-lg shadow">
+          <h3 className="text-gray-500 text-sm">Coupons Used</h3>
+          <p className="text-2xl font-bold">{statistics.couponStats.totalCouponsUsed}</p>
         </div>
       </div>
 
-      {/* Additional Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        {/* Payment Methods */}
-        <div className="bg-white p-4 rounded-lg shadow-md">
-          <h3 className="text-gray-500 text-sm mb-3">Payment Methods</h3>
-          <div className="space-y-2">
-            {Object.entries(statistics.paymentMethodStats).map(([method, count]) => (
-              <div key={method} className="flex justify-between items-center">
-                <span className="capitalize">{method}</span>
-                <div className="flex items-center">
-                  <span className="font-medium">{count}</span>
-                  <span className="text-gray-500 text-sm ml-2">
-                    ({((count / statistics.totalOrders) * 100).toFixed(1)}%)
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Coupon Usage */}
-        <div className="bg-white p-4 rounded-lg shadow-md">
-          <h3 className="text-gray-500 text-sm mb-3">Coupon Usage</h3>
-          <div className="space-y-2">
-            <div className="flex justify-between items-center text-sm text-gray-600">
-              <span>Total Coupons Used</span>
-              <span>{statistics.couponStats.totalCouponsUsed}</span>
-            </div>
-            <div className="border-t pt-2">
-              {Object.entries(statistics.couponStats.couponUsage).map(([code, count]) => (
-                <div key={code} className="flex justify-between items-center mt-1">
-                  <span className="font-medium">{code}</span>
-                  <div className="flex items-center">
-                    <span>{count}</span>
-                    <span className="text-gray-500 text-sm ml-2">
-                      ({((count / statistics.couponStats.totalCouponsUsed) * 100).toFixed(1)}%)
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Chart */}
-      <div className="bg-white p-4 rounded-lg shadow-md">
-        <Bar data={chartData} options={chartOptions} />
-      </div>
-
-      {/* Recent Orders Table */}
-      <div className="mt-6 bg-white rounded-lg shadow-md overflow-hidden">
-        <h2 className="text-xl font-semibold p-4 border-b">Recent Orders</h2>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+      {/* Orders Table */}
+      <div className="bg-white rounded-lg shadow overflow-x-auto">
+        <table className="min-w-full">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment Method</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {loading ? (
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Order Number
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Date
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Amount
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Coupon Used
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Coupon Savings
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Payment Method
-                </th>
+                <td colSpan="6" className="px-6 py-4 text-center">Loading...</td>
               </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {orders.slice(0, 10).map((order) => (
+            ) : orders.length === 0 ? (
+              <tr>
+                <td colSpan="6" className="px-6 py-4 text-center">No orders found</td>
+              </tr>
+            ) : (
+              orders.map((order) => (
                 <tr key={order._id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {order.orderNumber}
+                  <td className="px-6 py-4 whitespace-nowrap">{order.orderNumber}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {format(new Date(order.orderDate), 'PPp')}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {format(new Date(order.orderDate), 'dd MMM yyyy HH:mm')}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    ₹{order.totalAmount.toFixed(2)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {order.couponApplied ? (
-                      <span className="text-green-600">{order.couponApplied.code}</span>
-                    ) : (
-                      <span className="text-gray-500">-</span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-green-600">
-                    {order.couponDiscount > 0 ? `₹${order.couponDiscount.toFixed(2)}` : '-'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
+                  <td className="px-6 py-4 whitespace-nowrap">{order.user?.fullName}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">₹{order.totalAmount}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{order.paymentMethod}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                       ${order.orderStatus === 'delivered' ? 'bg-green-100 text-green-800' : 
-                        order.orderStatus === 'shipped' ? 'bg-blue-100 text-blue-800' : 
+                        order.orderStatus === 'cancelled' ? 'bg-red-100 text-red-800' : 
                         'bg-yellow-100 text-yellow-800'}`}>
                       {order.orderStatus}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 capitalize">
-                    {order.paymentMethod}
-                  </td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              ))
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );

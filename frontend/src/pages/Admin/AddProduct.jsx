@@ -31,6 +31,19 @@ const AddProduct = () => {
   const [updateFormData, setUpdateFormData] = useState({});
   const [removedImageIndexes, setRemovedImageIndexes] = useState([]);
 
+  const [errors, setErrors] = useState({
+    name: '',
+    description: '',
+    stock: '',
+    scale: '',
+    type: '',
+    price: '',
+    offer: '',
+    brand: '',
+    series: '',
+    images: '',
+    card_image: ''
+  });
 
   const {productId} = useParams();
   const isEditMode = !!productId;
@@ -233,6 +246,79 @@ const AddProduct = () => {
     }
   };
 
+  const validateForm = () => {
+    const newErrors = {};
+
+    // Validate name (2-100 characters)
+    if (!formData.name.trim()) {
+      newErrors.name = 'Product name is required';
+    } else if (formData.name.trim().length < 2 || formData.name.trim().length > 100) {
+      newErrors.name = 'Product name must be between 2 and 100 characters';
+    }
+
+    // Validate description (minimum 20 characters)
+    if (!formData.description.trim()) {
+      newErrors.description = 'Description is required';
+    } else if (formData.description.trim().length < 20) {
+      newErrors.description = 'Description must be at least 20 characters long';
+    }
+
+    // Validate stock (non-negative integer)
+    if (formData.stock === '') {
+      newErrors.stock = 'Stock quantity is required';
+    } else if (!Number.isInteger(Number(formData.stock)) || Number(formData.stock) < 0) {
+      newErrors.stock = 'Stock must be a non-negative whole number';
+    }
+
+    // Validate scale
+    if (!formData.scale) {
+      newErrors.scale = 'Scale is required';
+    }
+
+    // Validate type
+    if (!formData.type) {
+      newErrors.type = 'Product type is required';
+    }
+
+    // Validate price (non-negative number with 2 decimal places)
+    if (formData.price === '') {
+      newErrors.price = 'Price is required';
+    } else if (isNaN(formData.price) || Number(formData.price) < 0) {
+      newErrors.price = 'Price must be a non-negative number';
+    } else if (!/^\d+(\.\d{0,2})?$/.test(formData.price)) {
+      newErrors.price = 'Price can have at most 2 decimal places';
+    }
+
+    // Validate offer (0-100)
+    if (formData.offer === '') {
+      newErrors.offer = 'Offer percentage is required';
+    } else if (isNaN(formData.offer) || Number(formData.offer) < 0 || Number(formData.offer) > 100) {
+      newErrors.offer = 'Offer must be between 0 and 100';
+    }
+
+    // Validate brand
+    if (!formData.brand) {
+      newErrors.brand = 'Brand is required';
+    }
+
+    // Validate series
+    if (!formData.series) {
+      newErrors.series = 'Series is required';
+    }
+
+    // Validate images
+    if (!isEditMode && (!formData.images || formData.images.length === 0)) {
+      newErrors.images = 'At least one product image is required';
+    }
+
+    // Validate card image
+    if (!isEditMode && !formData.card_image) {
+      newErrors.card_image = 'Card image is required';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -265,8 +351,13 @@ const AddProduct = () => {
         setSeries([]);
       }
     }
-  };
 
+    // Clear error when user starts typing
+    setErrors(prev => ({
+      ...prev,
+      [name]: ''
+    }));
+  };
 
   const handleNumberInput = (e) => {
     const { name, value } = e.target;
@@ -283,6 +374,12 @@ const AddProduct = () => {
         [name]: numberValue
       }));
     }
+
+    // Clear error when user starts typing
+    setErrors(prev => ({
+      ...prev,
+      [name]: ''
+    }));
   };
 
   const handleImageUpload = (e, type) => {
@@ -364,10 +461,12 @@ const AddProduct = () => {
     setCropperData({ isOpen: false, imageUrl: null, imageType: null, file: null });
   };
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Original formData:', formData.offer);
+    if (!validateForm()) {
+      toast.error('Please fix the validation errors before submitting');
+      return;
+    }
 
     try {
       // Form validation
@@ -426,9 +525,12 @@ const AddProduct = () => {
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                      errors.name ? 'border-red-500' : 'border-gray-300'
+                    }`}
                     required
                   />
+                  {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name}</p>}
                 </div>
 
                 <div>
@@ -437,10 +539,13 @@ const AddProduct = () => {
                     name="description"
                     value={formData.description}
                     onChange={handleInputChange}
-                    className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                      errors.description ? 'border-red-500' : 'border-gray-300'
+                    }`}
                     rows="3"
                     required
                   />
+                  {errors.description && <p className="mt-1 text-xs text-red-500">{errors.description}</p>}
                 </div>
 
                 <div>
@@ -450,10 +555,13 @@ const AddProduct = () => {
                     name="stock"
                     value={formData.stock}
                     onChange={handleNumberInput}
-                    className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                      errors.stock ? 'border-red-500' : 'border-gray-300'
+                    }`}
                     min="0"
                     required
                   />
+                  {errors.stock && <p className="mt-1 text-xs text-red-500">{errors.stock}</p>}
                 </div>
 
                 <div>
@@ -462,7 +570,9 @@ const AddProduct = () => {
                     name="scale"
                     value={formData.scale}
                     onChange={handleInputChange}
-                    className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                      errors.scale ? 'border-red-500' : 'border-gray-300'
+                    }`}
                     required
                   >
                     <option value="">Select Scale</option>
@@ -470,6 +580,7 @@ const AddProduct = () => {
                       <option key={scale} value={scale}>{scale}</option>
                     ))}
                   </select>
+                  {errors.scale && <p className="mt-1 text-xs text-red-500">{errors.scale}</p>}
                 </div>
 
                 <div>
@@ -478,7 +589,9 @@ const AddProduct = () => {
                     name="type"
                     value={formData.type}
                     onChange={handleInputChange}
-                    className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                      errors.type ? 'border-red-500' : 'border-gray-300'
+                    }`}
                     required
                   >
                     <option value="">Select Type</option>
@@ -486,6 +599,7 @@ const AddProduct = () => {
                       <option key={type} value={type}>{type}</option>
                     ))}
                   </select>
+                  {errors.type && <p className="mt-1 text-xs text-red-500">{errors.type}</p>}
                 </div>
               </div>
             </div>
@@ -551,10 +665,13 @@ const AddProduct = () => {
                     name="price"
                     value={formData.price}
                     onChange={handleNumberInput}
-                    className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                      errors.price ? 'border-red-500' : 'border-gray-300'
+                    }`}
                     min="0"
                     required
                   />
+                  {errors.price && <p className="mt-1 text-xs text-red-500">{errors.price}</p>}
                 </div>
 
                 <div>
@@ -564,11 +681,14 @@ const AddProduct = () => {
                     name="offer"
                     value={formData.offer}
                     onChange={handleNumberInput}
-                    className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                      errors.offer ? 'border-red-500' : 'border-gray-300'
+                    }`}
                     min="0"
                     max="100"
                     required
                   />
+                  {errors.offer && <p className="mt-1 text-xs text-red-500">{errors.offer}</p>}
                 </div>
 
                 <div>
@@ -577,7 +697,9 @@ const AddProduct = () => {
                     name="brand"
                     value={formData.brand}
                     onChange={handleInputChange}
-                    className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                      errors.brand ? 'border-red-500' : 'border-gray-300'
+                    }`}
                     required
                   >
                     <option value="">Select Brand</option>
@@ -585,6 +707,7 @@ const AddProduct = () => {
                       <option key={brand._id} value={brand._id}>{brand.name}</option>
                     ))}
                   </select>
+                  {errors.brand && <p className="mt-1 text-xs text-red-500">{errors.brand}</p>}
                 </div>
 
                 <div>
@@ -593,7 +716,9 @@ const AddProduct = () => {
                     name="series"
                     value={formData.series}
                     onChange={handleInputChange}
-                    className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                      errors.series ? 'border-red-500' : 'border-gray-300'
+                    }`}
                     required
                     disabled={!formData.brand}
                   >
@@ -602,6 +727,7 @@ const AddProduct = () => {
                       <option key={series._id} value={series._id}>{series.name}</option>
                     ))}
                   </select>
+                  {errors.series && <p className="mt-1 text-xs text-red-500">{errors.series}</p>}
                 </div>
               </div>
             </div>
@@ -631,6 +757,7 @@ const AddProduct = () => {
                     )}
                   </label>
                 </div>
+                {errors.card_image && <p className="mt-1 text-xs text-red-500">{errors.card_image}</p>}
               </div>
 
               {/* Additional Images */}
@@ -664,6 +791,7 @@ const AddProduct = () => {
                     </div>
                   </label>
                 </div>
+                {errors.images && <p className="mt-1 text-xs text-red-500">{errors.images}</p>}
               </div>
             </div>
 

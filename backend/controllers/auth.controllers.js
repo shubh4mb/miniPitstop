@@ -125,15 +125,9 @@ export const verifyOTP = async (req, res) => {
     await OTP.deleteOne({ _id: otpRecord._id });
 
     res.status(HttpStatus.OK).json({
-      message: HttpMessage.OK,
-      user: {
-        id: newUser._id,
-        fullName: newUser.fullName,
-        username: newUser.username,
-        email: newUser.email,
-        phone: newUser.phone,
-        isVerified: newUser.isVerified
-      }
+      message: "OTP verified",
+      success:true
+      
     });
   } catch (error) {
     console.error('OTP verification error:', error);
@@ -458,7 +452,7 @@ export const adminLogin = async (req, res) => {
         message: HttpMessage.UNAUTHORIZED
       });
     }
-    const accessToken = jwt.sign({adminId:admin._id, role: "admin", email:admin.email, fullName:admin.fullName}, process.env.JWT_SECRET, { expiresIn: '15m' });
+    const accessToken = jwt.sign({adminId:admin._id, role: "admin", email:admin.email, fullName:admin.fullName}, process.env.JWT_SECRET, { expiresIn: '60m' });
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       sameSite: 'strict',

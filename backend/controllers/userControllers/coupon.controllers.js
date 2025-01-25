@@ -5,34 +5,38 @@ import { HttpStatus, HttpMessage } from "../../constants/http.constants.js";
 export const fetchAllCoupons = async (req, res) => {
     try {
         // console.log("working");
-        
-        // Get all active coupons
-        const coupons = await Coupon.find({ 
-            isActive: true,
-            expiryDate: { $gt: new Date() } // Only get non-expired coupons
-        })
-        // console.log("coupons",coupons);
-        
 
-        // Get user's applied coupons
-        const user = await User.findById(req.user.userId).select('appliedCoupon');
-        // console.log(user);
-        if(user.appliedCoupon.length === 0){
+       
+        const coupons = await Coupon.find({
+            isActive: true,
+            expiryDate: { $gt: new Date() }, 
+          });
+          
+       
+          const user = await User.findById(req.user.userId).select('appliedCoupon');
+          if (!user || user.appliedCoupon.length === 0) {
+          
             return res.status(HttpStatus.OK).json({
-                success: true,
-                message: HttpMessage.OK,
-                coupons
+              success: true,
+              message: HttpMessage.OK,
+              coupons, 
             });
-        }
-        
-        // Filter out coupons that user has already used
-        const availableCoupons = coupons.filter(coupon => 
-            !user.appliedCoupons.some(appliedCoupon => 
-                appliedCoupon.coupon.toString() === coupon._id.toString()
-            )
-        );
-        // console.log(availableCoupons);
-        
+          }
+          
+          
+          const availableCoupons = coupons.filter(coupon => {
+           
+            const userCoupon = user.appliedCoupon.find(appliedCoupon =>
+              appliedCoupon.coupon.toString() === coupon._id.toString()
+            );
+          
+            
+            if (!userCoupon) return true;
+          
+
+            return userCoupon.count < coupon.userLimit;
+          });
+
         res.status(HttpStatus.OK).json({
             success: true,
             message: HttpMessage.OK,
@@ -68,15 +72,21 @@ export const applyCoupon = async (req, res) => {
 
         // Check if user has already used this coupon
         const user = await User.findById(userId);
-        if (user.appliedCoupons.includes(couponId)) {
-            return res.status(HttpStatus.BAD_REQUEST).json({
-                success: false,
-                message: 'Coupon already used'
-            });
+        // Check if the coupon is already applied
+        const existingCoupon = user.appliedCoupons.find(coupon => coupon.couponId === couponId);
+
+        if (existingCoupon) {
+            if(existingCoupon.userLimit>user.appliedCoupon.count){
+                return res.status(HttpStatus.BAD_REQUEST).json({
+                    success: false,
+                    message: 'Coupon usage limit reached'
+                });
+            }
+          
         }
 
-        // Add coupon to user's applied coupons
-        user.appliedCoupons.push(couponId);
+        // Add coupon to user's applied coupons with count
+        user.appliedCoupons.push({ couponId, count: 1 });
         await user.save();
 
         res.status(HttpStatus.OK).json({

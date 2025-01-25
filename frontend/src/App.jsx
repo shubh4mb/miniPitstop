@@ -33,7 +33,8 @@ import SingleOrder from "./pages/User/SingleOrder";
 import AdminSingleOrder from "./pages/Admin/SingleOrder";
 import Wishlist from "./pages/User/Wishlist";
 import SalesReport from "./pages/Admin/SalesReport";
-
+import Wallet from "./pages/User/Wallet";
+import ChangePassword from "./pages/User/ChangePassword";
 
 function App() {
   return (
@@ -80,6 +81,8 @@ function App() {
           <Route path="/profile/orderhistory" element={<UserProtectedRoute requiredRole="user"><OrderHistory /></UserProtectedRoute>} />
           <Route path="/profile/order/:orderId" element={<UserProtectedRoute requiredRole="user"><SingleOrder /></UserProtectedRoute>} />
           <Route path="/profile/wishlist" element={<UserProtectedRoute requiredRole="user"><Wishlist /></UserProtectedRoute>} />
+          <Route path="/profile/wallet" element={<UserProtectedRoute requiredRole="user"><Wallet /></UserProtectedRoute>} />
+          <Route path="/profile/changePassword" element={<UserProtectedRoute requiredRole="user"><ChangePassword /></UserProtectedRoute>} />
         </Route>
 
         <Route path="/admin/login" element={<AdminLogin/>} />

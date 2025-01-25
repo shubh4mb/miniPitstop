@@ -223,3 +223,115 @@ export const verifyRazorpayPayment = async (paymentData) => {
     throw error;
   }
 };
+
+export const placeFailedOrder = async (orderData) => {
+  try {
+    const response = await axiosInstance.post('/api/user/failedOrder', orderData);
+    return response.data;
+  } catch (error) {
+    console.error('Error placing failed order:', error);
+    throw error;
+  }
+};
+
+
+
+export const createRazorpayWallet = async (amount) => {
+  try {
+    const response = await axiosInstance.post('/api/user/createWallet', { amount });
+    return response.data;
+  } catch (error) {
+    console.error('Error creating Razorpay wallet order:', error);
+    throw error;
+  }
+};
+
+export const verifyRazorpayWallet = async (verifyData) => {
+  try {
+    const response = await axiosInstance.post('/api/user/verifyWallet', verifyData);
+    return response.data;
+  } catch (error) {
+    console.error('Error verifying Razorpay wallet payment:', error);
+    throw error;
+  }
+};
+
+export const getWallet = async () => {
+  try {
+    const response = await axiosInstance.get('/api/user/wallet');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching wallet:', error);
+    throw error;
+  }
+}
+
+export const downloadInvoice = async (orderId) => {
+  try {
+    const response = await axiosInstance.get(`/api/user/downloadInvoice/${orderId}`, {
+      responseType: 'blob',
+    });
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `invoice_${orderId}.pdf`); // Set the filename
+    document.body.appendChild(link);
+    link.click();
+  } catch (error) {
+    console.error('Error downloading invoice:', error);
+    throw error;
+  }
+}
+
+export const createRetryRazorpayPayment = async (orderId) => {
+  try {
+    const response = await axiosInstance.post(`/api/user/razorpay/retry/${orderId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error retrying Razorpay payment:', error);
+    throw error;
+  }
+}
+
+export const verifyRetryRazorpayPayment = async (verifyData) => {
+  try {
+    const response = await axiosInstance.post('/api/user/razorpay/verifyRetry', verifyData);
+    return response.data;
+  } catch (error) {
+    console.error('Error verifying Razorpay payment:', error);
+    throw error;
+  }
+}
+
+export const retryPayment = async (orderId, paymentMethod) => {
+  try {
+    const response = await axiosInstance.post(`/api/user/retry/${orderId}`, { paymentMethod });
+    return response.data;
+  } catch (error) {
+    console.error('Error retrying payment:', error);
+    throw error;
+  }
+}
+
+export const relatedProducts = async ( filterTerm) => {
+  try{
+    
+    
+    const response = await axiosInstance.post('/api/user/products/related', filterTerm);
+    return response.data;
+  }
+  catch(error){ 
+    console.error('Error fetching related products:', error);
+    throw error;
+  }
+}
+
+export const changePassword = async (oldPassword,newPassword) => {
+  try {
+    const response = await axiosInstance.post('/api/user/changePassword', { oldPassword,newPassword });
+    return response.data;
+  } catch (error) {
+    console.error('Error changing password:', error);
+    throw error;
+  }
+}

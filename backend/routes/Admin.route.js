@@ -10,7 +10,9 @@ import { addSeries } from '../controllers/adminControllers/series.controllers.js
 import { fetchUsers , updateUserStatus } from '../controllers/adminControllers/user.controllers.js';
 import { fetchAllOrders , updateOrderStatus , getOrder} from '../controllers/adminControllers/order.controllers.js';
 import { addCoupon, fetchAllCoupons , fetchCoupon , updateCoupon} from '../controllers/adminControllers/coupon.controllers.js';
-import { getSalesReport, getRevenueChartData } from '../controllers/adminControllers/salesReport.controllers.js';
+import { getSalesReport, getRevenueChartData, downloadSalesReport } from '../controllers/adminControllers/salesReport.controllers.js';
+import { getBestSellingProducts, downloadBestSellingProductsPDF } from '../controllers/adminControllers/product.controllers.js';
+// import { authorizeAdmin } from '../middleware/auth.middleware.js';
 const router = express.Router();
 router.use(verifyToken);
 
@@ -35,6 +37,8 @@ router.post('/products',
 );
 router.get('/product/:id', getProduct);
 router.get('/products', getAllProducts);
+router.get('/products/best-selling', verifyToken, getBestSellingProducts);
+router.get('/products/best-selling/download', verifyToken, downloadBestSellingProductsPDF);
 router.patch('/product/:id', 
     upload.fields([
         { name: 'card_image', maxCount: 1 },
@@ -77,5 +81,6 @@ router.patch('/coupon/:couponId', updateCoupon)
 //SALES REPORT ROUTES
 router.get('/sales-report', getSalesReport);
 router.get('/sales-report/revenue-chart', getRevenueChartData);
+router.get('/sales-report/download', downloadSalesReport);
 
 export default router;

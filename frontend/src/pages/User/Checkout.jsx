@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getAddresses, placeOrder, createRazorpayOrder, verifyRazorpayPayment } from '../../api/user.api';
+import { getAddresses, placeOrder, createRazorpayOrder, verifyRazorpayPayment , placeFailedOrder } from '../../api/user.api';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import Address from './Address';
@@ -137,20 +137,32 @@ const Checkout = () => {
 
   const handleRazorpayPayment = async () => {
     try {
+      // Validate order data
+      if (!cartItems || cartItems.length === 0) {
+        toast.error('Your cart is empty. Add items to proceed.');
+        return;
+      }
+      if (!selectedAddress) {
+        toast.error('Please select a shipping address.');
+        return;
+      }
+  
+      // Create Razorpay order
       const orderData = {
         items: cartItems,
-        totalAmount: getFinalTotal(),
+        totalAmount: getFinalTotal(), 
         shippingAddress: selectedAddress,
-        appliedCoupon: appliedCoupon?._id
+        appliedCoupon: appliedCoupon?._id,
       };
-
+  
       const { success, order, orderDetails } = await createRazorpayOrder(orderData);
-
+  
       if (!success) {
         toast.error('Error creating payment order');
         return;
       }
-
+      
+      // Razorpay options
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: order.amount,
@@ -161,6 +173,8 @@ const Checkout = () => {
         handler: async function (response) {
           try {
             console.log('Razorpay response:', response);
+  
+            // Verify payment
             const verifyData = {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
@@ -172,40 +186,79 @@ const Checkout = () => {
                 appliedCoupon: appliedCoupon?._id,
                 subTotalBeforeOffer: calculateTotalWithoutOffer(),
                 subTotalAfterOffer: calculateTotal(),
-                couponDiscount: calculateDiscount()
-              }
+                couponDiscount: calculateDiscount(),
+              },
             };
             console.log('Payment verification data:', verifyData);
-
+  
             const verificationResult = await verifyRazorpayPayment(verifyData);
-
+            console.log(verificationResult);
+            
             if (verificationResult.success) {
               toast.success('Payment successful and order placed!');
-              navigate('/orders');
+              navigate('/profile/orderHistory');
             } else {
               toast.error(verificationResult.message || 'Payment verification failed');
+              navigate('/profile/cart');
             }
           } catch (error) {
             console.error('Payment verification error:', error);
-            toast.error(error.response?.data?.message || 'Error verifying payment');
+            toast.error(error?.message || 'Error verifying payment');
           }
         },
         prefill: {
           name: selectedAddress.fullName,
-          contact: selectedAddress.phone
+          contact: selectedAddress.phone,
         },
         theme: {
-          color: '#000000'
-        }
+          color: '#000000',
+        },
+        modal: {
+          ondismiss: function () {
+            handleFailedPayment();
+            
+            console.log('Payment popup closed by user.');
+            toast.info('Payment was not completed. Please try again.');
+            navigate('/profile/orderHistory')
+          },
+        },
       };
-
+  
+      // Open Razorpay payment popup
       const rzp = new window.Razorpay(options);
       rzp.open();
     } catch (error) {
       console.error('Razorpay payment error:', error);
-      toast.error('Error initiating payment');
+      toast.error('Error initiating payment. Please try again.');
     }
   };
+
+  const handleWalletPayment = async () => {
+    handlePlaceOrder('wallet');
+  };
+
+  const handleFailedPayment = async () => {
+    try {
+      const orderData = {
+        items: cartItems,
+        totalAmount: getFinalTotal(), 
+        shippingAddress: selectedAddress,
+        appliedCoupon: appliedCoupon?._id,
+        paymentMethod: 'razorpay',
+        orderStatus: 'Payment Failed',
+      };
+      const response = await placeFailedOrder(orderData);
+      if (response.success) {
+        toast.success('Order placed successfully!');
+        navigate('/profile/orderHistory');
+      }
+    } catch (error) {
+      console.error('Order placement error:', error);
+      toast.error('Error placing order');
+    }
+      
+  };
+  
 
   const handlePlaceOrder = async (paymentMethod) => {
     try {
@@ -220,7 +273,7 @@ const Checkout = () => {
       const data = await placeOrder(orderData);
       if (data.success) {
         toast.success('Order placed successfully!');
-        navigate('/orders');
+        navigate('/profile/orderHistory');
       }
     } catch (error) {
       console.error('Order placement error:', error);
@@ -235,6 +288,9 @@ const Checkout = () => {
   const paymentMethods = [
     { id: 'cod', name: 'Cash on Delivery', icon: '' },
     { id: 'razorpay', name: 'Pay with Razorpay', icon: '' },
+    {
+      id: 'wallet', name :'Wallet', icon: '',
+    }
   ];
 
   const renderStep1 = () => {
@@ -404,6 +460,8 @@ const Checkout = () => {
             onClick={() => {
               if (selectedPaymentMethod === 'razorpay') {
                 handleRazorpayPayment();
+              } else if (selectedPaymentMethod === 'wallet') {
+                handleWalletPayment();
               } else {
                 handlePlaceOrder(selectedPaymentMethod);
               }

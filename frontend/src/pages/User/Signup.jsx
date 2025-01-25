@@ -215,7 +215,7 @@ const Signup = () => {
                   placeholder="Full Name"
                   value={formData.fullName}
                   onChange={handleChange}
-                  required
+                  
                 />
                 <label
                   className="absolute left-3 -top-2.5 bg-white px-1 text-sm transition-all duration-200 
@@ -242,7 +242,7 @@ const Signup = () => {
                   placeholder="Username"
                   value={formData.username}
                   onChange={handleChange}
-                  required
+                  
                 />
                 <label
                   className="absolute left-3 -top-2.5 bg-white px-1 text-sm transition-all duration-200 
@@ -269,7 +269,7 @@ const Signup = () => {
                   placeholder="Email"
                   value={formData.email}
                   onChange={handleChange}
-                  required
+                  
                 />
                 <label
                   className="absolute left-3 -top-2.5 bg-white px-1 text-sm transition-all duration-200 
@@ -296,7 +296,7 @@ const Signup = () => {
                   placeholder="Phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  required
+                  
                 />
                 <label
                   className="absolute left-3 -top-2.5 bg-white px-1 text-sm transition-all duration-200 
@@ -323,7 +323,7 @@ const Signup = () => {
                   placeholder="Password"
                   value={formData.password}
                   onChange={handleChange}
-                  required
+                  
                 />
                 <label
                   className="absolute left-3 -top-2.5 bg-white px-1 text-sm transition-all duration-200 
@@ -350,7 +350,7 @@ const Signup = () => {
                   placeholder="Confirm Password"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  required
+                  
                 />
                 <label
                   className="absolute left-3 -top-2.5 bg-white px-1 text-sm transition-all duration-200 

@@ -51,12 +51,12 @@ const orderSchema = new mongoose.Schema({
   paymentMethod: {
     type: String,
     required: true,
-    enum: ['cod', 'card', 'upi','razorpay']
+    enum: ['cod', 'upi','razorpay','wallet']
   },
   paymentStatus: {
     type: String,
     required: true,
-    enum: ['pending', 'completed', 'failed'],
+    enum: ['pending', 'paid', 'failed'],
     default: 'pending'
   },
   orderStatus: {

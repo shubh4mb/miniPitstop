@@ -66,7 +66,6 @@ const couponSchema = new mongoose.Schema({
 });
 
 // Add indexes for better query performance
-couponSchema.index({ code: 1 });
 couponSchema.index({ expiryDate: 1 });
 couponSchema.index({ isActive: 1 });
 

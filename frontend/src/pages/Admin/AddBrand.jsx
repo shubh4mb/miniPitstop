@@ -5,10 +5,8 @@ import Modal from '../../components/Modal';
 import { addBrand , getBrand , updateBrand} from '../../api/admin.api.js';
 import { toast } from 'react-toastify';
 
-
 const AddBrand = () => {
   const navigate = useNavigate();
-  // const [brand, setBrand] = useState(null);
   const {brandId} = useParams();
   const [updateFormData, setUpdateFormData] = useState({});
   const [formData, setFormData] = useState({
@@ -19,6 +17,15 @@ const AddBrand = () => {
     isActive: true,
     offer: 0
   });
+
+  const [errors, setErrors] = useState({
+    name: '',
+    description: '',
+    logo: '',
+    banner: '',
+    offer: ''
+  });
+
   const [logoPreview, setLogoPreview] = useState(null);
   const [bannerPreview, setBannerPreview] = useState(null);
   const [cropperData, setCropperData] = useState({
@@ -36,8 +43,43 @@ const AddBrand = () => {
   });
   const [useCustomRatio, setUseCustomRatio] = useState(false);
 
-  const isEditMode = !!brandId
+  const isEditMode = !!brandId;
 
+  const validateForm = () => {
+    const newErrors = {};
+
+    // Validate name (2-50 characters, letters, numbers, and spaces)
+    if (!formData.name.trim()) {
+      newErrors.name = 'Brand name is required';
+    } else if (!/^[a-zA-Z0-9\s]{2,50}$/.test(formData.name.trim())) {
+      newErrors.name = 'Brand name must be 2-50 characters long and contain only letters, numbers, and spaces';
+    }
+
+    // Validate description (minimum 10 characters)
+    if (!formData.description.trim()) {
+      newErrors.description = 'Description is required';
+    } else if (formData.description.trim().length < 10) {
+      newErrors.description = 'Description must be at least 10 characters long';
+    }
+
+    // Validate logo
+    if (!isEditMode && !formData.logo && !logoPreview) {
+      newErrors.logo = 'Logo is required';
+    }
+
+    // Validate banner
+    if (!isEditMode && !formData.banner && !bannerPreview) {
+      newErrors.banner = 'Banner is required';
+    }
+
+    // Validate offer (0-100)
+    if (formData.offer < 0 || formData.offer > 100) {
+      newErrors.offer = 'Offer must be between 0 and 100';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   useEffect(() => {
     if (isEditMode) {
@@ -45,8 +87,6 @@ const AddBrand = () => {
         try {
           const response = await getBrand(brandId);
           const brand = response.brand;
-          // setBrand(brand);
-          console.log(brand);
           
           const urlToBlob = async (url) => {
             try {
@@ -59,29 +99,22 @@ const AddBrand = () => {
             }
           };
     
-         
-    
-          // Convert logo  to Blob
+          // Convert logo to Blob
           let logoBlob = null;
           if (brand.logo?.url) {
             logoBlob = await urlToBlob(brand.logo.url);
-            
           }
-           // Convert banner  to Blob
-           let bannerBlob = null;
-           if (brand.banner?.url) {
-             bannerBlob = await urlToBlob(brand.banner.url);
-           }
-     
+          // Convert banner to Blob
+          let bannerBlob = null;
+          if (brand.banner?.url) {
+            bannerBlob = await urlToBlob(brand.banner.url);
+          }
     
           // Update form data with brand details
           setFormData({
             name: brand.name || '',
             description: brand.description || '',
-            
             offer: brand.offer || 0,
-          
-            
             logo: logoBlob,
             banner: bannerBlob,
             logo_preview: brand.logo?.url || null,
@@ -99,20 +132,17 @@ const AddBrand = () => {
     }
   }, [brandId]);
 
-
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData(prev => ({
-
       ...prev,
-      [name]: value
+      [name]: type === 'checkbox' ? checked : value
     }));
-    if(isEditMode){
-      setUpdateFormData(prev => ({
-        ...prev,
-        [name]: value
-      }));
-    }
+    // Clear error when user starts typing
+    setErrors(prev => ({
+      ...prev,
+      [name]: ''
+    }));
   };
 
   const handleFileChange = (e) => {
@@ -155,43 +185,42 @@ const AddBrand = () => {
     }
     setCropperData({ isOpen: false, imageUrl: null, type: null });
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm()) {
+      toast.error('Please fix the validation errors before submitting');
+      return;
+    }
     setLoading(true);
-    console.log(updateFormData);
-    
     try {
-      if(!isEditMode){
-        await addBrand(formData);
-        toast.success('Brand added successfully!');
+      const formDataToSend = new FormData();
+      formDataToSend.append('name', formData.name);
+      formDataToSend.append('description', formData.description);
+      formDataToSend.append('offer', formData.offer);
+      formDataToSend.append('isActive', formData.isActive);
+
+      if (formData.logo instanceof Blob) {
+        formDataToSend.append('logo', formData.logo);
       }
-      else{
-        await updateBrand(updateFormData , brandId);
-        toast.success('Brand updated successfully!');
+      if (formData.banner instanceof Blob) {
+        formDataToSend.append('banner', formData.banner);
       }
-    
-      // Reset form
-      setFormData({
-        name: '',
-        description: '',
-        logo: null,
-        banner: null,
-        isActive: true,
-        offer: 0
-      });
-      setLogoPreview(null);
-      setBannerPreview(null);
-    } catch (error) {
-      if (error.response?.data?.message === 'A brand with this name already exists') {
-        toast.error('This brand name is already taken. Please choose a different name.');
+
+      if (isEditMode) {
+        await updateBrand(brandId, formDataToSend);
+        toast.success('Brand updated successfully');
       } else {
-        toast.error(error.response?.data?.message || 'Error adding brand');
+        await addBrand(formDataToSend);
+        toast.success('Brand added successfully');
       }
+      navigate(-1);
+    } catch (error) {
+      toast.error(error.message || `Failed to ${isEditMode ? 'update' : 'add'} brand`);
     } finally {
       setLoading(false);
     }
   };
-  
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
@@ -246,6 +275,7 @@ const AddBrand = () => {
                 className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                 required={!logoPreview}
               />
+              {errors.logo && <p className="mt-1 text-xs text-red-500">{errors.logo}</p>}
             </div>
           </div>
 
@@ -260,10 +290,11 @@ const AddBrand = () => {
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className={`w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.name ? 'border-red-500' : ''}`}
                 placeholder="Enter product name"
                 required
               />
+              {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name}</p>}
             </div>
 
             <div>
@@ -275,10 +306,11 @@ const AddBrand = () => {
                 value={formData.description}
                 onChange={handleInputChange}
                 rows={6}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className={`w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.description ? 'border-red-500' : ''}`}
                 placeholder="Enter product description"
                 required
               />
+              {errors.description && <p className="mt-1 text-xs text-red-500">{errors.description}</p>}
             </div>
           </div>
         </div>
@@ -327,6 +359,7 @@ const AddBrand = () => {
               className="mt-4 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
               required={!bannerPreview}
             />
+            {errors.banner && <p className="mt-1 text-xs text-red-500">{errors.banner}</p>}
           </div>
         </div>
 
@@ -369,9 +402,10 @@ const AddBrand = () => {
               onChange={handleInputChange}
               min="0"
               max="100"
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className={`w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.offer ? 'border-red-500' : ''}`}
               placeholder="Enter offer percentage"
             />
+            {errors.offer && <p className="mt-1 text-xs text-red-500">{errors.offer}</p>}
           </div>
         </div>
 
@@ -465,6 +499,5 @@ const AddBrand = () => {
     </div>
   );
 };
-
 
 export default AddBrand;

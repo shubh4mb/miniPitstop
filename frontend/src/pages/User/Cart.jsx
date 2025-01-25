@@ -17,25 +17,6 @@ const Cart = () => {
     fetchCartItems();
     fetchCoupons();
     
-    // TODO: Fetch available coupons from backend
-    // setAvailableCoupons([
-    //   {
-    //     id: 1,
-    //     code: 'WELCOME10',
-    //     description: 'Get 10% off on your first order',
-    //     discount: 10,
-    //     type: 'percentage',
-    //     minPurchase: 1000
-    //   },
-    //   {
-    //     id: 2,
-    //     code: 'FLAT500',
-    //     description: 'Get flat Rs. 500 off on orders above Rs. 5000',
-    //     discount: 500,
-    //     type: 'fixed',
-    //     minPurchase: 5000
-    //   }
-    // ]);
   }, []);
 
   const fetchCoupons = async () => {

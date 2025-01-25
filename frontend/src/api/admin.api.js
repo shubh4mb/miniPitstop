@@ -528,6 +528,44 @@ export const getSalesReport = async (timeFilter, startDate = null, endDate = nul
     }
 };
 
+// Download sales report
+export const downloadSalesReport = async (timeFilter, startDate = null, endDate = null) => {
+    try {
+        const params = { timeFilter };
+        if (timeFilter === 'custom') {
+            params.startDate = startDate;
+            params.endDate = endDate;
+        }
+
+        const response = await axiosInstance.get('/api/admin/sales-report/download', { 
+            params,
+            responseType: 'blob'
+        });
+
+        // Create a URL for the blob
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        
+        // Create a temporary link element
+        const link = document.createElement('a');
+        link.href = url;
+        
+        // Set the download filename
+        const filename = `sales-report-${timeFilter}.pdf`;
+        link.setAttribute('download', filename);
+        
+        // Append to body, click, and remove
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // Clean up the URL
+        window.URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error('Download sales report error:', error);
+        throw error.response?.data || error.message;
+    }
+}; 
+
 // Get revenue chart data
 export const getRevenueChartData = async (timeFilter, startDate = null, endDate = null) => {
     try {

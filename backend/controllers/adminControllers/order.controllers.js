@@ -1,4 +1,6 @@
 import Order from '../../models/order_model.js';
+import Wallet from '../../models/wallet_model.js';
+import Transaction from '../../models/transaction_model.js';
 
 export const fetchAllOrders = async (req, res) => {
     try {
@@ -42,28 +44,52 @@ export const updateOrderStatus = async (req, res) => {
             });
         }
 
-        // // Validate status transitions
-        // const validTransitions = {
-        //     'pending': ['confirmed', 'cancelled'],
-        //     'confirmed': ['shipped', 'cancelled'],
-        //     'shipped': ['delivered', 'cancelled'],
-        //     'delivered': ['return_requested'],
-        //     'return_requested': ['returned', 'delivered'], // Can either accept or reject return
-        //     'returned': [],
-        //     'cancelled': []
-        // };
+   
 
-        // if (!validTransitions[order.orderStatus].includes(status)) {
-        //     return res.status(400).json({
-        //         success: false,
-        //         message: 'Invalid status transition'
-        //     });
-        // }
+ 
 
         // Update the order
         order.orderStatus = status;
         await order.save();
 
+        if(status === 'returned') {
+           
+            
+            
+            const transaction = new Transaction({
+                userId: order.user,
+                amount: order.totalAmount,
+                type: 'refund',
+                status: 'success'
+            });
+            
+            await transaction.save();
+            const wallet = await Wallet.findOne({ user: order.user });
+            if (wallet) {
+
+                await Wallet.findOneAndUpdate(
+                    { user: order.user },
+                    {
+                        $inc: { amount: order.totalAmount }, 
+                        $push: { transactionHistory: transaction._id } 
+                    }
+                );
+            }
+            else{
+                const wallet=new Wallet({
+                    user: order.user,
+                    amount: order.totalAmount,
+                    transactionHistory: [transaction._id]
+                });
+                await wallet.save();
+            }
+        }
+
+        if(status === 'delivered'&& order.paymentMethod === 'cod') {
+          
+            order.paymentStatus = 'paid';
+            await order.save();
+        }
         const updatedOrder = await Order.findById(orderId)
             .populate('user', 'name email')
             .populate('items.product', 'name price');

@@ -2,8 +2,11 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { getProduct } from '../../api/admin.api';
-import { addToCart } from '../../api/user.api';
+import { addToCart , relatedProducts } from '../../api/user.api';
 import MagnifyImage from '../../components/MagnifyImage';
+import RelatedProducts from '../../components/RelatedProducts';
+import ReviewComponent from '../../components/ReviewComponent';
+import { FaStar } from 'react-icons/fa';
 
 const Product = () => {
   const { productId } = useParams();
@@ -14,6 +17,8 @@ const Product = () => {
   const [mainImage, setMainImage] = useState(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [offer, setOffer] = useState(0);
+  const [sameBrand, setSameBrand] = useState([]);
+  const [sameScale, setSameScale] = useState([]);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -28,6 +33,21 @@ const Product = () => {
         if (response.product.images && response.product.images.length > 0) {
           setMainImage(response.product.images[0].url);
         }
+        const filterTerm = {
+      scale: response.product.scale,
+      brand: response.product.brand._id,
+        }
+
+        console.log(filterTerm);
+        
+        // Fetch related products from the same brand or series
+        const relatedResponse = await relatedProducts(filterTerm);
+        console.log(relatedResponse);
+        setSameBrand(relatedResponse.filteredSameBrand);
+        setSameScale(relatedResponse.filteredSameScale);
+
+        
+
         setLoading(false);
       } catch (error) {
         toast.error(error.message || 'Failed to load product details');
@@ -68,11 +88,23 @@ const Product = () => {
     setSelectedImageIndex(index);
   };
 
+  const renderStars = (rating) => {
+    return [...Array(5)].map((_, index) => (
+      <FaStar
+        key={index}
+        className={`${
+          index < rating ? 'text-yellow-400' : 'text-gray-300'
+        } inline w-5 h-5`}
+      />
+    ));
+  };
+
   // Calculate discounted price
   const discountedPrice = product.price - (product.price * (offer / 100));
 
   return (
-    <div className="container mx-auto px-4 py-8 user-glass-effect">
+    <>
+    <div className=" mx-auto mt-4 px-4 py-8 user-glass-effect">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Image Gallery Section */}
         <div className="relative">
@@ -111,6 +143,10 @@ const Product = () => {
         <div className="space-y-6">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
+            <div className="flex items-center gap-2 mt-2">
+              {renderStars(5)}
+              <span className="text-sm text-gray-500">(25 reviews)</span>
+            </div>
             <p className="mt-2 text-sm text-gray-500">Scale: {product.scale}</p>
           </div>
 
@@ -176,7 +212,18 @@ const Product = () => {
           </button>
         </div>
       </div>
+      
     </div>
+    <div className=" mt-8 mx-auto px-4 py-2 user-glass-effect">
+      <ReviewComponent />
+    </div>
+    <div className="mt-8 mx-auto px-2 py-2 user-glass-effect">
+      {sameBrand?.length > 0 && <RelatedProducts title="More from this Brand" products={sameBrand} />}
+    </div>
+    <div className="mt-8 mx-auto px-2 py-2 user-glass-effect">
+      {sameScale?.length > 0 && <RelatedProducts title="Similar Scale Models" products={sameScale} />}
+    </div>
+  </>
   );
 };
 

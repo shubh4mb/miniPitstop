@@ -6,22 +6,14 @@ const transactionSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    orderId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Order',
-        required: true
-    },
+  
     amount: {
         type: Number,
         required: true
     },
     type: {
         type: String,
-        enum: ['debit', 'credit'],
-        required: true
-    },
-    description: {
-        type: String,
+        enum: ['debit', 'credit','refund'],
         required: true
     },
     status: {

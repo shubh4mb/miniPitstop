@@ -91,7 +91,12 @@ const Otp = () => {
           setShowResetPassword(true);
         }
       } else {
+        console.log(email);
+        
         response = await verifyOTP(email, otpValue);
+        console.log(response);
+        
+        
         if (response.success) {
           toast.success(response.message || 'OTP verified successfully');
           dispatch(hideOtpComponent());
