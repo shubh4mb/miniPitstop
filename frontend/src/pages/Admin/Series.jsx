@@ -1,7 +1,7 @@
 // import React from 'react';
 import { useState , useEffect} from 'react';
 import DataTable from '../../components/admin/table/DataTable';
-import { getAllSeries, toggleBrandStatus } from '../../api/admin.api';
+import { getAllSeries, toggleSeriesStatus } from '../../api/admin.api';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 
@@ -25,14 +25,14 @@ const Series = () => {
 
   const handleToggleActive = async (seriesId, currentStatus) => {
     try {
-      await toggleBrandStatus(seriesId, !currentStatus);
+      await toggleSeriesStatus(seriesId, !currentStatus);
       
       // Refresh the brands list
       fetchSeries();
-      toast.success('Brand status updated successfully');
+      toast.success('Series status updated successfully');
     } catch (error) {
-      console.error('Error toggling brand status:', error);
-      toast.error(error.message || 'Failed to update brand status');
+      console.error('Error toggling series status:', error);
+      toast.error(error.message || 'Failed to update series status');
     }
   };
   

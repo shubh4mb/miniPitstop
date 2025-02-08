@@ -44,12 +44,16 @@ const Checkout = () => {
 
   const calculateTotalWithoutOffer = () => {
     return cartItems.reduce((total, item) => {
-      return total + (item.product.originalPrice || item.product.price) * item.quantity;
+      return total + ( item.product.price) * item.quantity;
     }, 0);
   };
 
   const calculateTotal = () => {
+  
+    
     return cartItems.reduce((total, item) => {
+      console.log(item.product.offer , item.product.brand?.offer , item.product.series?.offer);
+      
       const maxOffer = Math.max(
         item.product.offer || 0,
         item.product.brand?.offer || 0,

@@ -86,28 +86,20 @@ const Otp = () => {
 
       if (verificationType === 'forgotPassword') {
         response = await verifyForgotPasswordOTP(email, otpValue);
-        if (response.success) {
-          toast.success(response.message || 'OTP verified successfully');
-          setShowResetPassword(true);
-        }
+        toast.success(response.message || 'OTP verified successfully');
+        setShowResetPassword(true);
+        // Don't hide OTP component or navigate away for forgot password flow
       } else {
-        console.log(email);
-        
         response = await verifyOTP(email, otpValue);
-        console.log(response);
-        
-        
-        if (response.success) {
-          toast.success(response.message || 'OTP verified successfully');
-          dispatch(hideOtpComponent());
-          navigate('/login');
-        }
+        toast.success(response.message || 'OTP verified successfully');
+        dispatch(hideOtpComponent());
+        navigate('/login');
       }
     } catch (error) {
       console.error('Error verifying OTP:', error);
       dispatch(incrementAttempt());
       
-      const errorMessage = error.response?.data?.message || error.message || 'Invalid OTP';
+      const errorMessage = error.message || 'Invalid OTP';
       toast.error(errorMessage);
       
       // Clear OTP fields on error
@@ -161,7 +153,13 @@ const Otp = () => {
   return (
     <>
       {showResetPassword ? (
-        <ResetPassword email={email} onSuccess={() => dispatch(hideOtpComponent())} />
+        <ResetPassword 
+          email={email} 
+          onSuccess={() => {
+            dispatch(hideOtpComponent());
+            navigate('/login');
+          }}
+        />
       ) : (
         <div className="min-h-screen flex items-center justify-center bg-red-600 py-12 px-4 sm:px-6 lg:px-8">
           <div className="max-w-md w-full space-y-8 bg-white p-6 rounded-lg shadow-lg">
@@ -170,22 +168,22 @@ const Otp = () => {
                 Enter Verification Code
               </h2>
               <p className="mt-2 text-center text-sm text-gray-600">
-                We've sent a code to {email}
+                We sent a code to {email}
               </p>
             </div>
 
             <div className="mt-8 space-y-6">
-              <div className="flex justify-center gap-2">
+              <div className="flex gap-2 justify-center">
                 {otp.map((digit, index) => (
                   <input
                     key={index}
                     ref={el => inputRefs.current[index] = el}
                     type="text"
-                    maxLength="1"
-                    className="w-12 h-12 text-center text-2xl border rounded-lg focus:outline-none focus:border-red-500"
+                    maxLength={1}
                     value={digit}
-                    onChange={(e) => handleChange(e, index)}
-                    onKeyDown={(e) => handleKeyDown(e, index)}
+                    onChange={e => handleChange(e, index)}
+                    onKeyDown={e => handleKeyDown(e, index)}
+                    className="w-12 h-12 text-center border-2 rounded-md text-lg focus:border-red-500 focus:ring-red-500"
                     disabled={loading}
                   />
                 ))}

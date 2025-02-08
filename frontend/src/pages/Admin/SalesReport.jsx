@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
-import { getSalesReport, downloadSalesReport } from '../../api/admin.api';
+import { getSalesReport, downloadSalesReport , downloadSalesReportExcel} from '../../api/admin.api';
 import { toast } from 'react-hot-toast';
 
 const SalesReport = () => {
@@ -50,7 +50,7 @@ const SalesReport = () => {
     fetchSalesData();
   }, [timeFilter, customDateRange]);
 
-  const handleDownload = async () => {
+  const handlePDFDownload = async () => {
     try {
       const { startDate, endDate } = timeFilter === 'custom' ? customDateRange : {};
       const response = await downloadSalesReport(timeFilter, startDate, endDate);
@@ -74,16 +74,63 @@ const SalesReport = () => {
     }
   };
 
+  const handleExcelDownload = async () => {
+    try {
+      toast.loading('Generating Excel report...');
+      const { startDate, endDate } = timeFilter === 'custom' ? customDateRange : {};
+      const response = await downloadSalesReportExcel(timeFilter, startDate, endDate);
+      
+      if (response.success) {
+        // Create a blob from the Excel data
+        const blob = new Blob([response.data], { 
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        });
+
+        // Create download link
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `sales-report-${format(new Date(), 'yyyy-MM-dd')}.xlsx`;
+        
+        // Trigger download
+        document.body.appendChild(a);
+        a.click();
+        
+        // Cleanup
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        
+        toast.dismiss();
+        toast.success('Report downloaded successfully');
+      } else {
+        toast.dismiss();
+        toast.error(response.message || 'Failed to download report');
+      }
+    } catch (error) {
+      console.error('Error downloading report:', error);
+      toast.dismiss();
+      toast.error('Failed to download report. Please try again.');
+    }
+  };
+
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Sales Report</h1>
         <button
-          onClick={handleDownload}
+          onClick={handlePDFDownload}
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
         >
-          Download Report
+          PDF Download
         </button>
+
+        <button
+          onClick={handleExcelDownload}
+          className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+        >
+          Excel Download
+        </button>
+
       </div>
 
       {/* Time Filter */}

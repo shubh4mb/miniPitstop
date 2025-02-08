@@ -1,22 +1,25 @@
 // import React from 'react';
 import DataTable from '../../components/admin/table/DataTable';
 import { toast } from 'react-toastify';
-import { useEffect , useState } from 'react';
-import { toggleUserStatus , fetchAllUsers} from '../../api/admin.api';
+import { useEffect, useState } from 'react';
+import { toggleUserStatus, fetchAllUsers } from '../../api/admin.api';
 
 const Users = () => {
-  const[users , setUsers] = useState([]);
-  // Static users data
-  const fetchUsers = async () => {
-    try
-    {
-      const response = await fetchAllUsers();
+  const [users, setUsers] = useState([]);
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+    itemsPerPage: 10
+  });
+
+  const fetchUsers = async (page = 1) => {
+    try {
+      const response = await fetchAllUsers(page, pagination.itemsPerPage);
       setUsers(response.users);
+      setPagination(response.pagination);
       console.log(response);
-      
-    }
-    catch(error)
-    {
+    } catch (error) {
       console.error('Error fetching users:', error);
       toast.error(error.message || 'Failed to load users');
     }
@@ -29,22 +32,25 @@ const Users = () => {
   const handleToggleActive = async (userId, currentStatus) => {
     try {
       await toggleUserStatus(userId, !currentStatus);
-      
-      // Refresh the brands list
-      fetchUsers();
+      fetchUsers(pagination.currentPage);
       toast.success('User status updated successfully');
     } catch (error) {
       console.error('Error toggling user status:', error);
       toast.error(error.message || 'Failed to update user status');
     }
   };
+
+  const handlePageChange = (newPage) => {
+    fetchUsers(newPage);
+  };
+
   // Column definitions
   const columns = [
     { field: 'fullName', header: 'Name' },
     { field: 'username', header: 'Username' },
     { field: 'email', header: 'Email' },
-    {field: 'phone', header: 'Phone'},
-    {field: 'authProvider', header: 'Provider'},
+    { field: 'phone', header: 'Phone' },
+    { field: 'authProvider', header: 'Provider' },
     {
       field: 'isActive',
       header: 'Status',
@@ -77,29 +83,41 @@ const Users = () => {
     console.log('View user:', user);
   };
 
-  // const handleEdit = (user) => {
-  //   console.log('Edit user:', user);
-  // };
-
-  // const handleDelete = (user) => {
-  //   console.log('Delete user:', user);
-  // };
-
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Users</h1>
-        {/* <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
-          Add User
-        </button> */}
       </div>
 
-      <DataTable 
-        columns={columns} 
+      <DataTable
+        columns={columns}
         data={users}
         onView={handleView}
-        actions={['view' ]} // Only show view and delete buttons
+        // actions={['view']}
       />
+
+      {/* Pagination Controls */}
+      <div className="mt-4 flex items-center justify-between">
+        <div className="text-sm text-gray-700">
+          Showing {((pagination.currentPage - 1) * pagination.itemsPerPage) + 1} to {Math.min(pagination.currentPage * pagination.itemsPerPage, pagination.totalItems)} of {pagination.totalItems} users
+        </div>
+        <div className="flex justify-end space-x-2">
+          <button
+            onClick={() => handlePageChange(pagination.currentPage - 1)}
+            disabled={pagination.currentPage === 1}
+            className={`px-3 py-1 rounded ${pagination.currentPage === 1 ? 'bg-gray-200 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600 text-white'}`}
+          >
+            Previous
+          </button>
+          <button
+            onClick={() => handlePageChange(pagination.currentPage + 1)}
+            disabled={pagination.currentPage === pagination.totalPages}
+            className={`px-3 py-1 rounded ${pagination.currentPage === pagination.totalPages ? 'bg-gray-200 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600 text-white'}`}
+          >
+            Next
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

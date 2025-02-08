@@ -2,6 +2,8 @@ import { Navigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { isAuth,} from '../../utils/auth.utils';
 import { toast } from 'react-toastify';
+import {useDispatch} from 'react-redux';
+import { clearUserData } from '../../redux_store/slices/user/userSlice';
 
 
 const UserProtectedRoute = ({ children, requiredRole }) => {
@@ -9,7 +11,7 @@ const UserProtectedRoute = ({ children, requiredRole }) => {
   const [authenticated, setAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState(null);
   const [isActive, setIsActive] = useState("");
-
+  const dispatch = useDispatch();
   useEffect(() => {
     const checkAuth = async () => {
       
@@ -28,6 +30,7 @@ const UserProtectedRoute = ({ children, requiredRole }) => {
         console.error('Auth check failed:', error);
         setAuthenticated(false);
         setUserRole(null);
+
       } finally {
         setLoading(false);
       }
@@ -42,12 +45,14 @@ const UserProtectedRoute = ({ children, requiredRole }) => {
 
   if(isActive === false){ 
     toast.error('Your account is blocked');
-    return <Navigate to="/" replace />;
+    return <Navigate to="/home" replace />;
   }
 
   if (!authenticated) {
     // Redirect to appropriate login page based on required role
-    return <Navigate to={requiredRole === 'admin' ? '/admin/login' : '/login'} replace />;
+    toast.info('Please Login to your account');
+    dispatch(clearUserData());
+    return <Navigate to={requiredRole === 'admin' ? '/admin/login' : '/home'} replace />;
   }
 
   if (requiredRole && userRole !== requiredRole) {

@@ -35,6 +35,7 @@ import Wishlist from "./pages/User/Wishlist";
 import SalesReport from "./pages/Admin/SalesReport";
 import Wallet from "./pages/User/Wallet";
 import ChangePassword from "./pages/User/ChangePassword";
+import LoginProtect from "./components/protectedRoutes/LoginProtect.jsx";
 
 function App() {
   return (
@@ -44,16 +45,16 @@ function App() {
     }}>
       <ToastContainer 
         position="top-right"
-        autoClose={3000}
+        autoClose={1500}
         hideProgressBar={false}
         newestOnTop
         closeOnClick
         rtl={false}
         pauseOnFocusLoss
         draggable
-        pauseOnHover
+        pauseOnHover={false}
         theme="colored"
-        limit={3}
+        limit={1}
       />
       <Routes>
         {/* User Routes */}
@@ -64,12 +65,12 @@ function App() {
           <Route path="/" element={<Navigate to="/login" replace />} />
 
           <Route path='product/:productId' element={
-            <UserProtectedRoute requiredRole="user">
-              <Product/>
-            </UserProtectedRoute>
+            <Product/>
           } />
-          <Route path="/home" element={<UserProtectedRoute requiredRole="user"><Home /></UserProtectedRoute>} />
-          <Route path="/shop" element={<UserProtectedRoute requiredRole="user"><Shop /></UserProtectedRoute>} />
+          {/* <Route path="/home" element={<UserProtectedRoute requiredRole="user"><Home /></UserProtectedRoute>} /> */}
+          <Route path='/home' element={<Home/>} />
+
+          <Route path="/shop" element={<Shop/>} />
           
         </Route> 
 

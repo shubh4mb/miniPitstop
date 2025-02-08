@@ -64,7 +64,7 @@ const AddCoupons = () => {
             if (formData.discount <= 0 || formData.discount > 100) {
                 newErrors.discount = 'Percentage discount must be between 1 and 100';
             }
-        } else if (formData.discountType === 'fixed') {
+        } else if (formData.discountType === 'amount') {
             if (formData.discount <= 0) {
                 newErrors.discount = 'Fixed discount must be greater than 0';
             }
@@ -256,7 +256,7 @@ const AddCoupons = () => {
                         >
                             <option value="">Select Type</option>
                             <option value="percentage">Percentage</option>
-                            <option value="fixed">Fixed Amount</option>
+                            <option value="amount">Fixed Amount</option>
                         </select>
                         {errors.discountType && <p className="mt-1 text-xs text-red-500">{errors.discountType}</p>}
                     </div>

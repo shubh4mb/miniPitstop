@@ -43,7 +43,7 @@ export const googleSignup = async () => {
       };
     } catch (backendError) {
       throw {
-        type: 'BACKEND_ERROR',
+    
         message: backendError.response?.data?.message || 'Backend authentication failed',
         originalError: backendError
       };
@@ -101,21 +101,18 @@ export const googleLogin = async () => {
     const response = await axiosInstance.post('/api/auth/googleLogin', { email: user.email });
     
     if (response.data.success) {
-      // Store user data and token
-      localStorage.setItem('accessToken', response.data.data.accessToken);
-      localStorage.setItem('user', JSON.stringify(response.data.data.user));
-      
       return {
         success: true,
-        message: 'Login successful'
+        message: 'Login successful',
+        data: response.data.data.user
       };
     }
+    throw new Error('Login failed');
   } catch (error) {
     if (error.code === 'auth/popup-closed-by-user') {
       throw new Error('Sign-in popup was closed');
     } else if (error.code === 'auth/cancelled-popup-request') {
-      // Ignore this error as it's just indicating that a new popup was opened
-      return;
+      throw new Error('Sign-in popup was closed');
     } else if (error.response?.status === 401) {
       throw new Error('Please sign up with Google first');
     } else {

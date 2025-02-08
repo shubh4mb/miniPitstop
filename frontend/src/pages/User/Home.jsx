@@ -1,6 +1,6 @@
 import { useEffect , useState } from 'react';
 import Banner from '../../components/user/banner/Banner';
-import { getAllProducts , getBrands} from '../../api/admin.api';
+import { getFeaturedProducts} from '../../api/user.api';
 import ProductCard from '../../components/ProductCard';
 import { toast } from 'react-toastify';
 
@@ -18,7 +18,7 @@ const Home = () => {
   useEffect( () => {
     const fetchProducts = async () => {
       try {
-        const response = await getAllProducts()
+        const response = await getFeaturedProducts()
         setProducts(response.products)
         console.log(response.products);
 
@@ -29,17 +29,17 @@ const Home = () => {
         toast.error(error.message || 'Failed to load products');
       }
     };
-    const fetchBrands = async () => {
-      try {
-        const response = await getBrands();
-        setBrands(response.brands);
-      } catch (error) {
-        console.error('Error fetching brands:', error);
-        toast.error(error.message || 'Failed to load brands');
-      }
-    };
+    // const fetchBrands = async () => {
+    //   try {
+    //     const response = await getBrands();
+    //     setBrands(response.brands);
+    //   } catch (error) {
+    //     console.error('Error fetching brands:', error);
+    //     toast.error(error.message || 'Failed to load brands');
+    //   }
+    // };
     fetchProducts();
-    fetchBrands();
+    // fetchBrands();
   }, [])
 
 

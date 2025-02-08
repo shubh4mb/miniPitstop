@@ -120,14 +120,14 @@ const Addresses = () => {
                   >
                     Delete
                   </button>
-                  <input
+                  {/* <input
                     type="radio"
                     name="defaultAddress"
                     checked={selectedDefault === address._id}
                     onChange={() => handleSetDefault(address._id)}
                     className="ml-2 cursor-pointer"
-                  />
-                  <span className="text-sm text-gray-500">Default</span>
+                  /> */}
+                  {/* <span className="text-sm text-gray-500">Default</span> */}
                 </div>
               </div>
 

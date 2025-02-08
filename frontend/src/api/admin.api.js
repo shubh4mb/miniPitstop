@@ -44,8 +44,10 @@ export const addBrand = async (formData) => {
 
 export const getBrands = async () => {
   try {
+    console.log('Fetching brands...');
+    
     const response = await axiosInstance.get('/api/admin/brands');
-    console.log(response);
+    // console.log(response);
     
     // Successful response
     if (response.status === 200) {
@@ -99,17 +101,19 @@ export const getBrand = async (brandId) => {
 
 export const updateBrand = async (updateFormData, brandId) => {
   try {
+    console.log('Update Form Data:', updateFormData);
+    
     // Create FormData object for multipart/form-data
     const form = new FormData();
     
     // Append all available fields
-    if (updateFormData.name !== undefined) form.append('name', updateFormData.name);
-    if (updateFormData.description !== undefined) form.append('description', updateFormData.description);
+    if (updateFormData.name) form.append('name', updateFormData.name);
+    if (updateFormData.description) form.append('description', updateFormData.description);
     if (updateFormData.isActive !== undefined) form.append('isActive', updateFormData.isActive);
     if (updateFormData.offer !== undefined) form.append('offer', updateFormData.offer);
     
     // Handle logo file if present
-    if (updateFormData.logo) {
+    if (updateFormData.logo instanceof Blob) {
       const logoFile = new File([updateFormData.logo], 'logo.jpg', { 
         type: updateFormData.logo.type || 'image/jpeg',
         lastModified: new Date().getTime()
@@ -118,7 +122,7 @@ export const updateBrand = async (updateFormData, brandId) => {
     }
     
     // Handle banner file if present
-    if (updateFormData.banner) {
+    if (updateFormData.banner instanceof Blob) {
       const bannerFile = new File([updateFormData.banner], 'banner.jpg', { 
         type: updateFormData.banner.type || 'image/jpeg',
         lastModified: new Date().getTime()
@@ -128,6 +132,11 @@ export const updateBrand = async (updateFormData, brandId) => {
 
     // Remove the default Content-Type header to let the browser set it with boundary
     delete axiosInstance.defaults.headers['Content-Type'];
+    
+    // Log form data entries for debugging
+    for (let [key, value] of form.entries()) {
+      console.log(`Form entry - ${key}:`, value);
+    }
     
     const response = await axiosInstance.patch(`/api/admin/brand/${brandId}`, form);
     
@@ -247,9 +256,9 @@ export const getProduct = async (productId) => {
   }
 };
 
-export const getAllProducts = async () => {
+export const getAllProducts = async (page = 1, limit = 10) => {
   try {
-    const response = await axiosInstance.get('/api/admin/products');
+    const response = await axiosInstance.get(`/api/admin/products?page=${page}&limit=${limit}`);
     return response.data;
   } catch (error) {
     console.error('Error fetching products:', error);
@@ -276,15 +285,19 @@ export const updateProduct = async (productId, formData) => {
      const textFields = [
       'name', 'description', 'price', 'brand', 'stock', 
       'series', 'buttonColor', 'cardColor', 'scale', 
-      'type', 'isActive'
+      'type', 'isActive', 'isFeatured'
     ];
 
     // Only append text fields that exist in formData
     textFields.forEach(field => {
       if (field in formData) {
         let value = formData[field];
+        // Convert boolean values to strings explicitly as 'true' or 'false'
+        if (typeof value === 'boolean') {
+          value = value.toString();
+        }
         // Trim string values
-        if (typeof value === 'string') {
+        else if (typeof value === 'string') {
           value = value.trim();
         }
         productFormData.append(field, value);
@@ -309,7 +322,7 @@ export const updateProduct = async (productId, formData) => {
         }
       });
     }
-
+    console.log(productFormData);
     const response = await axiosInstance.patch(`/api/admin/product/${productId}`, productFormData, {
       headers: {
         'Content-Type': 'multipart/form-data'
@@ -333,6 +346,16 @@ export const toggleBrandStatus = async (brandId, isActive) => {
     return response.data;
   } catch (error) {
     console.error('Error toggling brand status:', error);
+    throw error;
+  }
+};
+
+export const toggleSeriesStatus = async (seriesId, isActive) => {
+  try {
+    const response = await axiosInstance.patch(`/api/admin/series/${seriesId}/status`, { isActive });
+    return response.data;
+  } catch (error) {
+    console.error('Error toggling series status:', error);
     throw error;
   }
 };
@@ -409,9 +432,9 @@ export const addSeries = async (formData) => {
   }
 };
 
-export const fetchAllUsers = async () => {
+export const fetchAllUsers = async (page = 1, limit = 10) => {
   try {
-    const response = await axiosInstance.get('/api/admin/users');
+    const response = await axiosInstance.get(`/api/admin/users?page=${page}&limit=${limit}`);
     return response.data;
   } catch (error) {
     console.error('Error fetching users:', error);
@@ -429,9 +452,9 @@ export const toggleUserStatus = async (userId, isActive) => {
   }
 };
 
-export const getAllOrders = async () => {
+export const getAllOrders = async (page = 1, limit = 10) => {
   try {
-    const response = await axiosInstance.get('/api/admin/orders');
+    const response = await axiosInstance.get(`/api/admin/orders?page=${page}&limit=${limit}`);
     return response.data;
   } catch (error) {
     console.error('Error fetching orders:', error);
@@ -479,7 +502,7 @@ export const fetchCoupons = async () => {
 
 export const updateCouponStatus = async (couponId, isActive) => {
   try {
-    const response = await axiosInstance.patch(`/api/admin/coupons/${couponId}/status`, { isActive });
+    const response = await axiosInstance.patch(`/api/admin/coupon/${couponId}/status`, { isActive });
     return response.data;
   } catch (error) {
     console.error('Error updating coupon status:', error);
@@ -529,7 +552,7 @@ export const getSalesReport = async (timeFilter, startDate = null, endDate = nul
 };
 
 // Download sales report
-export const downloadSalesReport = async (timeFilter, startDate = null, endDate = null) => {
+export const downloadSalesReport = async (timeFilter, startDate = null, endDate = null ) => {
     try {
         const params = { timeFilter };
         if (timeFilter === 'custom') {
@@ -585,3 +608,62 @@ export const getRevenueChartData = async (timeFilter, startDate = null, endDate 
         throw error.response?.data || error.message;
     }
 };
+
+export const downloadSalesReportExcel = async (timeFilter, startDate = null, endDate = null) => {
+  try {
+      const params = { timeFilter };
+      if (timeFilter === 'custom') {
+          params.startDate = startDate;
+          params.endDate = endDate;
+      }
+      
+      const response = await axiosInstance.get('/api/admin/sales-report/download/excel', { 
+          params,
+          responseType: 'arraybuffer'
+      });
+
+      return {
+        success: true,
+        data: response.data
+      };
+  } catch (error) {
+      console.error('Error downloading report:', error);
+      const errorMessage = error.response?.data 
+          ? new TextDecoder().decode(error.response.data)
+          : 'Failed to download Excel report';
+      return {
+        success: false,
+        message: errorMessage
+      };
+  }
+};
+
+export const bestSellingProducts = async()=>{
+  try{
+    const response = await axiosInstance.get('/api/admin/products/best-selling');
+    return response.data;
+  }catch(error){
+    console.error('Error fetching best selling products:', error);
+    return {
+      success: false,
+      message: 'Failed to fetch best selling products'
+    };
+  }
+}
+
+export const addBanner = async (formData) => {
+  try {
+    // Remove the default Content-Type header to let the browser set it with boundary
+    const config = {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    };
+    
+    const response = await axiosInstance.post('/api/admin/banners', formData, config);
+    return response.data;
+  } catch (error) {
+    console.error('Error adding banner:', error);
+    throw error;
+  }
+}

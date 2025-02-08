@@ -335,3 +335,13 @@ export const changePassword = async (oldPassword,newPassword) => {
     throw error;
   }
 }
+
+export const getFeaturedProducts = async () => {
+  try {
+    const response = await axiosInstance.get('/api/user/products/featured');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching featured products:', error);
+    throw error;
+  }
+}

@@ -13,7 +13,7 @@ const Wallet = () => {
     amount:0
   })
   const[user,setUser]=useState({})
-  const [amount, setAmount] = useState(0);
+  const [amount, setAmount] = useState(1);
   const [transactions, setTransactions] = useState([
     // { id: 1, type: "Debit",status: "pending", amount: 500, date: "2025-01-01" },
     // { id: 2, type: "Credit",status: "success", amount: 200, date: "2025-01-03" },
@@ -144,7 +144,13 @@ const Wallet = () => {
           <p className="text-3xl font-bold text-green-600">Rs{(wallet?.amount || 0).toFixed(2)}</p>
         </div>
         <div className="flex justify-between  mb-6" >
-          <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} className="border p-2 rounded" />
+        <input 
+  type="number" 
+  value={amount} 
+  onChange={(e) => setAmount(Math.max(1, e.target.value))} 
+  min="1"
+  className="border p-2 rounded" 
+/>
           <button
             onClick={handleRazorpayPayment}
             className="bg-blue-500 text-white px-4 py-2 rounded shadow hover:bg-blue-600"

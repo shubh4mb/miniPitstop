@@ -25,7 +25,8 @@ const AddProduct = () => {
     image_previews: [],
     buttonColor: '#000000',
     cardColor: '#ffffff',
-    isActive: true
+    isActive: true,
+    isFeatured:false
   });
 
   const [updateFormData, setUpdateFormData] = useState({});
@@ -44,6 +45,8 @@ const AddProduct = () => {
     images: '',
     card_image: ''
   });
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const {productId} = useParams();
   const isEditMode = !!productId;
@@ -194,28 +197,49 @@ const AddProduct = () => {
         cardImageBlob = await urlToBlob(product.card_image.url);
       }
 
-      // Update form data with product details
-      setFormData({
+      // Initialize form data with product details
+      const initialData = {
         name: product.name || '',
         description: product.description || '',
-        stock: product.stock || 0,
-        scale: product.scale || '',
-        type: product.type || '',
         price: product.price || 0,
-        offer: product.offer || 0,
+        stock: product.stock || 0,
         brand: product.brand?._id || '',
         series: product.series?._id || '',
-        images: existingImages,
+        images: existingImages || [],
         card_image: cardImageBlob,
         card_image_preview: product.card_image?.url || null,
         image_previews: product.images?.map(img => img.url) || [],
         buttonColor: product.buttonColor || '#000000',
         cardColor: product.cardColor || '#ffffff',
-        isActive: product.isActive ?? true
+        isActive: product.isActive ?? true,
+        isFeatured: product.isFeatured ?? false,
+        scale: product.scale || '',
+        type: product.type || '',
+        offer: product.offer || 0
+      };
+
+      setFormData(initialData);
+      
+    
+      setUpdateFormData({
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        stock: product.stock,
+        brand: product.brand?._id,
+        series: product.series?._id,
+        buttonColor: product.buttonColor,
+        cardColor: product.cardColor,
+        isActive: product.isActive,
+        isFeatured: product.isFeatured,
+        scale: product.scale,
+        type: product.type,
+        offer: product.offer
       });
+      
     } catch (error) {
       console.error('Error fetching product:', error);
-      toast.error(error.message || 'Failed to load product details');
+      toast.error('Failed to load product details');
     }
   };
 
@@ -382,6 +406,23 @@ const AddProduct = () => {
     }));
   };
 
+  const handleCheckboxChange = (e) => {
+    const { name, checked } = e.target;
+    
+    // Update both formData and updateFormData
+    setFormData(prev => ({
+      ...prev,
+      [name]: checked
+    }));
+
+    if (isEditMode) {
+      setUpdateFormData(prev => ({
+        ...prev,
+        [name]: checked
+      }));
+    }
+  };
+
   const handleImageUpload = (e, type) => {
     const files = Array.from(e.target.files);
     
@@ -409,8 +450,7 @@ const AddProduct = () => {
     }
   };
 
-  const removeImage = (index) => {
-    // Always update formData to keep the UI in sync
+  const removeImage = (index) => { 
     setFormData(prev => ({
       ...prev,
       images: prev.images.filter((_, i) => i !== index),
@@ -463,37 +503,34 @@ const AddProduct = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) {
-      toast.error('Please fix the validation errors before submitting');
-      return;
-    }
+    
+    if (isLoading) return;
+    setIsLoading(true);
 
     try {
-      // Form validation
-      const validationErrors = [];
-      if (!formData.name?.trim()) validationErrors.push('Product name is required');
-      if (!formData.description?.trim()) validationErrors.push('Description is required');
-      if (!formData.price) validationErrors.push('Price is required');
-      if (!formData.brand) validationErrors.push('Brand is required');
-      if (!formData.card_image) validationErrors.push('Card image is required');
-      if(!formData.series) validationErrors.push('Series is required');
-
-      if (validationErrors.length > 0) {
-        validationErrors.forEach(error => toast.error(error));
+      const errors = validateForm();
+      if (Object.keys(errors).length > 0) {
+        setErrors(errors);
+        toast.error('Please fix the errors in the form');
         return;
       }
 
-      let response;
       if (isEditMode) {
-        // Include removedImageIndexes in the update data
+        // Include current form data for checkboxes
         const updateDataWithRemovedImages = {
           ...updateFormData,
-          removedImageIndexes: removedImageIndexes
+          removedImageIndexes: removedImageIndexes,
+          isActive: formData.isActive,
+          isFeatured: formData.isFeatured
         };
-        response = await updateProduct(productId, updateDataWithRemovedImages);
+
+        // Log the data being sent
+        console.log('Updating product with:', updateDataWithRemovedImages);
+        
+        await updateProduct(productId, updateDataWithRemovedImages);
         toast.success('Product updated successfully!');
       } else {
-        response = await addProduct(formData);
+        await addProduct(formData);
         toast.success('Product added successfully!');
       }
       
@@ -503,6 +540,8 @@ const AddProduct = () => {
     } catch (error) {
       toast.error(error.message || `Failed to ${isEditMode ? 'update' : 'add'} product`);
       console.error(`Error ${isEditMode ? 'updating' : 'adding'} product:`, error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -802,21 +841,46 @@ const AddProduct = () => {
                   type="checkbox"
                   name="isActive"
                   checked={formData.isActive}
-                  onChange={(e) => setFormData(prev => ({
-                    ...prev,
-                    isActive: e.target.checked
-                  }))}
+                  onChange={handleCheckboxChange}
                   className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
                 <span className="font-medium text-gray-700">Active</span>
               </label>
             </div>
 
+              {/* Featured Status */}
+              <div className="bg-white rounded-lg shadow-md p-6">
+              <label className="flex items-center space-x-3">
+                <input
+                  type="checkbox"
+                  name="isFeatured"
+                  checked={formData.isFeatured}
+                  onChange={handleCheckboxChange}
+                  className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+                <span className="font-medium text-gray-700">Featured</span>
+              </label>
+            </div>
+
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+              disabled={isLoading}
+              className={`w-full ${isLoading ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'} 
+                text-white px-6 py-3 rounded-lg focus:outline-none focus:ring-2 
+                focus:ring-blue-500 focus:ring-offset-2 transition-colors
+                ${isLoading ? 'cursor-not-allowed' : ''}`}
             >
-              {isEditMode ? 'Update Product' : 'Add Product'}
+              {isLoading ? (
+                <span className="flex items-center justify-center">
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  {isEditMode ? 'Updating...' : 'Adding...'}
+                </span>
+              ) : (
+                isEditMode ? 'Update Product' : 'Add Product'
+              )}
             </button>
           </form>
         </div>

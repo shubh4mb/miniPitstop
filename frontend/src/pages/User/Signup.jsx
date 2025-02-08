@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { showOtpComponent } from '../../redux_store/slices/auth/otpSlice';
 import { useNavigate } from 'react-router-dom';
 import { signup , googleSignup} from '../../api/auth.api';
+import { setUser , setUserWithExpiration } from '../../redux_store/slices/user/userSlice.js';
 
 
 
@@ -45,7 +46,7 @@ const Signup = () => {
       confirmPassword: formData.confirmPassword.trim()
     };
 
-    // Validate fullName (only letters and single spaces between words)
+
     if (!trimmedData.fullName) {
       errors.fullName = 'Full name is required';
     } else if (!/^[a-zA-Z]+(?:\s[a-zA-Z]+)*$/.test(trimmedData.fullName)) {
@@ -103,7 +104,8 @@ const Signup = () => {
       const result = await googleSignup();
       if (result.success && result.data) {
         // Store both token and user data using setAuth
-      
+        dispatch(setUser(result?.data));
+       
         toast.success(result.data.message || 'Google sign-in successful!');
         navigate('/home');
       }
@@ -375,6 +377,7 @@ const Signup = () => {
               >
                 {loading ? 'Loading...' : 'Sign up'}
               </button>
+              
             </form>
 
             {/* Google Sign-in Button */}
@@ -385,7 +388,20 @@ const Signup = () => {
             >
               Continue with Google
             </button>
+            <p
+            onClick={() => navigate('/login')}
+                disabled={loading}
+                type="submit"
+                className="w-full text-sm text-center py-2 mt-4  text-gray-400 hover:text-red-600  rounded cursor-pointer  focus:outline-none focus:bg-red-700 transition-colors duration-200"
+              >
+                Already have an account? Login
+              </p>
           </div>
+
+       
+            
+
+
         
 
         {/* Background Image Section */}

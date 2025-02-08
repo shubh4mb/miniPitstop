@@ -4,14 +4,16 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
 import { googleLogin, login, forgotPassword } from '../../api/auth.api.js';
 import { useDispatch, useSelector } from 'react-redux';
-import { setUser } from '../../redux_store/slices/user/userSlice.js';
+import { setUser , setUserWithExpiration } from '../../redux_store/slices/user/userSlice.js';
 import { showOtpComponent } from '../../redux_store/slices/auth/otpSlice.js';
 import Otp from '../../components/Otp.jsx';
 
 const Login = () => {
+  const expirationTime =  60*60 * 1000; // 120 seconds
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
   const showOtp = useSelector((state) => state.otp.showOtp);
   const [validationErrors, setValidationErrors] = useState({
     email: '',
@@ -47,21 +49,27 @@ const Login = () => {
 
     try {
       const result = await googleLogin();
-      if (result?.success) {
-        toast.success('Login successful!');
+      // Only proceed if we have a valid result (this will be undefined if popup was closed)
+      if (result?.success && result?.data) {
+        dispatch(setUser(result.data));
+        dispatch(setUserWithExpiration(result.data, expirationTime));
+        toast.success(result.message || 'Login successful!');
         navigate('/home');
       }
+     
     } catch (error) {
       console.error('Login error:', error);
       if (error.message === 'Please sign up with Google first') {
         toast.error(error.message);
         navigate('/signup');
+      } else if (error.message === 'Sign-in popup was closed') {
+        // Don't show an error toast for intentional user action
+        toast.info('Google sign-in was cancelled');
       } else {
-        toast.error(error.message);
+        toast.error(error.message || 'An error occurred during login');
       }
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   };
 
   const handleChange = (e) => {
@@ -85,6 +93,7 @@ const Login = () => {
       const response = await login(formData);
       if (response.success) {
         dispatch(setUser(response.data));
+        dispatch(setUserWithExpiration(response.data,expirationTime));
         toast.success('Login successful!');
         navigate('/home');
       }
@@ -103,12 +112,13 @@ const Login = () => {
   };
 
   const handleForgotPassword = async () => {
+    
     if (!formData.email.trim()) {
       toast.error('Please enter your email address');
       return;
     }
 
-    setLoading(true);
+    setResetLoading(true);
     try {
       const response = await forgotPassword(formData.email);
       if (response.success) {
@@ -123,7 +133,7 @@ const Login = () => {
       console.error('Forgot password error:', error);
       toast.error(error.message || 'Failed to send OTP');
     } finally {
-      setLoading(false);
+      setResetLoading(false);
     }
   };
 
@@ -197,9 +207,9 @@ const Login = () => {
                 type="button"
                 onClick={handleForgotPassword}
                 className="text-red-600 hover:text-red-800 font-medium"
-                disabled={loading}
+                disabled={resetLoading}
               >
-                {loading ? 'Sending OTP...' : 'Forgot your password?'}
+                {resetLoading ? 'Sending OTP...' : 'Forgot your password?'}
               </button>
             </div>
 

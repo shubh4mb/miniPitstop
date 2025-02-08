@@ -34,6 +34,7 @@ const Cart = () => {
   const fetchCartItems = async () => {
     try {
       const response = await getCart();
+      
       console.log(response.cart.item);
       setCartItems(response.cart.item);
       setLoading(false);

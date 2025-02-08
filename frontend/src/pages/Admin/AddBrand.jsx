@@ -133,7 +133,7 @@ const AddBrand = () => {
   }, [brandId]);
 
   const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value, type, checked  } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
@@ -189,31 +189,51 @@ const AddBrand = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) {
-      toast.error('Please fix the validation errors before submitting');
+      toast.error('Please fix the errors before submitting');
       return;
     }
     setLoading(true);
     try {
-      const formDataToSend = new FormData();
-      formDataToSend.append('name', formData.name);
-      formDataToSend.append('description', formData.description);
-      formDataToSend.append('offer', formData.offer);
-      formDataToSend.append('isActive', formData.isActive);
-
-      if (formData.logo instanceof Blob) {
-        formDataToSend.append('logo', formData.logo);
-      }
-      if (formData.banner instanceof Blob) {
-        formDataToSend.append('banner', formData.banner);
-      }
-
       if (isEditMode) {
-        await updateBrand(brandId, formDataToSend);
+        // For edit mode, directly pass the form data object
+        const updateData = {
+          name: formData.name.trim(),
+          description: formData.description.trim(),
+          offer: formData.offer,
+          isActive: formData.isActive
+        };
+
+        // Only include logo and banner if they are new Blobs
+        if (formData.logo instanceof Blob) {
+          updateData.logo = formData.logo;
+        }
+        if (formData.banner instanceof Blob) {
+          updateData.banner = formData.banner;
+        }
+
+        await updateBrand(updateData, brandId);
         toast.success('Brand updated successfully');
+   
       } else {
+        // For add mode, use FormData
+        const formDataToSend = new FormData();
+        formDataToSend.append('name', formData.name.trim());
+        formDataToSend.append('description', formData.description.trim());
+        formDataToSend.append('offer', formData.offer);
+        formDataToSend.append('isActive', formData.isActive);
+
+        // In add mode, both logo and banner are required
+        if (!formData.logo || !formData.banner) {
+          throw new Error('Both logo and banner are required when adding a new brand');
+        }
+        
+        formDataToSend.append('logo', formData.logo);
+        formDataToSend.append('banner', formData.banner);
+        
         await addBrand(formDataToSend);
         toast.success('Brand added successfully');
       }
+      setLoading(false);
       navigate(-1);
     } catch (error) {
       toast.error(error.message || `Failed to ${isEditMode ? 'update' : 'add'} brand`);
@@ -423,7 +443,7 @@ const AddBrand = () => {
             disabled={loading}
             className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
           >
-            {loading ? 'Adding...' : 'Add Brand'}
+            {loading ? (isEditMode ? 'Updating...' : 'Adding...') : (isEditMode ? 'Update Brand' : 'Add Brand')}
           </button>
         </div>
       </form>

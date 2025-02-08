@@ -2,28 +2,42 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DataTable from '../../components/admin/table/DataTable';
 import { toast } from 'react-toastify';
-import { getAllProducts, toggleProductStatus } from '../../api/admin.api';
-import axios from 'axios';
-import { FaDownload } from 'react-icons/fa';
+import { getAllProducts, toggleProductStatus , bestSellingProducts} from '../../api/admin.api';
+
 
 const Products = () => {
   const [products, setProducts] = useState([]);
   const [showBestSelling, setShowBestSelling] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+    itemsPerPage: 10
+  });
+
+  const handlePageChange = (page) => {
+    if (showBestSelling) {
+      fetchBestSellingProducts(page);
+    } else {
+      fetchProducts(page);
+    }
+  };
 
   useEffect(() => {
     if (showBestSelling) {
       fetchBestSellingProducts();
     } else {
-      fetchProducts();
+      fetchProducts(pagination.currentPage);
     }
   }, [showBestSelling]);
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (page = 1) => {
     try {
       setLoading(true);
-      const response = await getAllProducts();
+      const response = await getAllProducts(page, pagination.itemsPerPage);
       setProducts(response.products);
+      setPagination(response.pagination);
     } catch (error) {
       console.error('Error fetching products:', error);
       toast.error(error.message || 'Failed to load products');
@@ -35,48 +49,22 @@ const Products = () => {
   const fetchBestSellingProducts = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('/api/admin/products/best-selling');
-      if (response.data.success) {
-        setProducts(response.data.products);
+      const response = await bestSellingProducts();
+      console.log('Best selling products response:', response); 
+      if (response.success) {
+        setProducts(response.products); 
+      } else {
+        toast.error(response.message || 'Failed to fetch best selling products');
       }
     } catch (error) {
       console.error('Error fetching best selling products:', error);
-      toast.error(error.message || 'Failed to load best selling products');
-      setShowBestSelling(false);
+      toast.error('Failed to fetch best selling products');
     } finally {
       setLoading(false);
     }
   };
 
-  const downloadBestSellingReport = async () => {
-    try {
-      const response = await axios.get('/api/admin/products/best-selling/download', {
-        responseType: 'blob'
-      });
-      
-      // Create a blob from the PDF Stream
-      const file = new Blob([response.data], { type: 'application/pdf' });
-      
-      // Create a link element
-      const fileURL = URL.createObjectURL(file);
-      const link = document.createElement('a');
-      link.href = fileURL;
-      link.download = 'best-selling-products.pdf';
-      
-      // Trigger download
-      document.body.appendChild(link);
-      link.click();
-      
-      // Cleanup
-      document.body.removeChild(link);
-      URL.revokeObjectURL(fileURL);
-      
-      toast.success('Report downloaded successfully');
-    } catch (error) {
-      console.error('Error downloading report:', error);
-      toast.error('Failed to download report');
-    }
-  };
+  
 
   const handleToggleActive = async (productId, currentStatus) => {
     try {
@@ -84,7 +72,7 @@ const Products = () => {
       if (showBestSelling) {
         fetchBestSellingProducts();
       } else {
-        fetchProducts();
+        fetchProducts(pagination.currentPage);
       }
       toast.success('Product status updated successfully');
     } catch (error) {
@@ -93,7 +81,7 @@ const Products = () => {
     }
   };
 
-  // Column definitions with additional fields for best-selling products
+
   const columns = [
     { field: 'name', header: 'Product Name' },
     { 
@@ -120,7 +108,7 @@ const Products = () => {
       )
     },
     { field: 'brand', header: 'Brand', render: (rowData) => rowData.brand?.name || 'N/A' },
-    { field: 'series', header: 'Series', render: (rowData) => rowData.series?.name || 'N/A' },
+    // { field: 'series', header: 'Series', render: (rowData) => rowData.series?.name || 'N/A' },
     { field: 'scale', header: 'Scale' },
     { field: 'type', header: 'Type' },
     { 
@@ -209,14 +197,7 @@ const Products = () => {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Products</h1>
         <div className="flex items-center gap-4">
-          {showBestSelling && (
-            <button
-              onClick={downloadBestSellingReport}
-              className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
-            >
-              <FaDownload /> Download Report
-            </button>
-          )}
+         
           <button
             onClick={() => setShowBestSelling(!showBestSelling)}
             className={`px-4 py-2 rounded ${
@@ -242,6 +223,31 @@ const Products = () => {
         onEdit={handleEdit}
         actions={['edit']}
       />
+
+      {/* Only show pagination for regular products, not best selling */}
+      {!showBestSelling && (
+        <div className="mt-4 flex items-center justify-between">
+          <div className="text-sm text-gray-700">
+            Showing {((pagination.currentPage - 1) * pagination.itemsPerPage) + 1} to {Math.min(pagination.currentPage * pagination.itemsPerPage, pagination.totalItems)} of {pagination.totalItems} products
+          </div>
+          <div className="flex justify-end space-x-2">
+            <button
+              onClick={() => handlePageChange(pagination.currentPage - 1)}
+              disabled={pagination.currentPage === 1}
+              className={`px-3 py-1 rounded ${pagination.currentPage === 1 ? 'bg-gray-200 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600 text-white'}`}
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => handlePageChange(pagination.currentPage + 1)}
+              disabled={pagination.currentPage === pagination.totalPages}
+              className={`px-3 py-1 rounded ${pagination.currentPage === pagination.totalPages ? 'bg-gray-200 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600 text-white'}`}
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -14,11 +14,18 @@ const userSlice = createSlice({
             state.email = action.payload.email;
         },
         clearUserData: (state) => {
-            state.fullName = '';
-            state.email = '';
+            return initialState; // This ensures a complete reset to initial state
         }
     }
 });
 
 export const { setUser, clearUserData } = userSlice.actions;
 export default userSlice.reducer;
+
+// Thunk action creator for setting user with expiration
+export const setUserWithExpiration = (user, expirationTime) => (dispatch) => {
+    dispatch(setUser(user));
+    setTimeout(() => {
+        dispatch(clearUserData());
+    }, expirationTime);
+};

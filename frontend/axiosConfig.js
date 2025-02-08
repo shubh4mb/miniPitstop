@@ -1,22 +1,21 @@
 import axios from 'axios';
-import { clearAuth } from './src/utils/auth.utils.js';
-
+import store from './src/redux_store/store.js';
+import { clearUserData } from './src/redux_store/slices/user/userSlice.js';
 
 const instance = axios.create({
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3037',
-    timeout: 30000, // Default timeout of 30 seconds
-    withCredentials: true, // Important for cookies
+    timeout: 30000,
+    withCredentials: true,
     headers: {
         'Content-Type': 'application/json'
     }
 });
 
-// Add a request interceptor for handling file uploads
+// Request interceptor for handling file uploads
 instance.interceptors.request.use(
     (config) => {
-        // Increase timeout for file uploads
         if (config.headers['Content-Type']?.includes('multipart/form-data')) {
-            config.timeout = 60000; // 60 seconds for file uploads
+            config.timeout = 60000;
         }
         return config;
     },
@@ -25,20 +24,29 @@ instance.interceptors.request.use(
     }
 );
 
-// Add a response interceptor for error handling
+// Response interceptor for error handling
 instance.interceptors.response.use(
     (response) => response,
     (error) => {
-        console.log(error);
-        console.log(error.response);
+        console.log('Error in axios interceptor:', error.response?.data);
         
-        
-        if (error.response?.status === 401 && error.response?.data?.message.toLowerCase().includes('token')) {
-            // Clear auth data and redirect to login
-            clearAuth();
+        if (error.response?.status === 401 && error?.response?.data?.message === 'token') {
+            console.log('Clearing user data and redirecting...');
             
-            window.location.href = '/login';
-          }
+            // Clear Redux store state
+            store.dispatch(clearUserData());
+            
+            // Clear cookies or local storage if needed
+            document.cookie.split(";").forEach((c) => {
+                document.cookie = c
+                    .replace(/^ +/, "")
+                    .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+            });
+            
+            // Redirect to home page
+            window.location.href = '/home';
+        }
+
         // Handle timeout errors
         if (error.code === 'ECONNABORTED') {
             const customError = new Error(
@@ -49,13 +57,10 @@ instance.interceptors.response.use(
         }
 
         // Enhance error message for better user feedback
-
         const errorMessage = error.response?.data?.message || error.message;
         const enhancedError = new Error(errorMessage);
         enhancedError.originalError = error;
         enhancedError.statusCode = error.response?.status;
-        // console.log(enhancedError);
-        
         
         return Promise.reject(enhancedError);
     }

@@ -80,6 +80,7 @@ const Product = () => {
       toast.success('Product added to cart successfully');
     }catch(error){
       console.error('Error adding to cart:', error);
+      toast.error(error.message);
     }
   };
 
