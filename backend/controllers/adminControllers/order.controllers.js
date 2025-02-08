@@ -4,13 +4,27 @@ import Transaction from '../../models/transaction_model.js';
 
 export const fetchAllOrders = async (req, res) => {
     try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+
+        const totalOrders = await Order.countDocuments();
         const orders = await Order.find()
-            .populate('user', 'name email')
-            .populate('items.product', 'name price').sort({ orderDate: -1 });
+            .populate('user', 'fullName email')
+            .populate('items.product', 'name price')
+            .sort({ orderDate: -1 })
+            .skip(skip)
+            .limit(limit);
 
         res.status(200).json({
             success: true,
-            orders
+            orders,
+            pagination: {
+                currentPage: page,
+                totalPages: Math.ceil(totalOrders / limit),
+                totalItems: totalOrders,
+                itemsPerPage: limit
+            }
         });
     } catch (error) {
         console.error('Error fetching orders:', error);

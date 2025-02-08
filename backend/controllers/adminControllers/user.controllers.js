@@ -3,11 +3,25 @@ import { HttpStatus, HttpMessage } from "../../constants/http.constants.js";
 
 export const fetchUsers = async (req, res) => {
     try {
-        const users = await User.find();
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+
+        const totalUsers = await User.countDocuments();
+        const users = await User.find()
+            .skip(skip)
+            .limit(limit);
+
         res.status(HttpStatus.OK).json({
             success: true,
             message: HttpMessage.OK,
             users,
+            pagination: {
+                currentPage: page,
+                totalPages: Math.ceil(totalUsers / limit),
+                totalItems: totalUsers,
+                itemsPerPage: limit
+            }
         });
     } catch (error) {
         console.error("Error in fetchAllUsers:", error);
@@ -54,4 +68,3 @@ export const updateUserStatus = async (req, res) => {
         });        
     }
 };
-

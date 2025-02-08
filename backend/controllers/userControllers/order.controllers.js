@@ -42,16 +42,35 @@ export const placeOrder = async (req, res) => {
             subTotalBeforeOffer += item.quantity * item.price;
             maxOffer = Math.max(product.offer || 0, product.brand?.offer || 0, product.series?.offer || 0);
             subTotalAfterOffer += item.quantity * item.price - (item.quantity * item.price * maxOffer) / 100;
+        console.log(subTotalAfterOffer);
+        
         }
         
         let couponDiscount = 0;
         if (appliedCoupon) {
          
             const coupon = await Coupon.findById(appliedCoupon);
-
+            if (!coupon) {
+                return res.status(HttpStatus.BAD_REQUEST).json({
+                    success: false,
+                    message: `Invalid coupon code`
+                });
+            }
+            if(coupon.userLimit<=user.appliedCoupon.count){
+                return res.status(HttpStatus.BAD_REQUEST).json({
+                    success: false,
+                    message: `Coupon usage limit reached`
+                });
+            }
+            
             if (coupon) {
-
-                couponDiscount = (subTotalAfterOffer * coupon.discount) / 100;
+                if(coupon.discountType === 'percentage'){
+                    couponDiscount = (subTotalAfterOffer * coupon.discount) / 100;
+                }else if(coupon.discountType === 'amount'){
+                    couponDiscount = coupon.discount;
+                    console.log(couponDiscount);
+                    
+                }
                 if(couponDiscount > coupon.maxRedemableAmount){
                     couponDiscount = coupon.maxRedemableAmount;
                 }
@@ -88,7 +107,7 @@ export const placeOrder = async (req, res) => {
         
         // const sample = undefined
         if(  orderStatus !==undefined){
-            console.log(orderStatus);
+            // console.log(orderStatus);
             
             const updateStockPromises = items.map(item => 
                 Product.findByIdAndUpdate(
@@ -117,6 +136,7 @@ export const placeOrder = async (req, res) => {
             orderId: savedOrder._id,
             amount: finalAmount,
             type: 'debit',
+            
           
         
         });
@@ -137,7 +157,8 @@ export const placeOrder = async (req, res) => {
                     message: "Insufficient wallet balance"
                 });
             }
-
+            transaction.status = "success";
+            await transaction.save();
             order.paymentStatus = "paid";
             await order.save();
 

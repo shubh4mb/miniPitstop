@@ -44,23 +44,22 @@ export const getProduct = async (req, res) => {
 };
 
 export const getAllProducts = async (req, res) => {
+
     try {
         let products
-        if(req.user.role ==='admin'){
-         products = await Product.find()
+     
+         products = await Product.find({isActive: true})
          .populate('brand','name').populate('series','name');
 
-        }
-        else{
-             products = await Product.find({isActive:true})
-        .populate('brand','name').populate('series','name');
-        }
+        
+      
         
         
-　　 　 　
+      
     res.status(HttpStatus.OK).json({ success: true, message: HttpMessage.OK, products });
-
-    } catch (error) {
+    }
+    
+     catch (error) {
         console.error('Error in getAllProducts:', error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: HttpMessage.INTERNAL_SERVER_ERROR, error: process.env.NODE_ENV === 'development' ? error.message : undefined });
     }
@@ -69,7 +68,7 @@ export const getAllProducts = async (req, res) => {
 export const filterProducts = async (req, res) => {
     try {
        const { priceRange, brands, scale, sortBy, page = 1, limit = 10, search } = req.body;
-       console.log(brands);
+    //    console.log(brands);
        
 
     // Validate inputs
@@ -126,7 +125,7 @@ if (brands && brands.length > 0) {
             products: [
                 { $skip: skip }, 
                 { $limit: validLimit }, 
-                
+                {$match: {isActive: true}},                
                 ...(sortBy && sortBy !== 'default'
                     ? [
                           {
@@ -228,10 +227,10 @@ export const searchedProducts = async (req, res) => {
 
 export const relatedProducts = async (req, res) => {
     try {
-        console.log("hi");
+        // console.log("hi");
         
         const filterTerm = req.body;
-   console.log(req.body);
+//    console.log(req.body);
    
         
         
@@ -262,7 +261,7 @@ const sameScale = await Product.find(
 .limit(5)
 .select('name card_image price scale card_logo cardColor buttonColor ');
 
-console.log(sameScale);
+// console.log(sameScale);
 
 
 
@@ -287,7 +286,7 @@ const sameBrand = await Product.find(
 .limit(5)
 .select('name card_image price scale card_logo cardColor buttonColor ');
 
-console.log(sameBrand);
+// console.log(sameBrand);
 
 
 const filteredSameBrand = sameBrand.filter(product => product.brand && product.series);
@@ -308,3 +307,25 @@ const filteredSameBrand = sameBrand.filter(product => product.brand && product.s
         });
     }
 };
+
+export const featuredProducts = async (req, res) => {
+    try {
+        const products = await Product.find({ isFeatured: true, isActive: true })
+        .populate('brand', 'name logo offer')
+        .populate('series', 'name offer');
+        // console.log(products);
+        
+        res.status(HttpStatus.OK).json({ 
+            success: true, 
+            message: HttpMessage.OK, 
+            products
+            
+        });
+    } catch (error) {
+        console.error('Error in featuredProducts:', error);
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ 
+            success: false, 
+            message: HttpMessage.INTERNAL_SERVER_ERROR 
+        });
+    }
+}

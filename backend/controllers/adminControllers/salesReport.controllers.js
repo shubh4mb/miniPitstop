@@ -2,6 +2,7 @@ import Order from '../../models/order_model.js';
 import { startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear } from 'date-fns';
 import PDFDocument from 'pdfkit';
 import { format } from 'date-fns';
+import xlsx from 'xlsx';
 
 // Helper function to get date range based on filter
 const getDateRange = (timeFilter, customStartDate, customEndDate) => {
@@ -302,6 +303,103 @@ export const downloadSalesReport = async (req, res) => {
     }
 };
 
+export const downloadSalesReportExcel = async (req, res) => {
+    try {
+
+        
+        const { timeFilter, startDate, endDate } = req.query;
+
+        // Get date range based on time filter
+        const { startDate: startDateTime, endDate: endDateTime } = getDateRange(timeFilter, startDate, endDate);
+
+        // Fetch orders within the date range
+        const orders = await Order.find({
+            createdAt: {
+                $gte: startDateTime,
+                $lte: endDateTime
+            },
+            orderStatus: 'delivered'
+        }).populate('user', 'fullName email')
+         .populate('items.product', 'name price');
+
+        //  console.log(orders);
+         
+
+        // Calculate statistics
+        const statistics = calculateStatistics(orders);
+
+        // data for Excel
+        const orderData = orders.map((order, index) => ({
+            'No.': index + 1,
+            'Order ID': order._id.toString(),
+            'Customer Name': order.user.fullName,
+            'Customer Email': order.user.email,
+            'Order Date': format(new Date(order.createdAt), 'dd/MM/yyyy'),
+            'Items': order.items.map(item => `${item.product.name} (${item.quantity})`).join(', '),
+            'Total Amount': order.totalAmount,
+            'Payment Method': order.paymentMethod,
+            'Status': order.status
+        }));
+
+        // summary
+        const summaryData = [
+            { 'Summary': 'Total Orders', 'Value': statistics.totalOrders },
+            { 'Summary': 'Total Revenue', 'Value': statistics.totalRevenue },
+            { 'Summary': 'Average Order Value', 'Value': statistics.averageOrderValue },
+            // { 'Summary': 'Total Items Sold', 'Value': statistics.totalItemsSold },
+            { 'Summary': 'Period', 'Value': `${format(startDateTime, 'dd/MM/yyyy')} to ${format(endDateTime, 'dd/MM/yyyy')}` }
+        ];
+
+        // Create workbook
+        const workbook = xlsx.utils.book_new();
+
+        // Add Orders worksheet
+        const ordersWorksheet = xlsx.utils.json_to_sheet(orderData);
+        xlsx.utils.book_append_sheet(workbook, ordersWorksheet, 'Orders');
+
+        // Add Summary worksheet
+        const summaryWorksheet = xlsx.utils.json_to_sheet(summaryData);
+        xlsx.utils.book_append_sheet(workbook, summaryWorksheet, 'Summary');
+
+        // Set column widths for better readability
+        const columnWidths = [
+            { wch: 5 },  // No.
+            { wch: 25 }, // Order ID
+            { wch: 20 }, // Customer Name
+            { wch: 25 }, // Customer Email
+            { wch: 12 }, // Order Date
+            { wch: 40 }, // Items
+            { wch: 15 }, // Total Amount
+            { wch: 15 }, // Payment Method
+            { wch: 10 }  // Status
+        ];
+        ordersWorksheet['!cols'] = columnWidths;
+
+        // Write to buffer
+        const buffer = xlsx.write(workbook, { 
+            type: 'buffer', 
+            bookType: 'xlsx',
+            bookSST: false
+        });
+
+        // Set response headers
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', `attachment; filename=sales-report-${format(new Date(), 'yyyy-MM-dd')}.xlsx`);
+        res.setHeader('Content-Length', buffer.length);
+
+        // Send the buffer
+        return res.send(buffer);
+
+    } catch (error) {
+        console.error('Error generating Excel report:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error generating Excel report',
+            error: error.message
+        });
+    }
+};
+
 // Helper function to calculate statistics
 const calculateStatistics = (orders) => {
     const statistics = orders.reduce((stats, order) => {
@@ -351,7 +449,7 @@ export const getRevenueChartData = async (req, res) => {
         const { timeFilter, startDate: customStartDate, endDate: customEndDate } = req.query;
         const { startDate, endDate } = getDateRange(timeFilter, customStartDate, customEndDate);
         
-        console.log("Date range:", { startDate, endDate });
+        // console.log("Date range:", { startDate, endDate });
 
         const orders = await Order.find({
             orderDate: {
@@ -361,7 +459,7 @@ export const getRevenueChartData = async (req, res) => {
             orderStatus: 'delivered'
         }).select('orderDate totalAmount').sort({ orderDate: 1 });
 
-        console.log(`Found ${orders.length} orders for chart`);
+        // console.log(`Found ${orders.length} orders for chart`);
 
         res.status(200).json({
             success: true,

@@ -89,7 +89,10 @@ export const updateBrand = async (req, res) => {
     try {
         const { brandId } = req.params;
         const { name, description, offer, isActive } = req.body;
-
+        console.log(req.body);
+        console.log(req.params);
+        
+        
         // Find existing brand
         const brand = await Brand.findById(brandId);
         if (!brand) {

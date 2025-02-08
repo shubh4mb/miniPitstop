@@ -86,3 +86,30 @@ export const addSeries = async (req, res) => {
     }
 };
 
+export const toggleSeriesStatus = async (req, res) => {
+    try {
+        const { seriesId } = req.params;
+        const {  isActive } = req.body;
+        const series = await Series.findById(seriesId);
+        if (!series) {
+            return res.status(HttpStatus.NOT_FOUND).json({
+                success: false,
+                message: HttpMessage.NOT_FOUND
+            });
+        }
+        series.isActive = isActive;
+        await series.save();
+        res.status(HttpStatus.OK).json({
+            success: true,
+            message: HttpMessage.UPDATED,
+            series
+        });
+    } catch (error) {
+        console.error('Error in toggleSeriesStatus:', error);
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+            success: false,
+            message: HttpMessage.INTERNAL_SERVER_ERROR,
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    }
+};

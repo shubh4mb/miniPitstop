@@ -15,6 +15,8 @@ export const addToCart = async (req, res) => {
             }); 
         }
         if(product.stock < 1){
+            console.log("workinggsgsdgsdg");
+            
             return res.status(HttpStatus.BAD_REQUEST).json({
                 success: false,
                 message: "Product is out of stock"
@@ -60,7 +62,7 @@ export const addToCart = async (req, res) => {
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: HttpMessage.INTERNAL_SERVER_ERROR,
-            error: process.env.NODE_ENV === "development" ? error.message : undefined,
+            error: process.env.NODE_ENV === "production" ? error.message : undefined,
         });
     }    
 }
@@ -76,7 +78,22 @@ export const getCart = async (req, res) => {
             });
         }
 
-        const cart = await Cart.findOne({ user: user._id }).populate('item.product');
+        const cart = await Cart.findOne({ user: user._id })
+            .populate({
+                path: 'item.product',
+                populate: [
+                    {
+                        path: 'brand',
+                        model: 'Brand',
+                        select: 'name offer'
+                    },
+                    {
+                        path: 'series',
+                        model: 'Series',
+                        select: 'name offer'
+                    }
+                ]
+            });
         if (!cart) {
             return res.status(HttpStatus.NOT_FOUND).json({
                 success: false,

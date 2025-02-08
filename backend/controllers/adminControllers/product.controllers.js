@@ -5,6 +5,7 @@ import { HttpStatus, HttpMessage } from "../../constants/http.constants.js";
 import { uploadToCloudinary, deleteFromCloudinary } from "../../CloudinaryConfig.js";
 import dotenv from "dotenv";
 import PDFDocument from 'pdfkit-table';
+import Order from "../../models/order_model.js";
 dotenv.config();
 
 export const addProduct = async (req, res) => {
@@ -12,7 +13,7 @@ export const addProduct = async (req, res) => {
         const { 
             name, description, price, brand, series, 
             offer, stock, buttonColor, cardColor, 
-            isActive = true, scale, type 
+            isActive = true,isFeatured = false, scale, type 
         } = req.body;
 
         // Input validation
@@ -80,6 +81,7 @@ export const addProduct = async (req, res) => {
                 buttonColor: buttonColor || '#000000',
                 cardColor: cardColor || '#ffffff',
                 isActive: Boolean(isActive),
+                isFeatured: Boolean(isFeatured),
                 card_image: {
                     public_id: cardImageResult.public_id,
                     url: cardImageResult.secure_url
@@ -137,7 +139,7 @@ export const updateProduct = async (req, res) => {
     try {
         const { id } = req.params;
 
-        // Find existing product
+     
         const product = await Product.findById(id);
         if (!product) {
             return res.status(HttpStatus.NOT_FOUND).json({
@@ -162,7 +164,8 @@ export const updateProduct = async (req, res) => {
             type: String,
             buttonColor: String,
             cardColor: String,
-            isActive: Boolean
+            isActive: Boolean,
+            isFeatured: Boolean
         };
 
         // Only include fields that are present in the request
@@ -179,7 +182,8 @@ export const updateProduct = async (req, res) => {
                         value = value !== undefined ? Number(value) : undefined;
                         break;
                     case Boolean:
-                        value = Boolean(value);
+                        // Convert string 'true'/'false' to actual boolean
+                        value = value === 'true' || value === true;
                         break;
                 }
 
@@ -189,7 +193,7 @@ export const updateProduct = async (req, res) => {
             }
         });
 
-        // If brand is being updated, validate it exists
+        
         if (updateData.brand) {
             const existingBrand = await Brand.findById(updateData.brand);
             if (!existingBrand) {
@@ -265,14 +269,14 @@ export const updateProduct = async (req, res) => {
                 url: result.secure_url
             }));
 
-            // Add new images to the current images array
+            
             currentImages = [...currentImages, ...newImages];
         }
 
-        // Update the images in updateData
+        
         updateData.images = currentImages;
 
-        // Update product with only changed fields
+      
         const updatedProduct = await Product.findByIdAndUpdate(
             id,
             { $set: updateData },
@@ -354,9 +358,19 @@ export const updateProductStatus = async (req, res) => {
 
 // Add this function to get best-selling products
  export const getBestSellingProducts = async (req, res) => {
+  console.log("Getting best selling products...");
+  
   try {
+    // First check if we have any delivered orders
+    const orderCount = await Order.countDocuments({ orderStatus: 'delivered' });
+    console.log(`Found ${orderCount} delivered orders`);
+
     const topProducts = await Order.aggregate([
-      { $match: { status: 'Delivered' } },
+      { 
+        $match: { 
+          orderStatus: 'delivered'
+        } 
+      },
       { $unwind: '$items' },
       {
         $group: {
@@ -398,7 +412,7 @@ export const updateProductStatus = async (req, res) => {
             _id: '$brandDetails._id',
             name: '$brandDetails.name'
           },
-          series: '$productDetails.series',
+          // series: '$productDetails.series',
           scale: '$productDetails.scale',
           type: '$productDetails.type',
           price: '$productDetails.price',
@@ -406,12 +420,20 @@ export const updateProductStatus = async (req, res) => {
           stock: '$productDetails.stock',
           isActive: '$productDetails.isActive',
           card_image: '$productDetails.card_image',
-          totalSold: 1,
+          totalSold: 1,  
+
           totalRevenue: 1
         }
       },
       { $sort: { totalSold: -1 } }
     ]);
+
+    // console.log(`Found ${topProducts.length} best selling products`);
+    // if (topProducts.length === 0) {
+    //   console.log('No products found in the aggregation pipeline');
+    // } else {
+    //   // console.log('Sample product:', topProducts[0]);
+    // }
 
     res.status(200).json({
       success: true,
@@ -421,7 +443,8 @@ export const updateProductStatus = async (req, res) => {
     console.error('Error in getBestSellingProducts:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch best selling products'
+      message: 'Failed to fetch best selling products',
+      error: error.message
     });
   }
 };
@@ -527,7 +550,36 @@ export const downloadBestSellingProductsPDF = async (req, res) => {
   }
 };
 
+export const getAllProducts = async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
 
+        const totalProducts = await Product.countDocuments();
+        const products = await Product.find()
+            .populate('brand', 'name')
+            .populate('series', 'name')
+            .skip(skip)
+            .limit(limit);
 
-
-
+        res.status(HttpStatus.OK).json({ 
+            success: true, 
+            message: HttpMessage.OK, 
+            products,
+            pagination: {
+                currentPage: page,
+                totalPages: Math.ceil(totalProducts / limit),
+                totalItems: totalProducts,
+                itemsPerPage: limit
+            }
+        });
+    } catch (error) {
+        console.error('Error in getAllProducts:', error);
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ 
+            success: false, 
+            message: HttpMessage.INTERNAL_SERVER_ERROR, 
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined 
+        });
+    }
+};

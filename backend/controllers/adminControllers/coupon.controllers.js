@@ -125,4 +125,31 @@ export const updateCoupon = async (req, res) => {
     }
 };
 
+export const updateCouponStatus = async (req, res) => {
+    console.log("working");
+    
+    try {
+        const { couponId } = req.params;
+        const { isActive } = req.body;
+        const updatedCoupon = await Coupon.findByIdAndUpdate(
+            couponId,
+            {   
+                isActive
+            },
+            { new: true }
+        );
+        res.status(HttpStatus.OK).json({
+            success: true,
+            message: HttpMessage.UPDATED,
+            updatedCoupon
+        });
+    } catch (error) {
+        console.error("Error in updateCouponStatus:", error);
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+            success: false,
+            message: HttpMessage.INTERNAL_SERVER_ERROR,
+            error: process.env.NODE_ENV === "development" ? error.message : undefined,
+        });
+    }
+};
 

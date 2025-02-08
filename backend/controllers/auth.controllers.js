@@ -107,6 +107,10 @@ export const verifyOTP = async (req, res) => {
     }
 
     if (otpRecord.otp !== otp) {
+      if(otpRecord.attempts === 2){
+        await otpRecord.deleteOne();
+        return res.status(HttpStatus.BAD_REQUEST).json({ message: 'Max attempts reached. Please try again later.' });
+      }
       await otpRecord.incrementAttempts();
       return res.status(HttpStatus.BAD_REQUEST).json({ message: 'Invalid OTP' });
     }
@@ -290,11 +294,11 @@ export const googleSignup = async (req, res, next) => {
       throw error; // Let the global error handler catch other errors
     }
 
-    const accessToken = jwt.sign({userId:user._id, role: "user", email:user.email, fullName:user.fullName}, process.env.JWT_SECRET, { expiresIn: '15m' });
+    const accessToken = jwt.sign({userId:user._id, role: "user", email:user.email, fullName:user.fullName}, process.env.JWT_SECRET, { expiresIn: '60m' });
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       sameSite: 'strict',
-      maxAge: 15 * 60 * 1000 // 15 minutes in milliseconds
+      maxAge: 60 * 60 * 1000 
     })
     res.status(HttpStatus.CREATED).json({
       success: true,
@@ -327,12 +331,19 @@ export const googleLogin = async (req, res) => {
     }
 
     // Generate access token
-    const accessToken = jwt.sign({userId:user._id, role: "user", email:user.email, fullName:user.fullName}, process.env.JWT_SECRET, { expiresIn: '15m' });
+    const accessToken = jwt.sign({userId:user._id, role: "user", email:user.email, fullName:user.fullName}, process.env.JWT_SECRET, { expiresIn: '60m' });
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       sameSite: 'strict',
-      maxAge: 15 * 60 * 1000 // 15 minutes in milliseconds
+      maxAge: 60 * 60 * 1000 
     })
+
+    if(user.isActive === false){
+      return res.status(HttpStatus.FORBIDDEN).json({
+        success: false,
+        message: 'Your account is blocked'
+      })
+    }
     res.status(HttpStatus.OK).json({
       success: true,
       message: HttpMessage.OK,
@@ -340,7 +351,7 @@ export const googleLogin = async (req, res) => {
         user: {
           fullName: user.fullName,
           email: user.email,
-          isVerified: user.isActive
+          
         }
       }
     });

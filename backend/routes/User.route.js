@@ -3,7 +3,7 @@ import {  fetchUserDetails, updateUserDetails , changePassword } from '../contro
 import { getAddresses, updateAddress , addAddress , deleteAddress } from '../controllers/userControllers/address.controllers.js'
 import { verifyToken } from '../middleware/auth.middleware.js'
 // import { placeOrder  , retryPayment } from '../controllers/userControllers/order.controllers.js'
-import { filterProducts , searchedProducts , relatedProducts } from '../controllers/sharedControllers/products.controllers.js';
+import { filterProducts , searchedProducts , relatedProducts , featuredProducts } from '../controllers/sharedControllers/products.controllers.js';
 import { addToCart , removeFromCart , getCart , updateCartItemQuantity } from '../controllers/userControllers/cart.controllers.js';
 import { placeOrder , retryPayment,getUserOrders, cancelOrder, returnOrder , downloadInvoice } from '../controllers/userControllers/order.controllers.js';
 // import signup from '../controllers/user.controllers.js'
@@ -52,6 +52,7 @@ router.post('/changePassword', verifyToken, changePassword)
 router.post('/products/filter', filterProducts);
 router.get('/products/search',searchedProducts);
 router.post('/products/related',relatedProducts);
+router.get('/products/featured',featuredProducts)
 
 
 
