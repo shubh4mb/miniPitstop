@@ -366,7 +366,7 @@ export const googleLogin = async (req, res) => {
 
 export const verify = async (req, res) => {
   try {
-    const token = req.cookies.accessToken;
+    const token = req?.cookies?.accessToken;
     if (!token) {
       return res.status(HttpStatus.UNAUTHORIZED).json({
         isAuthenticated: false

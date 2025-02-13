@@ -30,7 +30,8 @@ instance.interceptors.response.use(
     (error) => {
         console.log('Error in axios interceptor:', error.response?.data);
         
-        if (error.response?.status === 401 && error?.response?.data?.message === 'token') {
+        if (error.response?.status === 401 && error?.response?.data?.message.includes('token')) {
+            error.response.data.message = 'Please Login to your account';
             console.log('Clearing user data and redirecting...');
             
             // Clear Redux store state
@@ -44,7 +45,7 @@ instance.interceptors.response.use(
             });
             
             // Redirect to home page
-            window.location.href = '/home';
+            // window.location.href = '/home';
         }
 
         // Handle timeout errors

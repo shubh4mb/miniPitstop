@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { useState } from 'react';
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 
-const ProductCard = ({ _id, name, scale, price, card_image, brand, buttonColor, cardColor, isInWishlist }) => {
+const ProductCard = ({ _id, name, scale, price, card_image, brand, buttonColor, cardColor, isInWishlist, isInCart }) => {
   const [isWishlisted, setIsWishlisted] = useState(isInWishlist || false);
   const navigate = useNavigate();
 
@@ -81,7 +81,7 @@ const ProductCard = ({ _id, name, scale, price, card_image, brand, buttonColor, 
             style={{ background: buttonColor || 'blue' }}
             onClick={(e) => handleAddToCart(e, _id)}
           >
-            Add to Cart
+           {isInCart ? "Go to Cart" : "Add to Cart"}
           </button>
         </div>
       </div>

@@ -1,8 +1,9 @@
 import { useEffect , useState } from 'react';
 import Banner from '../../components/user/banner/Banner';
-import { getFeaturedProducts} from '../../api/user.api';
+import { getFeaturedProducts ,getCart} from '../../api/user.api';
 import ProductCard from '../../components/ProductCard';
 import { toast } from 'react-toastify';
+import {isAuth} from '../../utils/auth.utils';
 
 const Home = () => {
   const bannerImages = [
@@ -13,14 +14,31 @@ const Home = () => {
 
   const [products, setProducts] = useState([]);
   const [brands, setBrands] = useState([]);
-  
+  const [cart, setCart] = useState([]);
   
   useEffect( () => {
+    
+    const fetchCart = async () => {
+      try {
+      const res = await isAuth()
+      if(res.data.isAuthenticated){
+        const response = await getCart()
+        console.log(response.cart);
+        setCart(response.cart)
+      } else {
+        setCart([])
+      }
+      
+      } catch (error) {
+        console.error('Error fetching cart:', error);
+        toast.error(error.message || 'Failed to load cart');
+      }
+    }
     const fetchProducts = async () => {
       try {
         const response = await getFeaturedProducts()
         setProducts(response.products)
-        console.log(response.products);
+        // console.log(response.products);
 
         
         
@@ -39,8 +57,9 @@ const Home = () => {
     //   }
     // };
     fetchProducts();
+    fetchCart();
     // fetchBrands();
-  }, [])
+  }, [cart])
 
 
 
@@ -64,21 +83,27 @@ const Home = () => {
     </div>
 
   
-      <div className="mt-4 grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5  justify-items-center">
-        {products.map((product) => (
-          <ProductCard
-            key={product._id}
-            _id={product._id}
-            name={product.name}
-            scale={product.scale}
-            price={product.price}
-            card_image={product.card_image?.url}
-            brand={product.brand.name}
-            buttonColor={product.buttonColor}
-            cardColor={product.cardColor}
-          />
-        ))}
-      </div>
+    <div className="mt-4 grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 justify-items-center">
+  {products.map((product) => {
+   const isInCart = cart?.item?.some((cartItem) => cartItem.product._id === product._id);
+    console.log(isInCart);// Check if product is in the cart
+
+    return (
+      <ProductCard
+        key={product._id}
+        _id={product._id}
+        name={product.name}
+        scale={product.scale}
+        price={product.price}
+        card_image={product.card_image?.url}
+        brand={product.brand.name}
+        buttonColor={product.buttonColor}
+        cardColor={product.cardColor}
+       isInCart={isInCart}
+      />
+    );
+  })}
+</div>
  
     </>
   );

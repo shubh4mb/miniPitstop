@@ -259,3 +259,51 @@ export const clearCart = async (req, res) => {
         });
     }
 }
+
+export const getCartProducts = async (req, res) => {
+    try {
+        const userExist = req.user?.userId;
+        if(userExist){
+            console.log("why am i working")
+            const user = await User.findById(req.user.userId);
+            if (!user) {
+                return res.status(HttpStatus.NOT_FOUND).json({
+                    success: false,
+                    message: HttpMessage.NOT_FOUND
+                });
+            } 
+            const cart = await Cart.findOne({ user: user._id });
+            if (!cart) {
+                return res.status(HttpStatus.NOT_FOUND).json({
+                    success: false,
+                    message: "Cart not found"
+                });
+            }
+            res.status(HttpStatus.OK).json({
+                success: true,
+                message: HttpMessage.OK,
+                cart
+            });
+        }
+        else{
+            res.status(HttpStatus.OK).json({
+                success: true,
+                message: HttpMessage.OK,
+                cart: null
+            });
+        }
+    
+
+       
+
+        // const products = await Product.find({ _id: { $in: cart.item } });
+     
+    } catch (error) {
+        console.error("Error in getCartProducts:", error);
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+            success: false,
+            message: HttpMessage.INTERNAL_SERVER_ERROR,
+            error: process.env.NODE_ENV === "development" ? error.message : undefined,
+        });
+    }
+}

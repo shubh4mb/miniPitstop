@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { FaUser, FaShoppingCart, FaHeart, FaSignOutAlt , FaWallet ,FaExchangeAlt  } from 'react-icons/fa';
+import { FaUser, FaShoppingCart, FaHeart, FaWallet ,FaExchangeAlt  } from 'react-icons/fa';
 import { FaClipboardList } from "react-icons/fa";
 
  const Sidebar = () => {

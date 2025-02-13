@@ -100,6 +100,16 @@ export const getCart = async () => {
   }
 };
 
+export const getCartProducts = async () => {
+  try {
+    const response = await axiosInstance.get('/api/user/getCartProducts');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching cart products:', error);
+    throw error;
+  }
+};
+
 export const updateCartItemQuantity = async (itemId, newQuantity) => {
   try {
     const response = await axiosInstance.patch(`/api/user/updateCartItemQuantity/${itemId}`, { quantity: newQuantity });
