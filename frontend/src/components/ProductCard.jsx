@@ -79,7 +79,7 @@ const ProductCard = ({ _id, name, scale, price, card_image, brand, buttonColor, 
           <button
             className={`px-4 py-2 rounded-lg text-sm font-semibold hover:shadow-lg transition-all ${buttonColor || 'bg-blue-500'}`}
             style={{ background: buttonColor || 'blue' }}
-            onClick={(e) => handleAddToCart(e, _id)}
+            onClick={isInCart ? (e) =>{e.stopPropagation(); navigate('/profile/cart')} : (e) => handleAddToCart(e, _id)}
           >
            {isInCart ? "Go to Cart" : "Add to Cart"}
           </button>

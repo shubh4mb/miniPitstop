@@ -3,9 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
 import FilterBar from '../../components/user/filterBar/FilterBar';
 import ProductCard from '../../components/ProductCard';
-import { filteredProducts } from '../../api/user.api';
+import { filteredProducts , getCart} from '../../api/user.api';
 import { toast } from 'react-toastify';
 import { FiFilter } from 'react-icons/fi';
+import { isAuth } from '../../utils/auth.utils';
 
 const Shop = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -21,7 +22,26 @@ const Shop = () => {
     sortBy: 'default',
   });
   const itemsPerPage = 8;
-
+const [cart, setCart] = useState([]);
+const fetchCart = async () => {
+  try {
+  const res = await isAuth()
+  if(res.data.isAuthenticated){
+    const response = await getCart()
+    console.log(response.cart);
+    setCart(response.cart)
+  } else {
+    setCart([])
+  }
+  
+  } catch (error) {
+    console.error('Error fetching cart:', error);
+    toast.error(error.message || 'Failed to load cart');
+  }
+}
+useEffect(() => {
+  fetchCart();
+}, [cart]);
   const fetchFilteredProducts = async (filters, page = 1) => {
     try {
       setLoading(true);
@@ -145,7 +165,11 @@ const Shop = () => {
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5 }}
               >
-                {products.map((product) => (
+                {products.map((product) =>{
+                  const isInCart = cart?.item?.some((cartItem) => cartItem.product._id === product._id);
+
+                  
+                  return (
                   <motion.div
                     key={product._id}
                     initial={{ opacity: 0, y: 20 }}
@@ -162,9 +186,10 @@ const Shop = () => {
                       brand={product.brand.name}
                       buttonColor={product.buttonColor}
                       cardColor={product.cardColor}
+                      isInCart={isInCart}
                     />
                   </motion.div>
-                ))}
+                )})}
               </motion.div>
 
               {/* Numbered Pagination */}

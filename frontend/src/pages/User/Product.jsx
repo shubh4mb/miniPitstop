@@ -1,14 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { getProduct } from '../../api/admin.api';
-import { addToCart , relatedProducts } from '../../api/user.api';
+import { getProduct , } from '../../api/admin.api';
+import { addToCart ,getCart, relatedProducts } from '../../api/user.api';
 import MagnifyImage from '../../components/MagnifyImage';
 import RelatedProducts from '../../components/RelatedProducts';
 import ReviewComponent from '../../components/ReviewComponent';
+import {isAuth} from '../../utils/auth.utils'
 import { FaStar } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 const Product = () => {
+  const navigate = useNavigate();
   const { productId } = useParams();
   console.log(productId);
   
@@ -19,7 +22,26 @@ const Product = () => {
   const [offer, setOffer] = useState(0);
   const [sameBrand, setSameBrand] = useState([]);
   const [sameScale, setSameScale] = useState([]);
-
+  const [cart, setCart] = useState([]);
+  const fetchCart = async () => {
+    try {
+    const res = await isAuth()
+    if(res.data.isAuthenticated){
+      const response = await getCart()
+      console.log(response.cart);
+      setCart(response.cart)
+    } else {
+      setCart([])
+    }
+    
+    } catch (error) {
+      console.error('Error fetching cart:', error);
+      toast.error(error.message || 'Failed to load cart');
+    }
+  }
+  useEffect(() => {
+    fetchCart();
+  }, [cart]);
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -99,6 +121,8 @@ const Product = () => {
       />
     ));
   };
+
+  const isInCart = cart?.item?.some((cartItem) => cartItem.product._id === product._id);
 
   // Calculate discounted price
   const discountedPrice = product.price - (product.price * (offer / 100));
@@ -207,9 +231,13 @@ const Product = () => {
           <button
             style={{ backgroundColor: product.buttonColor }}
             className="w-full py-3 px-8 rounded-full text-white font-semibold hover:opacity-90 transition-opacity"
-            onClick={()=>handleAddToCart(product._id)}           
+            onClick={() => isInCart ? navigate('/profile/cart') : handleAddToCart(product._id)}           
           >
-            {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+            {product.stock === 0 
+    ? 'Out of Stock' 
+    : isInCart 
+      ? 'Item already in Cart' 
+      : 'Add to Cart'}
           </button>
         </div>
       </div>
