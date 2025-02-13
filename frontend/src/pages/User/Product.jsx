@@ -26,7 +26,7 @@ const Product = () => {
   const fetchCart = async () => {
     try {
     const res = await isAuth()
-    if(res.data.isAuthenticated){
+    if(res){
       const response = await getCart()
       console.log(response.cart);
       setCart(response.cart)
@@ -41,7 +41,7 @@ const Product = () => {
   }
   useEffect(() => {
     fetchCart();
-  }, [cart]);
+  }, []);
   useEffect(() => {
     const fetchProduct = async () => {
       try {

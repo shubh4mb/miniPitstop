@@ -21,7 +21,10 @@ const Home = () => {
     const fetchCart = async () => {
       try {
       const res = await isAuth()
-      if(res.data.isAuthenticated){
+      console.log("hiii",res);
+      
+      if(res){
+        
         const response = await getCart()
         console.log(response.cart);
         setCart(response.cart)
@@ -59,7 +62,7 @@ const Home = () => {
     fetchProducts();
     fetchCart();
     // fetchBrands();
-  }, [cart])
+  }, [])
 
 
 

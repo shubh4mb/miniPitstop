@@ -399,6 +399,7 @@ export const verify = async (req, res) => {
       isActive: true
     });
   }
+  
     
   } catch (error) {
     res.status(HttpStatus.UNAUTHORIZED).json({

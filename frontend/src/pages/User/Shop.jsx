@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
 import FilterBar from '../../components/user/filterBar/FilterBar';
 import ProductCard from '../../components/ProductCard';
-import { filteredProducts , getCart} from '../../api/user.api';
+import { filteredProducts, getCart } from '../../api/user.api';
 import { toast } from 'react-toastify';
 import { FiFilter } from 'react-icons/fi';
 import { isAuth } from '../../utils/auth.utils';
@@ -22,37 +22,38 @@ const Shop = () => {
     sortBy: 'default',
   });
   const itemsPerPage = 8;
-const [cart, setCart] = useState([]);
-const fetchCart = async () => {
-  try {
-  const res = await isAuth()
-  if(res.data.isAuthenticated){
-    const response = await getCart()
-    console.log(response.cart);
-    setCart(response.cart)
-  } else {
-    setCart([])
+  const [cart, setCart] = useState([]);
+  const fetchCart = async () => {
+    try {
+      const res = await isAuth()
+      if (res) {
+        const response = await getCart()
+        console.log(response.cart);
+        setCart(response.cart)
+      } else {
+        setCart([])
+      
+      }
+
+    } catch (error) {
+      console.error('Error fetching cart:', error);
+      toast.error(error.message || 'Failed to load cart');
+    }
   }
-  
-  } catch (error) {
-    console.error('Error fetching cart:', error);
-    toast.error(error.message || 'Failed to load cart');
-  }
-}
-useEffect(() => {
-  fetchCart();
-}, [cart]);
+  useEffect(() => {
+    fetchCart();
+  }, []);
   const fetchFilteredProducts = async (filters, page = 1) => {
     try {
       setLoading(true);
       const searchQuery = searchParams.get('search');
-      const response = await filteredProducts({ 
-        ...filters, 
-        page, 
+      const response = await filteredProducts({
+        ...filters,
+        page,
         limit: itemsPerPage,
-        search: searchQuery 
+        search: searchQuery
       });
-     
+
       setProducts(response.products);
       setTotalPages(response.totalPages || Math.ceil(response.totalCount / itemsPerPage));
       setLoading(false);
@@ -159,41 +160,42 @@ useEffect(() => {
           ) : (
             <>
               {/* Product Grid */}
-              <motion.div 
+              <motion.div
                 className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5 }}
               >
-                {products.map((product) =>{
+                {products.map((product) => {
                   const isInCart = cart?.item?.some((cartItem) => cartItem.product._id === product._id);
 
-                  
+
                   return (
-                  <motion.div
-                    key={product._id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    whileHover={{ scale: 1.03 }}
-                  >
-                    <ProductCard
-                      _id={product._id}
-                      name={product.name}
-                      scale={product.scale}
-                      price={product.price}
-                      card_image={product.card_image?.url}
-                      brand={product.brand.name}
-                      buttonColor={product.buttonColor}
-                      cardColor={product.cardColor}
-                      isInCart={isInCart}
-                    />
-                  </motion.div>
-                )})}
+                    <motion.div
+                      key={product._id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5 }}
+                      whileHover={{ scale: 1.03 }}
+                    >
+                      <ProductCard
+                        _id={product._id}
+                        name={product.name}
+                        scale={product.scale}
+                        price={product.price}
+                        card_image={product.card_image?.url}
+                        brand={product.brand.name}
+                        buttonColor={product.buttonColor}
+                        cardColor={product.cardColor}
+                        isInCart={isInCart}
+                      />
+                    </motion.div>
+                  )
+                })}
               </motion.div>
 
               {/* Numbered Pagination */}
-              <motion.div 
+              <motion.div
                 className="flex justify-center mt-6 space-x-2"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -204,11 +206,10 @@ useEffect(() => {
                     key={index}
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
-                    className={`px-3 py-2 rounded-lg ${
-                      currentPage === index + 1
+                    className={`px-3 py-2 rounded-lg ${currentPage === index + 1
                         ? 'bg-blue-500 text-white'
                         : 'text-blue-500 hover:bg-blue-100'
-                    }`}
+                      }`}
                     onClick={() => handlePageChange(index + 1)}
                   >
                     {index + 1}
