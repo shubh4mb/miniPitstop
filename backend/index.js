@@ -9,13 +9,14 @@ import userRoute from './routes/User.route.js'
 import authRoute from './routes/Auth.route.js'
 import adminRoute from './routes/Admin.route.js'
 import { errorHandler } from './middleware/error.middleware.js';
+const PORT = process.env.PORT || 5000;
 
 const app=express()
 app.use(express.json()); 
 app.use(express.urlencoded({ extended: true }));  
 app.use(cookieParser());
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: process.env.FRONTEND_URL|| 'http://localhost:5173',
     credentials: true
 }));
 
@@ -40,6 +41,7 @@ app.all('*', (req, res, next) => {
 // Global error handling middleware
 app.use(errorHandler);
 
-app.listen(3037, ()=>{
-  console.log(`SERVER RUNNING 3037!!`);
+
+app.listen(PORT, ()=>{
+  console.log(`SERVER RUNNING 5000!!`);
 });
