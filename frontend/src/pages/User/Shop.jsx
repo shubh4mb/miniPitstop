@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
 import FilterBar from '../../components/user/filterBar/FilterBar';
 import ProductCard from '../../components/ProductCard';
-import { filteredProducts, getCart } from '../../api/user.api';
+import { filteredProducts, getCart , fetchWishlist} from '../../api/user.api';
 import { toast } from 'react-toastify';
 import { FiFilter } from 'react-icons/fi';
 import { isAuth } from '../../utils/auth.utils';
@@ -23,15 +23,21 @@ const Shop = () => {
   });
   const itemsPerPage = 8;
   const [cart, setCart] = useState([]);
+  const [wishlist,setWishlist]=useState([])
   const fetchCart = async () => {
     try {
       const res = await isAuth()
       if (res) {
-        const response = await getCart()
-        console.log(response.cart);
+        const [response, responseWishlist] = await Promise.all([
+          getCart(),
+          fetchWishlist()
+        ]);
+       
         setCart(response.cart)
+        setWishlist(responseWishlist.wishlist)
       } else {
         setCart([])
+        setWishlist([])
       
       }
 
@@ -42,6 +48,7 @@ const Shop = () => {
   }
   useEffect(() => {
     fetchCart();
+    fetchWishlist();
   }, []);
   const fetchFilteredProducts = async (filters, page = 1) => {
     try {
@@ -168,7 +175,7 @@ const Shop = () => {
               >
                 {products.map((product) => {
                   const isInCart = cart?.item?.some((cartItem) => cartItem.product._id === product._id);
-
+                  const isInWishlist = wishlist?.items?.some((wishlistItem) => wishlistItem.product._id === product._id);
 
                   return (
                     <motion.div
@@ -188,6 +195,7 @@ const Shop = () => {
                         buttonColor={product.buttonColor}
                         cardColor={product.cardColor}
                         isInCart={isInCart}
+                        isInWishlist={isInWishlist}
                       />
                     </motion.div>
                   )

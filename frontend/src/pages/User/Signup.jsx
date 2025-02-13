@@ -159,7 +159,7 @@ const Signup = () => {
       }
       
     } catch (error) {
-      console.log(error);
+     
       
       // Check if it's a Google auth user
       if (error.response?.data?.authProvider === 'google') {

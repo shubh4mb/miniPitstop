@@ -29,7 +29,7 @@ const Profile = () => {
         
         try{
             const response = await updateUser(user);
-            console.log(response);
+          
             toast.success('Profile updated successfully');
             setIsEditing(false);
         }
@@ -37,8 +37,8 @@ const Profile = () => {
             toast.error(error.message);
             
         }
-        // Add code to save the changes to the user's profile
-        // console.log('Changes saved:', user);
+       
+        
     };
 
     const handleInputChange = (event) => {

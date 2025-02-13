@@ -18,7 +18,7 @@ const Users = () => {
       const response = await fetchAllUsers(page, pagination.itemsPerPage);
       setUsers(response.users);
       setPagination(response.pagination);
-      console.log(response);
+      
     } catch (error) {
       console.error('Error fetching users:', error);
       toast.error(error.message || 'Failed to load users');
@@ -79,9 +79,7 @@ const Users = () => {
     }
   ];
 
-  const handleView = (user) => {
-    console.log('View user:', user);
-  };
+  
 
   return (
     <div className="p-4">
@@ -92,7 +90,7 @@ const Users = () => {
       <DataTable
         columns={columns}
         data={users}
-        onView={handleView}
+    
         // actions={['view']}
       />
 

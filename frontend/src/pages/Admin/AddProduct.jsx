@@ -524,8 +524,7 @@ const AddProduct = () => {
           isFeatured: formData.isFeatured
         };
 
-        // Log the data being sent
-        console.log('Updating product with:', updateDataWithRemovedImages);
+      
         
         await updateProduct(productId, updateDataWithRemovedImages);
         toast.success('Product updated successfully!');

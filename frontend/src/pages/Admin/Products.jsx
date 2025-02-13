@@ -50,7 +50,7 @@ const Products = () => {
     try {
       setLoading(true);
       const response = await bestSellingProducts();
-      console.log('Best selling products response:', response); 
+ 
       if (response.success) {
         setProducts(response.products); 
       } else {

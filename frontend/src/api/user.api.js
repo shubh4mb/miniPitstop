@@ -121,7 +121,7 @@ export const updateCartItemQuantity = async (itemId, newQuantity) => {
 };
 
 export const placeOrder = async (orderData) => {
-  console.log(orderData);
+ 
   
   try {
     const response = await axiosInstance.post('/api/user/placeOrder', orderData);
@@ -174,7 +174,7 @@ export const getSingleOrder = async (orderId) => {
 
 export const searchBar = async (query) => {
   try {
-    console.log(query);
+   
     
     const response = await axiosInstance.get(`/api/user/products/search?searchTerm=${query}`);
     return response.data;

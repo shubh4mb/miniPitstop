@@ -64,7 +64,7 @@ const Login = () => {
     }
 
     try {
-      console.log("yoyo");
+     
       
       const data = await adminLogin(formData);
       

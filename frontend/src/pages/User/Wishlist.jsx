@@ -14,7 +14,7 @@ const Wishlist = () => {
     setLoading(true);
     try {
       const response = await fetchWishlist();
-      console.log('Wishlist response:', response); // Debug log
+      
       
       // Check if wishlist exists and has items
       if (response?.wishlist?.items) {

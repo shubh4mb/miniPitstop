@@ -1,6 +1,6 @@
 import { useEffect , useState } from 'react';
 import Banner from '../../components/user/banner/Banner';
-import { getFeaturedProducts ,getCart} from '../../api/user.api';
+import { getFeaturedProducts ,getCart , fetchWishlist} from '../../api/user.api';
 import ProductCard from '../../components/ProductCard';
 import { toast } from 'react-toastify';
 import {isAuth} from '../../utils/auth.utils';
@@ -15,21 +15,29 @@ const Home = () => {
   const [products, setProducts] = useState([]);
   const [brands, setBrands] = useState([]);
   const [cart, setCart] = useState([]);
+  const [wishlist, setWishlist] = useState([]);
+ 
   
-  useEffect( () => {
+ 
     
     const fetchCart = async () => {
       try {
       const res = await isAuth()
-      console.log("hiii",res);
+      
       
       if(res){
         
-        const response = await getCart()
-        console.log(response.cart);
+        const [response, responseWishlist] = await Promise.all([
+          getCart(),
+          fetchWishlist()
+        ]);
+       
+      
         setCart(response.cart)
+        setWishlist(responseWishlist.wishlist)
       } else {
         setCart([])
+        setWishlist([])
       }
       
       } catch (error) {
@@ -37,11 +45,12 @@ const Home = () => {
         toast.error(error.message || 'Failed to load cart');
       }
     }
+    
     const fetchProducts = async () => {
       try {
         const response = await getFeaturedProducts()
         setProducts(response.products)
-        // console.log(response.products);
+    
 
         
         
@@ -59,15 +68,12 @@ const Home = () => {
     //     toast.error(error.message || 'Failed to load brands');
     //   }
     // };
+   useEffect( () => {
+    
     fetchProducts();
     fetchCart();
-    // fetchBrands();
+
   }, [])
-
-
-
-
-
   return (<>
     <div className="mt-4">
       <Banner 
@@ -88,8 +94,9 @@ const Home = () => {
   
     <div className="mt-4 grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 justify-items-center">
   {products.map((product) => {
+    const isInWishlist = wishlist?.items?.some((item) => item.product._id === product._id);
    const isInCart = cart?.item?.some((cartItem) => cartItem.product._id === product._id);
-    console.log(isInCart);// Check if product is in the cart
+   
 
     return (
       <ProductCard
@@ -103,6 +110,8 @@ const Home = () => {
         buttonColor={product.buttonColor}
         cardColor={product.cardColor}
        isInCart={isInCart}
+       isInWishlist={isInWishlist}
+
       />
     );
   })}

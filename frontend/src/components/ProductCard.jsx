@@ -17,7 +17,7 @@ const ProductCard = ({ _id, name, scale, price, card_image, brand, buttonColor, 
     e.stopPropagation(); // This prevents the click from bubbling up to the parent div
     try {
       const response = await addToCart(_id);
-      console.log(response);
+     
       toast.success('Product added to cart successfully');
     } catch(error) {
       console.error('Error adding to cart:', error);
@@ -52,10 +52,14 @@ const ProductCard = ({ _id, name, scale, price, card_image, brand, buttonColor, 
             onClick={handleWishlist}
             className="p-1 hover:scale-110 transition-transform"
           >
-            {isWishlisted ? (
+            {isInWishlist ? (
               <FaHeart className="w-6 h-6 text-red-500" />
             ) : (
-              <FaRegHeart className="w-6 h-6 text-white hover:text-red-500" />
+              isWishlisted ? (
+                <FaHeart className="w-6 h-6 text-red-500" />
+              ) : (
+                <FaRegHeart className="w-6 h-6 text-gray-500 hover:text-red-500" />
+              )
             )}
           </button>
         </div>

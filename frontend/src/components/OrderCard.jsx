@@ -19,7 +19,7 @@ const OrderCard = ({ order, onOrderUpdate, isAdmin = false }) => {
         script.src = 'https://checkout.razorpay.com/v1/checkout.js';
         script.async = true;
         script.onload = () => {
-            console.log('Razorpay script loaded successfully');
+         
         };
         script.onerror = () => {
             console.error('Failed to load Razorpay script');
@@ -162,7 +162,7 @@ const OrderCard = ({ order, onOrderUpdate, isAdmin = false }) => {
                 },
                 modal: {
                     ondismiss: function () {
-                        console.log('Payment popup closed by user.');
+                       
                         toast.info('Payment was not completed. Please try again.');
                     },
                 },

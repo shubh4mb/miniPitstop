@@ -44,10 +44,9 @@ export const addBrand = async (formData) => {
 
 export const getBrands = async () => {
   try {
-    console.log('Fetching brands...');
     
     const response = await axiosInstance.get('/api/admin/brands');
-    // console.log(response);
+   
     
     // Successful response
     if (response.status === 200) {
@@ -101,7 +100,6 @@ export const getBrand = async (brandId) => {
 
 export const updateBrand = async (updateFormData, brandId) => {
   try {
-    console.log('Update Form Data:', updateFormData);
     
     // Create FormData object for multipart/form-data
     const form = new FormData();
@@ -133,10 +131,7 @@ export const updateBrand = async (updateFormData, brandId) => {
     // Remove the default Content-Type header to let the browser set it with boundary
     delete axiosInstance.defaults.headers['Content-Type'];
     
-    // Log form data entries for debugging
-    for (let [key, value] of form.entries()) {
-      console.log(`Form entry - ${key}:`, value);
-    }
+    
     
     const response = await axiosInstance.patch(`/api/admin/brand/${brandId}`, form);
     
@@ -184,18 +179,7 @@ export const addProduct = async (formData) => {
     });
   }
 
-  // Debug: Log FormData contents
-  console.log('FormData contents:');
-  for (let pair of productFormData.entries()) {
-    if (pair[1] instanceof Blob) {
-      console.log(`${pair[0]}: Blob {
-        type: ${pair[1].type},
-        size: ${pair[1].size} bytes
-      }`);
-    } else {
-      console.log(`${pair[0]}: ${pair[1]}`);
-    }
-  }
+
   
   try {
       const response = await axiosInstance.post('/api/admin/products', productFormData, {
@@ -322,7 +306,6 @@ export const updateProduct = async (productId, formData) => {
         }
       });
     }
-    console.log(productFormData);
     const response = await axiosInstance.patch(`/api/admin/product/${productId}`, productFormData, {
       headers: {
         'Content-Type': 'multipart/form-data'
@@ -540,9 +523,7 @@ export const getSalesReport = async (timeFilter, startDate = null, endDate = nul
             params.endDate = endDate;
         }
 
-        console.log('Calling sales report API with params:', params);
         const response = await axiosInstance.get('/api/admin/sales-report', { params });
-        console.log('Sales report API response:', response.data);
         return response.data;
     } catch (error) {
         console.error('Sales report API error:', error);
@@ -598,9 +579,9 @@ export const getRevenueChartData = async (timeFilter, startDate = null, endDate 
             params.endDate = endDate;
         }
 
-        console.log('Calling revenue chart API with params:', params);
+      
         const response = await axiosInstance.get('/api/admin/sales-report/revenue-chart', { params });
-        console.log('Revenue chart API response:', response.data);
+       
         return response.data;
     } catch (error) {
         console.error('Revenue chart API error:', error);

@@ -6,7 +6,7 @@ const CartProductCard = ({
   onQuantityChange, 
   onRemove 
 }) => {
-  console.log(product.card_image);
+
   
   const navigate = useNavigate();
   

@@ -25,10 +25,10 @@ const Wallet = () => {
         setWallet(response.wallet)
         setTransactions(response.wallet.transactionHistory)
         setUser(response.userData)
-        console.log(response)
+    
       }
       catch(error){
-        console.log(error)
+        toast.error(error.message)
       }
         
       
@@ -84,7 +84,7 @@ const Wallet = () => {
         order_id: order.id,
         handler: async function (response) {
           try {
-            console.log('Razorpay response:', response);
+          
   
             // Verify payment
             const verifyData = {
@@ -93,10 +93,10 @@ const Wallet = () => {
               razorpay_signature: response.razorpay_signature,
               amount:Number(amount),
             };
-            console.log('Payment verification data:', verifyData);
+          
   
             const verificationResult = await verifyRazorpayWallet(verifyData);
-            console.log(verificationResult);
+    
             
             if (verificationResult.success) {
               toast.success('Payment successful and funds added to wallet!');
@@ -120,7 +120,7 @@ const Wallet = () => {
           ondismiss: function () {
      
             
-            console.log('Payment popup closed by user.');
+        
             toast.info('Payment was not completed. Please try again.');
           },
         },

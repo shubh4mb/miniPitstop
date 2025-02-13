@@ -13,7 +13,7 @@ import { useNavigate } from 'react-router-dom';
 const Product = () => {
   const navigate = useNavigate();
   const { productId } = useParams();
-  console.log(productId);
+  
   
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -28,7 +28,7 @@ const Product = () => {
     const res = await isAuth()
     if(res){
       const response = await getCart()
-      console.log(response.cart);
+      
       setCart(response.cart)
     } else {
       setCart([])
@@ -60,11 +60,11 @@ const Product = () => {
       brand: response.product.brand._id,
         }
 
-        console.log(filterTerm);
+     
         
         // Fetch related products from the same brand or series
         const relatedResponse = await relatedProducts(filterTerm);
-        console.log(relatedResponse);
+
         setSameBrand(relatedResponse.filteredSameBrand);
         setSameScale(relatedResponse.filteredSameScale);
 
@@ -98,7 +98,7 @@ const Product = () => {
   const handleAddToCart = async(_id) => {
     try{
       const response = await addToCart(_id);
-      console.log(response);
+   
       toast.success('Product added to cart successfully');
     }catch(error){
       console.error('Error adding to cart:', error);

@@ -38,12 +38,12 @@ const Dashboard = () => {
       setLoading(true);
       const { startDate, endDate } = timeFilter === 'custom' ? customDateRange : {};
       const response = await getRevenueChartData(timeFilter, startDate, endDate);
-      console.log('Response data:', response); // Debug log
+   
       if (response.success && response.data) {
         // If orders are directly in response.data
         const ordersData = Array.isArray(response.data) ? response.data : 
                           response.data.orders ? response.data.orders : [];
-        console.log('Processed orders:', ordersData); // Debug log
+       
         setOrders(ordersData);
       } else {
         toast.error(response.message || 'Failed to fetch chart data');
