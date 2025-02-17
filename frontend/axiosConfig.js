@@ -3,7 +3,7 @@ import store from './src/redux_store/store.js';
 import { clearUserData } from './src/redux_store/slices/user/userSlice.js';
 
 const instance = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3037',
+    baseURL: import.meta.env.VITE_API_URL ,
     timeout: 30000,
     withCredentials: true,
     headers: {
