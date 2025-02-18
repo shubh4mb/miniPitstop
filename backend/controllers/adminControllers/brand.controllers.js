@@ -86,6 +86,7 @@ export const addBrand = async (req, res) => {
 };
 
 export const updateBrand = async (req, res) => {
+    
     try {
         const { brandId } = req.params;
         const { name, description, offer, isActive } = req.body;

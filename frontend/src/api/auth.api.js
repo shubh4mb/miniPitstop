@@ -125,6 +125,8 @@ export const googleLogin = async () => {
 export const login = async (formData) => {
   try {
     const response = await axiosInstance.post('/api/auth/login', formData);
+    console.log(response);
+    
   return response.data;
   } catch (error) {
     console.error('Login error:', error);

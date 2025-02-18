@@ -28,7 +28,7 @@ const Navbar = () => {
     try {
       setLoading(true);
       const response = await searchBar(query);
-      // console.log(response.products);
+     
 
       if (response?.success) {
         setSearchResults(response.products || []);
@@ -80,11 +80,13 @@ const Navbar = () => {
       <div className="container mx-auto flex justify-between items-center">
 
         <div className='flex items-center '>
-          <div className="sm:text-xl lg:text-2xl  text-red-600 font-bold tracking-tight hover:text-red-700 transition-colors">
+          <div
+           onClick={() => navigate('/home')}
+            className="sm:text-xl lg:text-2xl  text-red-600 font-bold tracking-tight hover:text-red-700 transition-colors">
             miniPitstop
 
           </div>
-          {location.pathname !== '/home' && <span onClick={() => navigate('/home')} className="mx-12  hover:text-red-600 transition-colors font-medium">Home</span>}
+          {/* {location.pathname !== '/home' && <span onClick={() => navigate('/home')} className="mx-12  hover:text-red-600 transition-colors font-medium">Home</span>} */}
           <span onClick={() => navigate('/shop')} className="  mx-12 hover:text-red-600 transition-colors font-medium">Shop</span>
         </div>
 

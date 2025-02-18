@@ -52,7 +52,7 @@ const Checkout = () => {
   
     
     return cartItems.reduce((total, item) => {
-      console.log(item.product.offer , item.product.brand?.offer , item.product.series?.offer);
+      // console.log(item.product.offer , item.product.brand?.offer , item.product.series?.offer);
       
       const maxOffer = Math.max(
         item.product.offer || 0,
@@ -176,7 +176,7 @@ const Checkout = () => {
         order_id: order.id,
         handler: async function (response) {
           try {
-            console.log('Razorpay response:', response);
+            // console.log('Razorpay response:', response);
   
             // Verify payment
             const verifyData = {
@@ -193,10 +193,10 @@ const Checkout = () => {
                 couponDiscount: calculateDiscount(),
               },
             };
-            console.log('Payment verification data:', verifyData);
+            // console.log('Payment verification data:', verifyData);
   
             const verificationResult = await verifyRazorpayPayment(verifyData);
-            console.log(verificationResult);
+            // console.log(verificationResult);
             
             if (verificationResult.success) {
               toast.success('Payment successful and order placed!');
@@ -221,7 +221,7 @@ const Checkout = () => {
           ondismiss: function () {
             handleFailedPayment();
             
-            console.log('Payment popup closed by user.');
+            // console.log('Payment popup closed by user.');
             toast.info('Payment was not completed. Please try again.');
             navigate('/profile/orderHistory')
           },

@@ -21,10 +21,10 @@ const Cart = () => {
 
   const fetchCoupons = async () => {
     try {
-      console.log('fetching coupons');
+      // console.log('fetching coupons');
       const response = await fetchAllAvailableCoupons();
       setAvailableCoupons(response.coupons);
-      console.log(response.coupons);
+      // console.log(response.coupons);
       
     } catch (error) {
       console.error('Error fetching coupons:', error);
@@ -35,7 +35,7 @@ const Cart = () => {
     try {
       const response = await getCart();
       
-      console.log(response.cart.item);
+      // console.log(response.cart.item);
       setCartItems(response.cart.item);
       setLoading(false);
     } catch (error) {

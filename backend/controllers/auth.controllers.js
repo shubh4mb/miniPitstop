@@ -187,6 +187,7 @@ export const resendOTP = async (req, res) => {
 };
 
 export const login = async (req, res) => {
+  console.log("working")
   const { email, password } = req.body;
   
   

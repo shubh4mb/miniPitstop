@@ -216,25 +216,27 @@ const AddBrand = () => {
    
       } else {
         // For add mode, use FormData
-        const formDataToSend = new FormData();
-        formDataToSend.append('name', formData.name.trim());
-        formDataToSend.append('description', formData.description.trim());
-        formDataToSend.append('offer', formData.offer);
-        formDataToSend.append('isActive', formData.isActive);
+        const updateData = {
+          name: formData.name.trim(),
+          description: formData.description.trim(),
+          offer: formData.offer,
+          isActive: formData.isActive
+        };
 
-        // In add mode, both logo and banner are required
-        if (!formData.logo || !formData.banner) {
-          throw new Error('Both logo and banner are required when adding a new brand');
+        // Only include logo and banner if they are new Blobs
+        if (formData.logo instanceof Blob) {
+          updateData.logo = formData.logo;
         }
+        if (formData.banner instanceof Blob) {
+          updateData.banner = formData.banner;
+        }
+        console.log(formData.logo);
         
-        formDataToSend.append('logo', formData.logo);
-        formDataToSend.append('banner', formData.banner);
-        
-        await addBrand(formDataToSend);
+        await addBrand(formData);
         toast.success('Brand added successfully');
       }
       setLoading(false);
-      navigate(-1);
+      navigate('/admin/brands');
     } catch (error) {
       toast.error(error.message || `Failed to ${isEditMode ? 'update' : 'add'} brand`);
     } finally {

@@ -14,27 +14,32 @@ const Wallet = () => {
   })
   const[user,setUser]=useState({})
   const [amount, setAmount] = useState(1);
+
   const [transactions, setTransactions] = useState([
     // { id: 1, type: "Debit",status: "pending", amount: 500, date: "2025-01-01" },
     // { id: 2, type: "Credit",status: "success", amount: 200, date: "2025-01-03" },
   ]);
+
   useEffect(()=>{
-    const fetchData = async()=>{
-      try{
-        const response = await getWallet()
-        setWallet(response.wallet)
-        setTransactions(response.wallet.transactionHistory)
-        setUser(response.userData)
-    
-      }
-      catch(error){
-        toast.error(error.message)
-      }
-        
-      
-    }
+  
     fetchData()
   },[])
+
+  const fetchData = async()=>{
+    try{
+      const response = await getWallet()
+      setWallet(response.wallet)
+      setTransactions(response.wallet.transactionHistory)
+      setUser(response.userData)
+  
+    }
+    catch(error){
+      toast.error(error.message)
+    }
+      
+    
+  }
+
   useEffect(() => {
     // Dynamically load Razorpay script
     const script = document.createElement('script');
@@ -96,11 +101,15 @@ const Wallet = () => {
           
   
             const verificationResult = await verifyRazorpayWallet(verifyData);
-    
+
+  
             
             if (verificationResult.success) {
               toast.success('Payment successful and funds added to wallet!');
-              navigate('/profile/wallet');
+              setTimeout(() => {
+                fetchData();
+              }, 500); // Delay fetchData() slightly
+            
             } else {
               toast.error(verificationResult.message || 'Payment verification failed');
             }

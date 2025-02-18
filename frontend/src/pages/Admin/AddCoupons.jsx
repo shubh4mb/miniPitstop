@@ -175,7 +175,7 @@ const AddCoupons = () => {
                 toast.success('Coupon added successfully!');
             }
             
-            navigate(-1);
+            navigate('/admin/coupons');
         } catch (error) {
             toast.error(error.message || `Failed to ${isEditing ? 'update' : 'add'} coupon`);
         } finally {

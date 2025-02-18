@@ -28,11 +28,11 @@ instance.interceptors.request.use(
 instance.interceptors.response.use(
     (response) => response,
     (error) => {
-        console.log('Error in axios interceptor:', error.response?.data);
+        // console.log('Error in axios interceptor:', error.response?.data);
         
         if (error.response?.status === 401 && error?.response?.data?.message.includes('token')) {
             error.response.data.message = 'Please Login to your account';
-            console.log('Clearing user data and redirecting...');
+            // console.log('Clearing user data and redirecting...');
             
             // Clear Redux store state
             store.dispatch(clearUserData());

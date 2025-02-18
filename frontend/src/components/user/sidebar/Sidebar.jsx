@@ -15,7 +15,7 @@ import { FaClipboardList } from "react-icons/fa";
   ];
     return (
         <div className="user-glass-effect h-screen text-gray-700 p-4 shadow-lg">
-        <div className="text-xl font-bold mb-8 p-2 " >
+        <div className="text-xl font-bold mb-8 p-2 hidden md:block " >
           <p className='text-gray-700'> Your Account</p>
         </div>
         <nav>
@@ -32,7 +32,7 @@ import { FaClipboardList } from "react-icons/fa";
               }
             >
               <span className="text-xl">{item.icon}</span>
-              <span>{item.label}</span>
+              <span className='hidden md:inline'>{item.label}</span>
             </NavLink>
           ))}
         </nav>

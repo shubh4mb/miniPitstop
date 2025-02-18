@@ -3,6 +3,7 @@ import axiosInstance from '../../axiosConfig.js';
 
 export const addBrand = async (formData) => {
   try {
+    
     // Convert blob to File object
     const form = new FormData();
     form.append('name', formData.name);
@@ -13,7 +14,7 @@ export const addBrand = async (formData) => {
     // Create File objects from Blobs with specific types
     if (formData.logo) {
       const logoFile = new File([formData.logo], 'logo.jpg', { 
-        type: formData.logo.type || 'image/jpeg',
+        type: formData.logo.type ,
         lastModified: new Date().getTime()
       });
       form.append('logo', logoFile);
@@ -21,7 +22,7 @@ export const addBrand = async (formData) => {
     
     if (formData.banner) {
       const bannerFile = new File([formData.banner], 'banner.jpg', { 
-        type: formData.banner.type || 'image/jpeg',
+        type: formData.banner.type|| 'image/jpeg',
         lastModified: new Date().getTime()
       });
       form.append('banner', bannerFile);
@@ -29,6 +30,7 @@ export const addBrand = async (formData) => {
 
     // Remove the default Content-Type header to let the browser set it with boundary
     delete axiosInstance.defaults.headers['Content-Type'];
+    console.log(form);
     
     const response = await axiosInstance.post('/api/admin/brands', form);
     

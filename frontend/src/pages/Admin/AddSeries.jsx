@@ -66,18 +66,18 @@ const AddSeries = () => {
       // Handle success
       toast.success('Series added successfully!');
       
-      // Reset form
-      setFormData({
-        brandId: '',
-        name: '',
-        description: '',
-        isActive: true,
-        offer: 0
-      });
+      // // Reset form
+      // setFormData({
+      //   brandId: '',
+      //   name: '',
+      //   description: '',
+      //   isActive: true,
+      //   offer: 0
+      // });
 
-      // Optionally refresh brand list or redirect
+      // // Optionally refresh brand list or redirect
       // await fetchBrands();
-      navigate('/admin/brands');
+      navigate('/admin/series');
 
     } catch (error) {
       // Error is already handled by the API function with specific messages

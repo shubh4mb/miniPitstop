@@ -10,7 +10,7 @@ const UserAccountLayout = () => {
       <Navbar/>
 
       <div className="flex gap-6 pt-3 ">
-        <div className="w-[18%] min-h-screen">
+        <div className=" min-h-screen">
           <Sidebar />
         </div>
         <div className="w-[82%]  rounded-lg ">
