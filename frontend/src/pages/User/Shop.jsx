@@ -42,8 +42,8 @@ const Shop = () => {
       }
 
     } catch (error) {
-      console.error('Error fetching cart:', error);
-      toast.error(error.message || 'Failed to load cart');
+      
+      
     }
   }
   useEffect(() => {
@@ -134,7 +134,7 @@ const Shop = () => {
         </div>
 
         {/* Products and Pagination */}
-        <div className="w-full md:w-[82%] rounded-lg px-4 md:px-0">
+        <div className="w-full md:w-[82%] rounded-lg ">
           {/* Heading */}
           <div className=" text-center">
             <h1 className="text-3xl font-bold text-gray-800">
@@ -168,7 +168,7 @@ const Shop = () => {
             <>
               {/* Product Grid */}
               <motion.div
-                className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 justify-items-center md:pr-2 "
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5 }}

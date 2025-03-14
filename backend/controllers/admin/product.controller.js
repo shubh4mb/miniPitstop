@@ -80,7 +80,7 @@ const getBestSellingProducts = async (req, res) => {
 const downloadBestSellingProductsPDF = async (req, res) => {
   try {
     const topProducts = await Order.aggregate([
-      { $match: { status: 'Delivered' } },
+      { $match: { orderStatus: 'delivered' } },
       { $unwind: '$items' },
       {
         $group: {

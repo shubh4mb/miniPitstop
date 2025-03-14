@@ -19,11 +19,10 @@ export const signup = async (userData) => {
 
 export const googleSignup = async () => {
   try {
-    // Step 1: Firebase Authentication
+    // 🔥 Step 1: Firebase Authentication
     const result = await signInWithPopup(auth, googleProvider);
     const user = result.user;
 
-    // Extract necessary user details from Firebase response
     const userData = {
       email: user.email,
       name: user.displayName,
@@ -31,54 +30,56 @@ export const googleSignup = async () => {
       uid: user.uid
     };
 
-    // Step 2: Backend Authentication
-    try {
-      const response = await axiosInstance.post('/api/auth/googleSignup', userData);
-      
-      return {
-        success: true,
-        status: response.status,
-        data: response.data,
-        user: response.data.user || userData
-      };
-    } catch (backendError) {
-      throw {
-    
-        message: backendError.response?.data?.message || 'Backend authentication failed',
-        originalError: backendError
-      };
-    }
+    // 🌐 Step 2: Backend Authentication
+    const response = await axiosInstance.post('/api/auth/googleSignup', userData);
+
+    return {
+      success: true,
+      status: response.status,
+      data: response.data,
+      user: response.data.user || userData
+    };
+
   } catch (error) {
-    if (error.type === 'BACKEND_ERROR') {
-      throw error;
-    }
+    throw handleGoogleSignInError(error);
+  }
+};
 
-    let errorMessage = 'Google sign-in failed';
-    
-    switch (error.code) {
-      case 'auth/popup-closed-by-user':
-        errorMessage = 'Sign-in popup was closed';
-        break;
-      case 'auth/cancelled-popup-request':
-        errorMessage = 'Sign-in request was cancelled';
-        break;
-      case 'auth/popup-blocked':
-        errorMessage = 'Sign-in popup was blocked by the browser';
-        break;
-      case 'auth/network-request-failed':
-        errorMessage = 'Network error occurred during sign-in';
-        break;
-      default:
-        errorMessage = error.message || 'An unexpected error occurred';
-    }
-
-    throw {
-      type: 'FIREBASE_ERROR',
-      code: error.code,
-      message: errorMessage,
+// 🔥 Error Handling Function
+const handleGoogleSignInError = (error) => {
+  if (error?.response) {
+    // Backend Error
+    return {
+      type: 'BACKEND_ERROR',
+      message: error.response?.data?.message || 'Backend authentication failed',
       originalError: error
     };
   }
+
+  let errorMessage;
+  switch (error?.code) {
+    case 'auth/popup-closed-by-user':
+      errorMessage = 'Sign-in popup was closed';
+      break;
+    case 'auth/cancelled-popup-request':
+      errorMessage = 'Sign-in request was cancelled';
+      break;
+    case 'auth/popup-blocked':
+      errorMessage = 'Sign-in popup was blocked by the browser';
+      break;
+    case 'auth/network-request-failed':
+      errorMessage = 'Network error occurred during sign-in';
+      break;
+    default:
+      errorMessage = error?.message || 'An unexpected error occurred';
+  }
+
+  return {
+    type: 'FIREBASE_ERROR',
+    code: error?.code,
+    message: errorMessage,
+    originalError: error
+  };
 };
 
 export const verifyOTP = async (email, otp) => {

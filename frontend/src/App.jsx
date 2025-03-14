@@ -36,6 +36,7 @@ import SalesReport from "./pages/Admin/SalesReport";
 import Wallet from "./pages/User/Wallet";
 import ChangePassword from "./pages/User/ChangePassword";
 import LoginProtect from "./components/protectedRoutes/LoginProtect.jsx";
+import NotFound from "./components/NotFound";
 
 function App() {
   return (
@@ -58,8 +59,8 @@ function App() {
       />
       <Routes>
         {/* User Routes */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+        <Route path="/login" element={<LoginProtect><Login/></LoginProtect>} />
+        <Route path="/signup" element={<LoginProtect><Signup /></LoginProtect>} />
         <Route path='checkout' element={<Checkout/>}/>
         <Route  element={<UserLayout />}>
           <Route path="/" element={<Navigate to="/login" replace />} />
@@ -177,6 +178,7 @@ function App() {
             </UserProtectedRoute>
           } />
         </Route>
+        <Route path="*" element={<NotFound />} />
        
       </Routes>
     </BrowserRouter>

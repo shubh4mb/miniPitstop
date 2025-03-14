@@ -143,8 +143,9 @@ const Login = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-red-600">
-      <div className="w-full min-h-[500px] max-w-4xl h-auto md:h-[75%] bg-white rounded-lg shadow-md flex flex-col md:flex-row gap-5 p-5 md:p-0">
-        <div className="w-full md:w-[48%] p-5 md:p-7">
+      <div className="w-[90%] min-h-[500px] max-w-[500px] h-auto md:h-[75%] bg-white rounded-lg shadow-md flex flex-col md:flex-row gap-5 p-5 md:p-0">
+        <div className="w-full  p-5 md:p-7">
+          <h2 className="text-2xl font-bold text-red-700 text-center mb-6">miniPitstop</h2>
           <h2 className="text-2xl font-bold text-center mb-6">Login to your account</h2>
           
           <form onSubmit={handleSubmit}>

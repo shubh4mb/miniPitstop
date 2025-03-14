@@ -13,7 +13,7 @@ const Home = () => {
   ];
 
   const [products, setProducts] = useState([]);
-  const [brands, setBrands] = useState([]);
+
   const [cart, setCart] = useState([]);
   const [wishlist, setWishlist] = useState([]);
  
@@ -41,8 +41,8 @@ const Home = () => {
       }
       
       } catch (error) {
-        console.error('Error fetching cart:', error);
-        toast.error(error.message || 'Failed to load cart');
+      
+        
       }
     }
     

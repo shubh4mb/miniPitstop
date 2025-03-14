@@ -95,7 +95,6 @@ export const getCart = async () => {
     const response = await axiosInstance.get('/api/user/cart');
     return response.data;
   } catch (error) {
-    console.error('Error fetching cart:', error);
     throw error;
   }
 };

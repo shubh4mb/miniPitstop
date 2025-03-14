@@ -87,7 +87,7 @@ const Navbar = () => {
 
           </div>
           {/* {location.pathname !== '/home' && <span onClick={() => navigate('/home')} className="mx-12  hover:text-red-600 transition-colors font-medium">Home</span>} */}
-          <span onClick={() => navigate('/shop')} className="  mx-12 hover:text-red-600 transition-colors font-medium">Shop</span>
+          <span onClick={() => navigate('/shop')} className=" mx-5 md:mx-12 hover:text-red-600 transition-colors text-sm font-medium">Shop</span>
         </div>
 
 

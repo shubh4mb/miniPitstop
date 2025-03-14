@@ -96,32 +96,32 @@ const Signup = () => {
     return Object.keys(errors).length === 0;
   };
 
-  // Google Sign-In handler
   const handleGoogleSignIn = async (e) => {
     e.preventDefault();
     setLoading(true);
+  
     try {
       const result = await googleSignup();
-      if (result.success && result.data) {
-        // Store both token and user data using setAuth
-        dispatch(setUser(result?.data));
-       
+  
+      if (result?.success && result?.data) {
+        dispatch(setUser(result.data));
         toast.success(result.data.message || 'Google sign-in successful!');
         navigate('/home');
       }
     } catch (error) {
       console.error('Login error:', error);
-      if (error.message) {
-        toast.error(error.message);
-      } else if (error.message === 'Network Error') {
-        toast.error('Unable to connect to server. Please try again later.');
-      } else {
-        toast.error('An error occurred during login');
-      }
+  
+   
+      const errorMessage = 
+        error?.message === 'Network Error' 
+          ? 'Unable to connect to server. Please try again later.' 
+          : error?.message || 'An error occurred during login';
+      
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
-  }
+  };
    
 
   // Form field change handler
@@ -138,9 +138,7 @@ const Signup = () => {
     setErrorMessage('');
 
     if (!validateForm()) {
-      Object.values(validationErrors).forEach((error) => {
-        if (error) toast.error(error);
-      });
+    toast.error(Object.values(validationErrors)[0]);
       setLoading(false);
       return;
     }
@@ -192,9 +190,10 @@ const Signup = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-red-600">
-      <div className="w-full min-h-[500px] max-w-4xl h-auto md:h-[75%] bg-white rounded-lg shadow-md flex flex-col md:flex-row gap-5 p-5 md:p-0">
+      <div className="w-[90%] min-h-[500px] max-w-4xl h-auto md:h-[75%] bg-white rounded-lg shadow-md flex flex-col md:flex-row gap-5 p-5 md:p-0">
       
-          <div className="w-full md:w-[48%] p-5 md:p-7">
+          <div className="w-full p-5 md:p-7">
+            <h2 className="text-2xl font-bold text-center mb-6 text-red-700">miniPitstop</h2>
             <h2 className="text-2xl font-bold text-center mb-6">Sign Up</h2>
             
             {/* Error Message Display */}

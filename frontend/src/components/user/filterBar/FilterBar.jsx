@@ -81,19 +81,19 @@ const FilterBar = ({ onFilterChange }) => {
   };
 
   return (
-    <div className="p-6 user-glass-effect shadow-lg rounded-lg text-gray-800">
+    <div className=" p-3 lg:p-6 user-glass-effect shadow-lg rounded-lg text-gray-800">
       <h2 className="text-xl font-bold mb-6">Filter</h2>
       
       {/* Price Range */}
       <div className="mb-6 border-b pb-4">
         <h3 className="font-semibold mb-4">Price Range</h3>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center lg:gap-4">
           <input
             type="number"
             name="min"
             value={filters.priceRange.min}
             onChange={handlePriceChange}
-            className="w-full p-2 border rounded-md"
+            className="w-full lg:p-2 border rounded-md"
             placeholder="Min"
           />
           <span className="text-gray-500">to</span>
@@ -111,7 +111,7 @@ const FilterBar = ({ onFilterChange }) => {
       {/* Brands */}
       <div className="mb-6 border-b pb-4">
         <h3 className="font-semibold mb-4">Brands</h3>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="flex flex-wrap gap-2">
           {brands.map((brand) => (
             <label key={brand._id} className="flex items-center gap-2">
               <input
@@ -136,7 +136,7 @@ const FilterBar = ({ onFilterChange }) => {
       {/* Scales */}
       <div className="mb-6 border-b pb-4">
         <h3 className="font-semibold mb-4">Scale</h3>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="flex flex-wrap gap-2">
           {availableScales.map((scale) => (
             <label key={scale} className="flex items-center gap-2">
               <input

@@ -29,7 +29,7 @@ const LoginProtect = ({children}) => {
         };
     
         checkAuth();
-      });
+      }, []);
 
       if (loading) {
         return <div>Loading...</div>; // Or your loading component

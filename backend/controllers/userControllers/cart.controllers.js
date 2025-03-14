@@ -95,7 +95,11 @@ export const getCart = async (req, res) => {
                 ]
             });
         if (!cart) {
-            return res.status(HttpStatus.NOT_FOUND).json({
+            const userCart = new Cart({ 
+                user: user._id
+            });
+            await userCart.save();
+            return res.status(HttpStatus.OK).json({
                 success: false,
                 message: "Cart is empty"
             });
@@ -160,7 +164,7 @@ export const removeFromCart = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Error in removeFromCart:", error);
+  
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: HttpMessage.INTERNAL_SERVER_ERROR,
