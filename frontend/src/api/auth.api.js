@@ -117,7 +117,7 @@ export const googleLogin = async () => {
     } else if (error.response?.status === 401) {
       throw new Error('Please sign up with Google first');
     } else {
-      console.error('Google login error:', error);
+      //('Google login error:', error);
       throw new Error(error.response?.data?.message || 'Failed to login with Google');
     }
   }
@@ -130,7 +130,7 @@ export const login = async (formData) => {
     
   return response.data;
   } catch (error) {
-    console.error('Login error:', error);
+    //('Login error:', error);
     throw error;
     
   }
@@ -142,7 +142,7 @@ export const adminLogin = async (formData) => {
     const response = await axiosInstance.post('/api/auth/adminLogin', formData);
   return response.data;
   } catch (error) {
-    console.error('Login error:', error);
+    //('Login error:', error);
     throw error;
     
   }
@@ -154,7 +154,7 @@ export const forgotPassword = async (email) => {
     const response = await axiosInstance.post('/api/auth/forgotPassword', { email });
     return response.data;
   } catch (error) {
-    console.error('Forgot password error:', error);
+    //('Forgot password error:', error);
     throw error;
   }
 };
@@ -164,7 +164,7 @@ export const verifyForgotPasswordOTP= async (email, otp) => {
     const response = await axiosInstance.post('/api/auth/verifyForgotPasswordOTP', { email, otp });
     return response.data;
   } catch (error) {
-    console.error('Verify forgot password error:', error);
+    //('Verify forgot password error:', error);
     throw error;
   }
 };
@@ -174,7 +174,7 @@ export const resetPassword = async (email, newPassword) => {
     const response = await axiosInstance.post('/api/auth/resetPassword', { email, newPassword });
     return response.data;
   } catch (error) {
-    console.error('Reset password error:', error);
+    //('Reset password error:', error);
     throw error;
   }
 };

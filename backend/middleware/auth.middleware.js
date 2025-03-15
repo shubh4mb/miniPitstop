@@ -31,7 +31,7 @@ export const verifyToken = async (req, res, next) => {
       });
     }
   } catch (error) {
-    console.error('Auth middleware error:', error);
+    //('Auth middleware error:', error);
     return res.status(500).json({
       success: false,
       message: 'Internal server error'

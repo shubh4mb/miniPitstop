@@ -35,7 +35,7 @@ const Product = () => {
     }
     
     } catch (error) {
-      console.error('Error fetching cart:', error);
+      //('Error fetching cart:', error);
       toast.error(error.message || 'Failed to load cart');
     }
   }
@@ -101,7 +101,7 @@ const Product = () => {
    
       toast.success('Product added to cart successfully');
     }catch(error){
-      console.error('Error adding to cart:', error);
+      //('Error adding to cart:', error);
       toast.error(error.message);
     }
   };

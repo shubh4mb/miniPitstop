@@ -21,7 +21,7 @@ const Coupon = () => {
                 setCoupons([]);
             }
         } catch (error) {
-            console.error(error);
+            //(error);
             setCoupons([]);
             toast.error('Failed to fetch coupons');
         }
@@ -33,7 +33,7 @@ const Coupon = () => {
             fetchAllCoupons();
             toast.success('Coupon status updated successfully');
         } catch (error) {
-            console.error('Error toggling coupon status:', error);
+            //('Error toggling coupon status:', error);
             toast.error(error.message || 'Failed to update coupon status');
         }
     };

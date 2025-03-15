@@ -58,7 +58,7 @@ const Login = () => {
       }
      
     } catch (error) {
-      console.error('Login error:', error);
+      //('Login error:', error);
       if (error.message === 'Please sign up with Google first') {
         toast.error(error.message);
         navigate('/signup');
@@ -98,7 +98,7 @@ const Login = () => {
         navigate('/home');
       }
     } catch (error) {
-      console.error('Login error:', error);
+      //('Login error:', error);
       if (error.message) {
         toast.error(error.message);
       } else if (error.message === 'Network Error') {
@@ -130,7 +130,7 @@ const Login = () => {
         toast.success(response.message || 'OTP sent to your email');
       }
     } catch (error) {
-      console.error('Forgot password error:', error);
+      //('Forgot password error:', error);
       toast.error(error.message || 'Failed to send OTP');
     } finally {
       setResetLoading(false);

@@ -70,14 +70,14 @@ export const addBrand = async (req, res) => {
                 brand: newBrand
             });
         } catch (uploadError) {
-            console.error('Cloudinary upload error:', uploadError);
+            //('Cloudinary upload error:', uploadError);
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ 
                 message: 'Error uploading images',
                 error: uploadError.message 
             });
         }
     } catch (error) {
-        console.error('Error in addBrand:', error);
+        //('Error in addBrand:', error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ 
             message: HttpMessage.INTERNAL_SERVER_ERROR,
             error: error.message 
@@ -163,7 +163,7 @@ export const updateBrand = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error in updateBrand:', error);
+        //('Error in updateBrand:', error);
 
         if (error.name === 'ValidationError') {
             return res.status(HttpStatus.BAD_REQUEST).json({
@@ -218,7 +218,7 @@ export const updateBrandStatus = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error in updateBrand:', error);
+        //('Error in updateBrand:', error);
 
         if (error.name === 'ValidationError') {
             return res.status(HttpStatus.BAD_REQUEST).json({

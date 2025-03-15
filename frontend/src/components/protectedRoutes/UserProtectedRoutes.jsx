@@ -27,7 +27,7 @@ const UserProtectedRoute = ({ children, requiredRole }) => {
         setUserRole(role);
         setIsActive(isActive);
       } catch (error) {
-        console.error('Auth check failed:', error);
+        //('Auth check failed:', error);
         setAuthenticated(false);
         setUserRole(null);
 

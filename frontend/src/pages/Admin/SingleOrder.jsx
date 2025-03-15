@@ -18,7 +18,7 @@ const AdminSingleOrder = () => {
       const response = await getSingleOrder(orderId);
       setOrder(response.order);
     } catch (error) {
-      console.error('Error fetching order:', error);
+      //('Error fetching order:', error);
       toast.error(error.message || 'Failed to fetch order details');
     } finally {
       setLoading(false);
@@ -32,7 +32,7 @@ const AdminSingleOrder = () => {
       toast.success('Order status updated successfully');
       fetchOrder(); // Refresh order details
     } catch (error) {
-      console.error('Error updating order status:', error);
+      //('Error updating order status:', error);
       toast.error(error.message || 'Failed to update order status');
     } finally {
       setUpdating(false);
@@ -111,9 +111,9 @@ const AdminSingleOrder = () => {
         <div className="mb-8">
           <h2 className="text-xl font-semibold mb-4">Customer Information</h2>
           <div className="bg-gray-50 p-4 rounded-lg">
-            <p className="font-medium">{order.user.name}</p>
-            <p className="text-gray-600">{order.user.email}</p>
-            <p className="text-gray-600">{order.user.phone}</p>
+            <p className="font-medium">{order.shippingAddress.fullName}</p>
+            <p className="text-gray-600">{order.shippingAddress.email}</p>
+            <p className="text-gray-600">{order.shippingAddress.phone}</p>
           </div>
         </div>
 
@@ -151,7 +151,7 @@ const AdminSingleOrder = () => {
           <div>
             <h2 className="text-xl font-semibold mb-4">Shipping Address</h2>
             <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="font-medium">{order.shippingAddress.fullName}</p>
+              {/* <p className="font-medium">{order.shippingAddress.fullName}</p> */}
               <p className="text-gray-600">{order.shippingAddress.phone}</p>
               <p className="text-gray-600">{order.shippingAddress.address}</p>
               <p className="text-gray-600">

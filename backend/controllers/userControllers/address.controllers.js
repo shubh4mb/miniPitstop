@@ -34,7 +34,7 @@ export const addAddress = async (req, res) => {
         });
     }
     catch(error){
-        console.error("Error in addAddress:", error);
+        //("Error in addAddress:", error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: HttpMessage.INTERNAL_SERVER_ERROR,
@@ -53,7 +53,7 @@ export const addAddress = async (req, res) => {
             addresses
         });
     } catch (error) {
-        console.error("Error in getAddresses:", error);
+        //("Error in getAddresses:", error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: HttpMessage.INTERNAL_SERVER_ERROR,
@@ -86,7 +86,7 @@ export const updateAddress = async (req, res) => {
             address: addressToUpdate
         });
     } catch (error) {
-        console.error("Error in updateAddress:", error);
+        //("Error in updateAddress:", error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: HttpMessage.INTERNAL_SERVER_ERROR,            
@@ -111,7 +111,7 @@ export const deleteAddress = async (req, res) => {
             message: HttpMessage.DELETED
         });
     } catch (error) {
-        console.error("Error in deleteAddress:", error);
+        //("Error in deleteAddress:", error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: HttpMessage.INTERNAL_SERVER_ERROR, 

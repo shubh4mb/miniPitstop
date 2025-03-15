@@ -53,7 +53,7 @@ const Profile = () => {
             setUser(response.user);
 
         } catch (error) {
-            console.error('Error fetching user details:', error);
+            //('Error fetching user details:', error);
 
         }
     };

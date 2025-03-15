@@ -184,7 +184,7 @@ export const placeOrder = async (req, res) => {
             order
         });
     } catch (error) {
-        console.error("Error placing order:", error);
+        //("Error placing order:", error);
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: HttpMessage.INTERNAL_SERVER_ERROR
@@ -203,7 +203,7 @@ export const getUserOrders = async (req, res) => {
             orders
         });
     } catch (error) {
-        console.error("Error fetching orders:", error);
+        //("Error fetching orders:", error);
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: HttpMessage.INTERNAL_SERVER_ERROR
@@ -284,7 +284,7 @@ export const cancelOrder = async (req, res) => {
             order
         });
     } catch (error) {
-        console.error('Error cancelling order:', error);
+        //('Error cancelling order:', error);
         res.status(500).json({
             success: false,
             message: 'Error cancelling order'
@@ -324,7 +324,7 @@ export const returnOrder = async (req, res) => {
             order
         });
     } catch (error) {
-        console.error('Error returning order:', error);
+        //('Error returning order:', error);
         res.status(500).json({
             success: false,
             message: 'Error submitting return request'
@@ -354,7 +354,7 @@ export const getSingleOrder  = async (req, res) => {
             order
         });
     } catch (error) {
-        console.error('Error fetching order details:', error);
+        //('Error fetching order details:', error);
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: HttpMessage.INTERNAL_SERVER_ERROR
@@ -589,7 +589,7 @@ export const downloadInvoice = async (req, res) => {
             // Finalize the PDF
             doc.end();
         } catch (pdfError) {
-            console.error('Error generating PDF:', pdfError);
+            //('Error generating PDF:', pdfError);
             // Only send error response if headers haven't been sent
             if (!res.headersSent) {
                 return res.status(500).json({
@@ -599,7 +599,7 @@ export const downloadInvoice = async (req, res) => {
             }
         }
     } catch (error) {
-        console.error('Error fetching order details:', error);
+        //('Error fetching order details:', error);
         return res.status(500).json({
             success: false,
             message: 'Internal server error',
@@ -722,7 +722,7 @@ export const retryPayment = async (req, res) => {
             message: 'Payment retry successful',
         });
     } catch (error) {
-        console.error('Error in retryPayment:', error);
+        //('Error in retryPayment:', error);
         return res.status(500).json({
             success: false,
             message: 'Internal server error',

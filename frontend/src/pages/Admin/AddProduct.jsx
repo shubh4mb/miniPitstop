@@ -179,7 +179,7 @@ const AddProduct = () => {
           const blob = await response.blob();
           return blob;
         } catch (error) {
-          console.error('Error converting URL to Blob:', error);
+          //('Error converting URL to Blob:', error);
           return null;
         }
       };
@@ -238,7 +238,7 @@ const AddProduct = () => {
       });
       
     } catch (error) {
-      console.error('Error fetching product:', error);
+      //('Error fetching product:', error);
       toast.error('Failed to load product details');
     }
   };
@@ -249,7 +249,7 @@ const AddProduct = () => {
       const data = await getBrands();
       setBrands(data.brands || []);
     } catch (error) {
-      console.error('Error fetching brands:', error);
+      //('Error fetching brands:', error);
       toast.error(error.message || 'Failed to load brands');
       setBrands([]);
     } finally {
@@ -264,7 +264,7 @@ const AddProduct = () => {
       const response = await getSeries(brandId);
       setSeries(response.series || []);
     } catch (error) {
-      console.error('Error fetching series:', error);
+      //('Error fetching series:', error);
       toast.error(error.message || 'Failed to load series');
       setSeries([]);
     }
@@ -538,7 +538,7 @@ const AddProduct = () => {
 
     } catch (error) {
       toast.error(error.message || `Failed to ${isEditMode ? 'update' : 'add'} product`);
-      console.error(`Error ${isEditMode ? 'updating' : 'adding'} product:`, error);
+      //(`Error ${isEditMode ? 'updating' : 'adding'} product:`, error);
     } finally {
       setIsLoading(false);
     }

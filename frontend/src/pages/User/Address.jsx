@@ -112,7 +112,7 @@ const Address = ({ addressData, isEditing, onCancel, onSuccess }) => {
       onSuccess();
     } catch (error) {
       toast.error(error.message || 'Failed to save address');
-      console.error(error);
+      //(error);
     }
   };
 

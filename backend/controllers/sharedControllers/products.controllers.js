@@ -26,7 +26,7 @@ export const getProduct = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error in getProduct:', error);
+        //('Error in getProduct:', error);
 
         if (error.name === 'CastError') {
             return res.status(HttpStatus.BAD_REQUEST).json({
@@ -60,7 +60,7 @@ export const getAllProducts = async (req, res) => {
     }
     
      catch (error) {
-        console.error('Error in getAllProducts:', error);
+        //('Error in getAllProducts:', error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: HttpMessage.INTERNAL_SERVER_ERROR, error: process.env.NODE_ENV === 'development' ? error.message : undefined });
     }
 };
@@ -182,7 +182,7 @@ if (brands && brands.length > 0) {
             currentPage: Number(page),
         });
     } catch (error) {
-        console.error('Filter error:', error);
+        //('Filter error:', error);
         res.status(500).json({
             success: false,
             message: "Internal server error",
@@ -217,7 +217,7 @@ export const searchedProducts = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error in searchProducts:', error);
+        //('Error in searchProducts:', error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ 
             success: false, 
             message: HttpMessage.INTERNAL_SERVER_ERROR 
@@ -300,7 +300,7 @@ const filteredSameBrand = sameBrand.filter(product => product.brand && product.s
         });
 
     } catch (error) {
-        console.error('Error in relatedProducts:', error);
+        //('Error in relatedProducts:', error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ 
             success: false, 
             message: HttpMessage.INTERNAL_SERVER_ERROR 
@@ -322,7 +322,7 @@ export const featuredProducts = async (req, res) => {
             
         });
     } catch (error) {
-        console.error('Error in featuredProducts:', error);
+        //('Error in featuredProducts:', error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ 
             success: false, 
             message: HttpMessage.INTERNAL_SERVER_ERROR 

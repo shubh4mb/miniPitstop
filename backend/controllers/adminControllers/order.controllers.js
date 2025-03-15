@@ -27,7 +27,7 @@ export const fetchAllOrders = async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Error fetching orders:', error);
+        //('Error fetching orders:', error);
         res.status(500).json({
             success: false,
             message: 'Error fetching orders'
@@ -113,7 +113,7 @@ export const updateOrderStatus = async (req, res) => {
             order: updatedOrder
         });
     } catch (error) {
-        console.error('Error updating order status:', error);
+        //('Error updating order status:', error);
         res.status(500).json({
             success: false,
             message: 'Error updating order status'
@@ -140,7 +140,7 @@ export const getOrder = async (req, res) => {
             order
         });
     } catch (error) {
-        console.error('Error fetching order details:', error);
+        //('Error fetching order details:', error);
         res.status(500).json({
             success: false,
             message: 'Error fetching order details'

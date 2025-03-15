@@ -96,7 +96,7 @@ const Otp = () => {
         navigate('/login');
       }
     } catch (error) {
-      console.error('Error verifying OTP:', error);
+      //('Error verifying OTP:', error);
       dispatch(incrementAttempt());
       
       const errorMessage = error.message || 'Invalid OTP';

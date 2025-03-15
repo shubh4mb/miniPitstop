@@ -63,7 +63,7 @@ function App() {
         <Route path="/signup" element={<LoginProtect><Signup /></LoginProtect>} />
         <Route path='checkout' element={<Checkout/>}/>
         <Route  element={<UserLayout />}>
-          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/" element={<Navigate to="/home" replace />} />
 
           <Route path='product/:productId' element={
             <Product/>

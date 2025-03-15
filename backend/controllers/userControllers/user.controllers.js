@@ -12,7 +12,7 @@ export const fetchUserDetails = async (req, res) => {
             user
         });
     } catch (error) {
-        console.error("Error in fetchUserDetails:", error);
+        //("Error in fetchUserDetails:", error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: HttpMessage.INTERNAL_SERVER_ERROR,
@@ -44,7 +44,7 @@ export const updateUserDetails = async (req, res) => {
             user
         });
     } catch (error) {
-        console.error("Error in updateUserDetails:", error);
+        //("Error in updateUserDetails:", error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: HttpMessage.INTERNAL_SERVER_ERROR,
@@ -85,7 +85,7 @@ export const changePassword = async (req, res) => {
             message: 'Password changed successfully'
         });
     } catch (error) {
-        console.error('Error changing password:', error);
+        //('Error changing password:', error);
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: 'Internal Server Error'

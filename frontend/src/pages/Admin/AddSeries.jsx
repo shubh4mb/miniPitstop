@@ -82,7 +82,7 @@ const AddSeries = () => {
     } catch (error) {
       // Error is already handled by the API function with specific messages
       toast.error(error.message);
-      console.error('Error adding series:', error);
+      //('Error adding series:', error);
      
     } finally {
       setLoading(false);
@@ -95,7 +95,7 @@ const AddSeries = () => {
         const response = await getBrands();
         setBrands(response.brands);
       } catch (error) {
-        console.error('Error fetching brands:', error);
+        //('Error fetching brands:', error);
         toast.error(error.message || 'Error fetching brands');
       }
     };

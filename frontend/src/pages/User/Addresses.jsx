@@ -23,7 +23,7 @@ const Addresses = () => {
       }
     } catch (error) {
       toast.error('Failed to fetch addresses');
-      console.error(error);
+      //(error);
     }
   };
 
@@ -39,7 +39,7 @@ const Addresses = () => {
       fetchAddresses();
     } catch (error) {
       toast.error('Failed to delete address');
-      console.error(error);
+      //(error);
     }
   };
 
@@ -50,7 +50,7 @@ const Addresses = () => {
       toast.success('Default address updated');
     } catch (error) {
       toast.error('Failed to update default address');
-      console.error(error);
+      //(error);
     }
   };
 

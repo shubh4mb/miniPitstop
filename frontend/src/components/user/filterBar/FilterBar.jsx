@@ -19,7 +19,7 @@ const FilterBar = ({ onFilterChange }) => {
         const response = await getBrands();
         setBrands(response.brands || []);
       } catch (error) {
-        console.error("Error fetching brands:", error);
+        //("Error fetching brands:", error);
       }
     };
     fetchBrands();

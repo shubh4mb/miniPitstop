@@ -132,7 +132,7 @@ const AddBanner = () => {
         throw new Error(response.message || 'Failed to add banner');
       }
     } catch (error) {
-      console.error('Error adding banner:', error);
+      //('Error adding banner:', error);
       toast.error(error.message || 'Failed to add banner');
     } finally {
       setLoading(false);

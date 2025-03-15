@@ -114,7 +114,7 @@ const Wallet = () => {
               toast.error(verificationResult.message || 'Payment verification failed');
             }
           } catch (error) {
-            console.error('Payment verification error:', error);
+            //('Payment verification error:', error);
             toast.error(error?.message || 'Error verifying payment');
           }
         },
@@ -139,7 +139,7 @@ const Wallet = () => {
       const rzp = new window.Razorpay(options);
       rzp.open();
     } catch (error) {
-      console.error('Razorpay payment error:', error);
+      //('Razorpay payment error:', error);
       toast.error('Error initiating payment. Please try again.');
     }
   };

@@ -50,7 +50,7 @@ import { uploadToCloudinary , deleteFromCloudinary } from '../../CloudinaryConfi
             data: savedBanner
         });
     } catch (error) {
-        console.error('Error in addBanner:', error);
+        //('Error in addBanner:', error);
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: error.message || "Failed to add banner"

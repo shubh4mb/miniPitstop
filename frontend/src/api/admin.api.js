@@ -39,7 +39,7 @@ export const addBrand = async (formData) => {
     
     return response;
   } catch (error) {
-    console.error('Error adding brand:', error);
+    //('Error adding brand:', error);
     return error.response;
   }
 };
@@ -63,18 +63,18 @@ export const getBrands = async () => {
     if (error.response) {
       // Server responded with error status (4xx, 5xx)
       const message = error.response.data?.message || `Server error: ${error.response.status}`;
-      console.error('Server error:', { status: error.response.status, message });
+      //('Server error:', { status: error.response.status, message });
       throw new Error(message);
     }
     
     if (error.request) {
       // Request was made but no response received (network error)
-      console.error('Network error:', error.message);
+      //('Network error:', error.message);
       throw new Error('Network error - Please check your connection');
     }
     
     // Something else went wrong
-    console.error('Error:', error.message);
+    //('Error:', error.message);
     throw new Error('An unexpected error occurred');
   }
 };
@@ -86,16 +86,16 @@ export const getBrand = async (brandId) => {
   } catch (error) {
     if (error.response) {
       const message = error.response.data?.message || `Server error: ${error.response.status}`;
-      console.error('Server error:', { status: error.response.status, message });
+      //('Server error:', { status: error.response.status, message });
       throw new Error(message);
     }
     
     if (error.request) {
-      console.error('Network error:', error.message);
+      //('Network error:', error.message);
       throw new Error('Network error - Please check your connection');
     }
     
-    console.error('Error:', error.message);
+    //('Error:', error.message);
     throw new Error('An unexpected error occurred');
   }
 };
@@ -228,16 +228,16 @@ export const getProduct = async (productId) => {
   } catch (error) {
     if (error.response) {
       const message = error.response.data?.message || `Server error: ${error.response.status}`;
-      console.error('Server error:', { status: error.response.status, message });
+      //('Server error:', { status: error.response.status, message });
       throw new Error(message);
     }
     
     if (error.request) {
-      console.error('Network error:', error.message);
+      //('Network error:', error.message);
       throw new Error('Network error - Please check your connection');
     }
     
-    console.error('Error:', error.message);
+    //('Error:', error.message);
     throw new Error('An unexpected error occurred');
   }
 };
@@ -247,7 +247,7 @@ export const getAllProducts = async (page = 1, limit = 10) => {
     const response = await axiosInstance.get(`/api/admin/products?page=${page}&limit=${limit}`);
     return response.data;
   } catch (error) {
-    console.error('Error fetching products:', error);
+    //('Error fetching products:', error);
     throw error;
   }
 };
@@ -257,7 +257,7 @@ export const toggleProductStatus = async (productId, isActive) => {
     const response = await axiosInstance.patch(`/api/admin/product/${productId}/status`, { isActive });
     return response.data;
   } catch (error) {
-    console.error('Error toggling product status:', error);
+    //('Error toggling product status:', error);
     throw error;
   }
 };
@@ -320,7 +320,7 @@ export const updateProduct = async (productId, formData) => {
 
     throw new Error(response.data?.message || 'Failed to update product');
   } catch (error) {
-    console.error('Error updating product:', error);
+    //('Error updating product:', error);
     throw error;
   }
 };
@@ -330,7 +330,7 @@ export const toggleBrandStatus = async (brandId, isActive) => {
     const response = await axiosInstance.patch(`/api/admin/brands/${brandId}/status`, { isActive });
     return response.data;
   } catch (error) {
-    console.error('Error toggling brand status:', error);
+    //('Error toggling brand status:', error);
     throw error;
   }
 };
@@ -340,7 +340,7 @@ export const toggleSeriesStatus = async (seriesId, isActive) => {
     const response = await axiosInstance.patch(`/api/admin/series/${seriesId}/status`, { isActive });
     return response.data;
   } catch (error) {
-    console.error('Error toggling series status:', error);
+    //('Error toggling series status:', error);
     throw error;
   }
 };
@@ -350,7 +350,7 @@ export const getSeries = async (brandId) => {
     const response = await axiosInstance.get(`/api/admin/brand/${brandId}/series`);
     return response.data;
   } catch (error) {
-    console.error('Error fetching series:', error);
+    //('Error fetching series:', error);
     throw error;
   }
 };
@@ -360,7 +360,7 @@ export const getAllSeries = async () => {
     const response = await axiosInstance.get('/api/admin/series');
     return response.data;
   } catch (error) {
-    console.error('Error fetching series:', error);
+    //('Error fetching series:', error);
     throw error;
   }
 };
@@ -395,14 +395,14 @@ export const addSeries = async (formData) => {
           throw new Error(error.response.data?.message || 'Invalid series data');
         default:
           const message = error.response.data?.message || `Server error: ${error.response.status}`;
-          console.error('Server error:', { status: error.response.status, message });
+          //('Server error:', { status: error.response.status, message });
           throw new Error(message);
       }
     }
     
     if (error.request) {
       // Request was made but no response received (network error)
-      console.error('Network error:', error.message);
+      //('Network error:', error.message);
       throw new Error('Network error - Please check your connection');
     }
     
@@ -412,7 +412,7 @@ export const addSeries = async (formData) => {
     }
     
     // Something else went wrong
-    console.error('Error:', error.message);
+    //('Error:', error.message);
     throw new Error('An unexpected error occurred');
   }
 };
@@ -422,7 +422,7 @@ export const fetchAllUsers = async (page = 1, limit = 10) => {
     const response = await axiosInstance.get(`/api/admin/users?page=${page}&limit=${limit}`);
     return response.data;
   } catch (error) {
-    console.error('Error fetching users:', error);
+    //('Error fetching users:', error);
     throw error;
   }
 };
@@ -432,7 +432,7 @@ export const toggleUserStatus = async (userId, isActive) => {
     const response = await axiosInstance.patch(`/api/admin/users/${userId}/status`, { isActive });
     return response.data;
   } catch (error) {
-    console.error('Error toggling user status:', error);
+    //('Error toggling user status:', error);
     throw error;
   }
 };
@@ -442,7 +442,7 @@ export const getAllOrders = async (page = 1, limit = 10) => {
     const response = await axiosInstance.get(`/api/admin/orders?page=${page}&limit=${limit}`);
     return response.data;
   } catch (error) {
-    console.error('Error fetching orders:', error);
+    //('Error fetching orders:', error);
     throw error;
   }
 };
@@ -470,7 +470,7 @@ export const addCoupon = async (formData) => {
     const response = await axiosInstance.post('/api/admin/addcoupon', formData);
     return response.data;
   } catch (error) {
-    console.error('Error adding coupon:', error);
+    //('Error adding coupon:', error);
     throw error;
   }
 };
@@ -480,7 +480,7 @@ export const fetchCoupons = async () => {
     const response = await axiosInstance.get('/api/admin/coupons');
     return response.data;
   } catch (error) {
-    console.error('Error fetching coupons:', error);
+    //('Error fetching coupons:', error);
     throw error;
   }
 };
@@ -490,7 +490,7 @@ export const updateCouponStatus = async (couponId, isActive) => {
     const response = await axiosInstance.patch(`/api/admin/coupon/${couponId}/status`, { isActive });
     return response.data;
   } catch (error) {
-    console.error('Error updating coupon status:', error);
+    //('Error updating coupon status:', error);
     throw error;
   }
 };
@@ -500,7 +500,7 @@ export const fetchCoupon = async (id) => {
     const response = await axiosInstance.get(`/api/admin/coupon/${id}`);
     return response.data;
   } catch (error) {
-    console.error('Error fetching coupon:', error);
+    //('Error fetching coupon:', error);
     throw error;
   }
 };
@@ -511,7 +511,7 @@ export const updateCoupon = async (couponId, formData) => {
     const response = await axiosInstance.patch(`/api/admin/coupon/${couponId}`, formData);
     return response.data;
   } catch (error) {
-    console.error('Error updating coupon:', error);
+    //('Error updating coupon:', error);
     throw error;
   }
 }; 
@@ -528,8 +528,8 @@ export const getSalesReport = async (timeFilter, startDate = null, endDate = nul
         const response = await axiosInstance.get('/api/admin/sales-report', { params });
         return response.data;
     } catch (error) {
-        console.error('Sales report API error:', error);
-        console.error('Error response:', error.response?.data);
+        //('Sales report API error:', error);
+        //('Error response:', error.response?.data);
         throw error.response?.data || error.message;
     }
 };
@@ -567,7 +567,7 @@ export const downloadSalesReport = async (timeFilter, startDate = null, endDate 
         // Clean up the URL
         window.URL.revokeObjectURL(url);
     } catch (error) {
-        console.error('Download sales report error:', error);
+        //('Download sales report error:', error);
         throw error.response?.data || error.message;
     }
 }; 
@@ -586,8 +586,8 @@ export const getRevenueChartData = async (timeFilter, startDate = null, endDate 
        
         return response.data;
     } catch (error) {
-        console.error('Revenue chart API error:', error);
-        console.error('Error response:', error.response?.data);
+        //('Revenue chart API error:', error);
+        //('Error response:', error.response?.data);
         throw error.response?.data || error.message;
     }
 };
@@ -610,7 +610,7 @@ export const downloadSalesReportExcel = async (timeFilter, startDate = null, end
         data: response.data
       };
   } catch (error) {
-      console.error('Error downloading report:', error);
+      //('Error downloading report:', error);
       const errorMessage = error.response?.data 
           ? new TextDecoder().decode(error.response.data)
           : 'Failed to download Excel report';
@@ -626,7 +626,7 @@ export const bestSellingProducts = async()=>{
     const response = await axiosInstance.get('/api/admin/products/best-selling');
     return response.data;
   }catch(error){
-    console.error('Error fetching best selling products:', error);
+    //('Error fetching best selling products:', error);
     return {
       success: false,
       message: 'Failed to fetch best selling products'
@@ -646,7 +646,7 @@ export const addBanner = async (formData) => {
     const response = await axiosInstance.post('/api/admin/banners', formData, config);
     return response.data;
   } catch (error) {
-    console.error('Error adding banner:', error);
+    //('Error adding banner:', error);
     throw error;
   }
 }

@@ -41,7 +41,7 @@ export const getWallet = async (req, res) => {
             wallet, userData
         });
     } catch (error) {
-        console.error('Error fetching wallet:', error);
+        //('Error fetching wallet:', error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: 'Error fetching wallet',

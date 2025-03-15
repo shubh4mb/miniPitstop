@@ -58,7 +58,7 @@ export const addSeries = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error in addSeries:', error);
+        //('Error in addSeries:', error);
         
         // Handle mongoose validation errors
         if (error.name === 'ValidationError') {
@@ -105,7 +105,7 @@ export const toggleSeriesStatus = async (req, res) => {
             series
         });
     } catch (error) {
-        console.error('Error in toggleSeriesStatus:', error);
+        //('Error in toggleSeriesStatus:', error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: HttpMessage.INTERNAL_SERVER_ERROR,

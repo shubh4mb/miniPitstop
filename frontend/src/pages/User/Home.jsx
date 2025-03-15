@@ -55,7 +55,7 @@ const Home = () => {
         
         
       } catch (error) {
-        console.error('Error fetching products:', error);
+        //('Error fetching products:', error);
         toast.error(error.message || 'Failed to load products');
       }
     };
@@ -64,7 +64,7 @@ const Home = () => {
     //     const response = await getBrands();
     //     setBrands(response.brands);
     //   } catch (error) {
-    //     console.error('Error fetching brands:', error);
+    //     //('Error fetching brands:', error);
     //     toast.error(error.message || 'Failed to load brands');
     //   }
     // };

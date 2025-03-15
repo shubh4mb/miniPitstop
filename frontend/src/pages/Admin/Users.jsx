@@ -20,7 +20,7 @@ const Users = () => {
       setPagination(response.pagination);
       
     } catch (error) {
-      console.error('Error fetching users:', error);
+      //('Error fetching users:', error);
       toast.error(error.message || 'Failed to load users');
     }
   }
@@ -35,7 +35,7 @@ const Users = () => {
       fetchUsers(pagination.currentPage);
       toast.success('User status updated successfully');
     } catch (error) {
-      console.error('Error toggling user status:', error);
+      //('Error toggling user status:', error);
       toast.error(error.message || 'Failed to update user status');
     }
   };

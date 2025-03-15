@@ -14,7 +14,7 @@ const Series = () => {
       const response = await getAllSeries();
       setSeries(response.series);
     } catch (error) {
-      console.error('Error fetching brands:', error);
+      //('Error fetching brands:', error);
       toast.error(error.message || 'Failed to load brands');
     }
   };
@@ -31,7 +31,7 @@ const Series = () => {
       fetchSeries();
       toast.success('Series status updated successfully');
     } catch (error) {
-      console.error('Error toggling series status:', error);
+      //('Error toggling series status:', error);
       toast.error(error.message || 'Failed to update series status');
     }
   };

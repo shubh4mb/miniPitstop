@@ -25,7 +25,7 @@ mongoose.connect(process.env.MONGO)
     console.log("Connected to MongoDB Atlas");
   })
   .catch((error) => {
-    console.error("Error connecting to MongoDB:", error);
+    // //("Error connecting to MongoDB:", error);
   });
 
 app.use('/api/user', userRoute)

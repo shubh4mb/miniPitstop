@@ -24,7 +24,7 @@ export const fetchUsers = async (req, res) => {
             }
         });
     } catch (error) {
-        console.error("Error in fetchAllUsers:", error);
+        //("Error in fetchAllUsers:", error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: HttpMessage.INTERNAL_SERVER_ERROR,
@@ -60,7 +60,7 @@ export const updateUserStatus = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Error in updateUserStatus:", error);
+        //("Error in updateUserStatus:", error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: HttpMessage.INTERNAL_SERVER_ERROR,

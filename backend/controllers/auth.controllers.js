@@ -82,7 +82,7 @@ export const signup = async (req, res) => {
       email: trimmedData.email
     });
   } catch (error) {
-    console.error('Signup error:', error);
+    // //('Signup error:', error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: HttpMessage.INTERNAL_SERVER_ERROR });
   }
 };
@@ -134,7 +134,7 @@ export const verifyOTP = async (req, res) => {
       
     });
   } catch (error) {
-    console.error('OTP verification error:', error);
+    ('OTP verification error:', error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: HttpMessage.INTERNAL_SERVER_ERROR });
   }
 };
@@ -181,7 +181,7 @@ export const resendOTP = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error in resendOTP:', error);
+    // //('Error in resendOTP:', error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: HttpMessage.INTERNAL_SERVER_ERROR });
   }
 };
@@ -251,7 +251,7 @@ export const login = async (req, res) => {
 
 
   } catch (error) {
-    console.error('Login error:', error);
+    // //('Login error:', error);
     res.
     status(HttpStatus.INTERNAL_SERVER_ERROR).
     json({ 
@@ -357,7 +357,7 @@ export const googleLogin = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Google login error:', error);
+    // //('Google login error:', error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: HttpMessage.INTERNAL_SERVER_ERROR
@@ -370,7 +370,8 @@ export const verify = async (req, res) => {
     const token = req?.cookies?.accessToken;
     if (!token) {
       return res.status(HttpStatus.UNAUTHORIZED).json({
-        isAuthenticated: false
+        isAuthenticated: false,
+        message: "No token found"
       });
     }
 
@@ -484,7 +485,7 @@ export const adminLogin = async (req, res) => {
   });
   }
   catch(error){
-    console.error('Login error:', error);
+    ('Login error:', error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ 
       success: false,
       message: HttpMessage.INTERNAL_SERVER_ERROR
@@ -547,7 +548,7 @@ export const forgotPassword = async (req, res) => {
       message: 'OTP has been sent to your email' 
     });
   } catch (error) {
-    console.error('Error in forgotPassword:', error);
+    //('Error in forgotPassword:', error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ 
       success: false,
       message: HttpMessage.INTERNAL_SERVER_ERROR 
@@ -611,7 +612,7 @@ export const verifyForgotPasswordOTP = async (req, res) => {
       message: 'OTP verified successfully'
     });
   } catch (error) {
-    console.error('Error in verifyForgotPasswordOTP:', error);
+    //('Error in verifyForgotPasswordOTP:', error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: HttpMessage.INTERNAL_SERVER_ERROR
@@ -665,7 +666,7 @@ export const resetPassword = async (req, res) => {
       message: 'Password reset successful'
     });
   } catch (error) {
-    console.error('Error in resetPassword:', error);
+    //('Error in resetPassword:', error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: HttpMessage.INTERNAL_SERVER_ERROR

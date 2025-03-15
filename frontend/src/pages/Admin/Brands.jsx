@@ -14,7 +14,7 @@ const Brands = () => {
       const response = await getBrands();
       setBrands(response.brands);
     } catch (error) {
-      console.error('Error fetching brands:', error);
+      //('Error fetching brands:', error);
       toast.error(error.message || 'Failed to load brands');
     }
   };
@@ -31,7 +31,7 @@ const Brands = () => {
       fetchBrands();
       toast.success('Brand status updated successfully');
     } catch (error) {
-      console.error('Error toggling brand status:', error);
+      //('Error toggling brand status:', error);
       toast.error(error.message || 'Failed to update brand status');
     }
   };

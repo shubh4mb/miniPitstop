@@ -25,7 +25,7 @@ const Wishlist = () => {
         setProducts([]);
       }
     } catch (error) {
-      console.error('Error fetching wishlist:', error);
+      //('Error fetching wishlist:', error);
       toast.error('Failed to fetch wishlist');
       setProducts([]);
     }

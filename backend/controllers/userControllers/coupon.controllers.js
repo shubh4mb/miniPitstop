@@ -43,7 +43,7 @@ export const fetchAllCoupons = async (req, res) => {
             coupons: availableCoupons
         });
     } catch (error) {
-        console.error('Error in fetchAllCoupons:', error);
+        //('Error in fetchAllCoupons:', error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: HttpMessage.INTERNAL_SERVER_ERROR
@@ -98,7 +98,7 @@ export const applyCoupon = async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Error in applyCoupon:', error);
+        //('Error in applyCoupon:', error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: HttpMessage.INTERNAL_SERVER_ERROR

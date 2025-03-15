@@ -39,7 +39,7 @@ const Products = () => {
       setProducts(response.products);
       setPagination(response.pagination);
     } catch (error) {
-      console.error('Error fetching products:', error);
+      //('Error fetching products:', error);
       toast.error(error.message || 'Failed to load products');
     } finally {
       setLoading(false);
@@ -57,7 +57,7 @@ const Products = () => {
         toast.error(response.message || 'Failed to fetch best selling products');
       }
     } catch (error) {
-      console.error('Error fetching best selling products:', error);
+      //('Error fetching best selling products:', error);
       toast.error('Failed to fetch best selling products');
     } finally {
       setLoading(false);
@@ -76,7 +76,7 @@ const Products = () => {
       }
       toast.success('Product status updated successfully');
     } catch (error) {
-      console.error('Error toggling product status:', error);
+      //('Error toggling product status:', error);
       toast.error(error.message || 'Failed to update product status');
     }
   };

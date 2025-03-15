@@ -27,7 +27,7 @@ const Cart = () => {
       // console.log(response.coupons);
       
     } catch (error) {
-      console.error('Error fetching coupons:', error);
+      //('Error fetching coupons:', error);
       toast.error(error.message);
     }
   };
@@ -39,7 +39,7 @@ const Cart = () => {
       setCartItems(response.cart.item);
       setLoading(false);
     } catch (error) {
-      console.error('Error fetching cart:', error);
+      //('Error fetching cart:', error);
       toast.error(error.message);
       setLoading(false);
     }
@@ -51,7 +51,7 @@ const Cart = () => {
       fetchCartItems();
       toast.success('Cart updated successfully');
     } catch (error) {
-      console.error('Error updating quantity:', error);
+      //('Error updating quantity:', error);
       toast.error(error.message);
     }
   };
@@ -62,7 +62,7 @@ const Cart = () => {
       fetchCartItems();
       toast.success('Item removed from cart');
     } catch (error) {
-      console.error('Error removing item:', error);
+      //('Error removing item:', error);
       toast.error('Failed to remove item');
     }
   };

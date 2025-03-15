@@ -39,7 +39,7 @@ export const addCoupon = async (req, res) => {
             newCoupon
         });
     }catch(error){
-        console.error("Error in addCoupon:", error);
+        //("Error in addCoupon:", error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: HttpMessage.INTERNAL_SERVER_ERROR,
@@ -58,7 +58,7 @@ export const fetchAllCoupons = async (req, res) => {
             coupons
         });
     } catch (error) {
-        console.error("Error in fetchAllUsers:", error);
+        //("Error in fetchAllUsers:", error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: HttpMessage.INTERNAL_SERVER_ERROR,
@@ -78,7 +78,7 @@ export const fetchCoupon = async (req, res) => {
             coupon
         });
     } catch (error) {
-        console.error("Error in fetchAllUsers:", error);
+        //("Error in fetchAllUsers:", error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: HttpMessage.INTERNAL_SERVER_ERROR,
@@ -116,7 +116,7 @@ export const updateCoupon = async (req, res) => {
             updatedCoupon
         });
     } catch (error) {
-        console.error("Error in updateCoupon:", error);
+        //("Error in updateCoupon:", error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: HttpMessage.INTERNAL_SERVER_ERROR,
@@ -144,7 +144,7 @@ export const updateCouponStatus = async (req, res) => {
             updatedCoupon
         });
     } catch (error) {
-        console.error("Error in updateCouponStatus:", error);
+        //("Error in updateCouponStatus:", error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: HttpMessage.INTERNAL_SERVER_ERROR,

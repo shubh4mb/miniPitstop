@@ -50,7 +50,7 @@ const Dashboard = () => {
         setOrders([]);
       }
     } catch (error) {
-      console.error('Error fetching chart data:', error);
+      //('Error fetching chart data:', error);
       toast.error(error.message || 'Failed to fetch chart data');
       setOrders([]);
     } finally {

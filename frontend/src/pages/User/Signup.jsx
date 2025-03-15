@@ -109,7 +109,7 @@ const Signup = () => {
         navigate('/home');
       }
     } catch (error) {
-      console.error('Login error:', error);
+      //('Login error:', error);
   
    
       const errorMessage = 

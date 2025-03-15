@@ -12,7 +12,7 @@ export const getSeries = async (req, res) => {
             series 
         });
     } catch (error) {
-        console.error('Error in getSeries:', error);
+        //('Error in getSeries:', error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ 
             message: HttpMessage.INTERNAL_SERVER_ERROR,
             error: error.message 
@@ -28,7 +28,7 @@ export const getAllSeries = async (req, res) => {
             series 
         });
     } catch (error) {
-        console.error('Error in getAllSeries:', error);
+        //('Error in getAllSeries:', error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ 
             message: HttpMessage.INTERNAL_SERVER_ERROR,
             error: error.message 

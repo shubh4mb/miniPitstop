@@ -57,7 +57,7 @@ const Order = () => {
         toast.error(response.message || 'Failed to update order status');
       }
     } catch (error) {
-      console.error('Error updating order status:', error);
+      //('Error updating order status:', error);
       toast.error(error.response?.data?.message || 'Failed to update order status');
     }
   };
@@ -73,7 +73,7 @@ const Order = () => {
 
   const formatAddress = (address) => {
     if (!address) return 'N/A';
-    return `${address.street}, ${address.city}, ${address.state}, ${address.pinCode}`;
+    return `${address.fullName}, ${address.city}, ${address.state}, ${address.pincode}`;
   };
 
   const getStatusBadgeClass = (status) => {

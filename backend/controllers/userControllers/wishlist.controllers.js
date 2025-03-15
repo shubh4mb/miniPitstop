@@ -6,7 +6,7 @@ export const fetchWishlist = async (req , res) => {
         const wishlist = await Wishlist.findOne({ user: req.user.userId }).populate('items.product');
         res.status(HttpStatus.OK).json({ message: HttpMessage.OK , wishlist });
     } catch (error) {
-        console.error('Error fetching wishlist:', error);
+        //('Error fetching wishlist:', error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: HttpMessage.INTERNAL_SERVER_ERROR , error: error.message });
     }
 }
@@ -37,7 +37,7 @@ export const addToWishlist = async (req , res) => {
            
         }
     } catch (error) {
-        console.error('Error adding item to wishlist:', error);
+        //('Error adding item to wishlist:', error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: HttpMessage.INTERNAL_SERVER_ERROR , error: error.message });
     }
 }

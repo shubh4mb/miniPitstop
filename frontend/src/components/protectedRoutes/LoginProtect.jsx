@@ -20,7 +20,7 @@ const LoginProtect = ({children}) => {
             setAuthenticated(response.data.isAuthenticated);
         
           } catch (error) {
-            console.error('Auth check failed:', error);
+            //('Auth check failed:', error);
             setAuthenticated(false);
           
           } finally {

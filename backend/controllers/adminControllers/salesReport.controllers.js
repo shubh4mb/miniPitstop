@@ -132,7 +132,7 @@ export const getSalesReport = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error in getSalesReport:', error);
+        //('Error in getSalesReport:', error);
         res.status(500).json({
             success: false,
             message: 'Failed to fetch sales report data',
@@ -286,7 +286,7 @@ export const downloadSalesReport = async (req, res) => {
             doc.end();
 
         } catch (pdfError) {
-            console.error('Error generating PDF:', pdfError);
+            //('Error generating PDF:', pdfError);
             if (!res.headersSent) {
                 return res.status(500).json({
                     success: false,
@@ -295,7 +295,7 @@ export const downloadSalesReport = async (req, res) => {
             }
         }
     } catch (error) {
-        console.error('Error fetching sales data:', error);
+        //('Error fetching sales data:', error);
         return res.status(500).json({
             success: false,
             message: 'Error generating sales report'
@@ -391,7 +391,7 @@ export const downloadSalesReportExcel = async (req, res) => {
         return res.send(buffer);
 
     } catch (error) {
-        console.error('Error generating Excel report:', error);
+        //('Error generating Excel report:', error);
         res.status(500).json({
             success: false,
             message: 'Error generating Excel report',
@@ -467,7 +467,7 @@ export const getRevenueChartData = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error in getRevenueChartData:', error);
+        //('Error in getRevenueChartData:', error);
         res.status(500).json({
             success: false,
             message: 'Failed to fetch revenue chart data',

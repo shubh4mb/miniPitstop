@@ -16,7 +16,7 @@ const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID;
 const RAZORPAY_SECRET = process.env.RAZORPAY_SECRET;
 
 if (!RAZORPAY_KEY_ID || !RAZORPAY_SECRET) {
-    console.error('Razorpay credentials are missing:', {
+    ('Razorpay credentials are missing:', {
         RAZORPAY_KEY_ID: !!RAZORPAY_KEY_ID,
         RAZORPAY_SECRET: !!RAZORPAY_SECRET
     });
@@ -102,7 +102,7 @@ export const createRazorpayOrder = async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Razorpay order creation error:', error);
+        //('Razorpay order creation error:', error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: 'Error creating Razorpay order',
@@ -216,7 +216,7 @@ export const verifyRazorpayPayment = async (req, res) => {
             order
         });
     } catch (error) {
-        console.error('Razorpay verification error:', error);
+        //('Razorpay verification error:', error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: 'Error verifying payment',
@@ -243,7 +243,7 @@ export const createWallet = async (req, res) => {
             order: razorpayOrder
         });
     } catch (error) {
-        console.error('Error creating wallet:', error);
+        //('Error creating wallet:', error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: 'Error creating wallet',
@@ -320,7 +320,7 @@ export const verifyWallet = async (req, res) => {
         
         });
     }catch(error){
-        console.error('Error verifying wallet payment:', error);
+        //('Error verifying wallet payment:', error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: 'Error verifying wallet payment',
@@ -370,7 +370,7 @@ export const createRetryRazorpayPayment = async (req, res) => {
             order: razorpayOrder
         });
     } catch (error) {
-        console.error('Error creating retry Razorpay order:', error);
+        //('Error creating retry Razorpay order:', error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: error.message || 'Error creating payment order'
@@ -439,7 +439,7 @@ export const verifyRetryRazorpayPayment = async (req, res) => {
             order
         });
     } catch (error) {
-        console.error('Error verifying retry payment:', error);
+        //('Error verifying retry payment:', error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: error.message || 'Error verifying payment'

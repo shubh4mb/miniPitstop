@@ -39,7 +39,7 @@ const SalesReport = () => {
         toast.error(response.message || 'Failed to fetch sales data');
       }
     } catch (error) {
-      console.error('Error fetching sales data:', error);
+      //('Error fetching sales data:', error);
       toast.error(error.message || 'Failed to fetch sales data');
     } finally {
       setLoading(false);
@@ -69,7 +69,7 @@ const SalesReport = () => {
         toast.error(response.message || 'Failed to download report');
       }
     } catch (error) {
-      console.error('Error downloading report:', error);
+      //('Error downloading report:', error);
       toast.error(error.message || 'Failed to download report');
     }
   };
@@ -107,7 +107,7 @@ const SalesReport = () => {
         toast.error(response.message || 'Failed to download report');
       }
     } catch (error) {
-      console.error('Error downloading report:', error);
+      //('Error downloading report:', error);
       toast.dismiss();
       toast.error('Failed to download report. Please try again.');
     }

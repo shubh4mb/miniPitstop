@@ -98,7 +98,7 @@ export const addProduct = async (req, res) => {
             });
 
         } catch (uploadError) {
-            console.error('Cloudinary upload error:', uploadError);
+            //('Cloudinary upload error:', uploadError);
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
                 success: false,
                 message: 'Error uploading images',
@@ -107,7 +107,7 @@ export const addProduct = async (req, res) => {
         }
 
     } catch (error) {
-        console.error('Error in addProduct:', error);
+        //('Error in addProduct:', error);
 
         // Handle mongoose validation errors
         if (error.name === 'ValidationError') {
@@ -292,7 +292,7 @@ export const updateProduct = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error in updateProduct:', error);
+        //('Error in updateProduct:', error);
 
         if (error.name === 'ValidationError') {
             return res.status(HttpStatus.BAD_REQUEST).json({
@@ -345,7 +345,7 @@ export const updateProductStatus = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error in updateProductStatus:', error);        
+        //('Error in updateProductStatus:', error);        
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: HttpMessage.INTERNAL_SERVER_ERROR,
@@ -440,7 +440,7 @@ export const updateProductStatus = async (req, res) => {
       products: topProducts
     });
   } catch (error) {
-    console.error('Error in getBestSellingProducts:', error);
+    //('Error in getBestSellingProducts:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to fetch best selling products',
@@ -542,7 +542,7 @@ export const downloadBestSellingProductsPDF = async (req, res) => {
     doc.end();
 
   } catch (error) {
-    console.error('Error generating PDF:', error);
+    //('Error generating PDF:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to generate PDF report'
@@ -575,7 +575,7 @@ export const getAllProducts = async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Error in getAllProducts:', error);
+        //('Error in getAllProducts:', error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ 
             success: false, 
             message: HttpMessage.INTERNAL_SERVER_ERROR, 

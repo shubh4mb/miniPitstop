@@ -90,7 +90,7 @@ const ImageCropper = ({
       return new Promise((resolve) => {
         canvas.toBlob((blob) => {
           if (!blob) {
-            console.error('Canvas is empty');
+            //('Canvas is empty');
             return;
           }
           blob.name = 'cropped.png';
@@ -99,7 +99,7 @@ const ImageCropper = ({
         }, 'image/png', 1);
       });
     } catch (e) {
-      console.error('Error creating cropped image:', e);
+      //('Error creating cropped image:', e);
       throw e;
     }
   };
@@ -109,7 +109,7 @@ const ImageCropper = ({
       const croppedImage = await getCroppedImg();
       onCropComplete(croppedImage);
     } catch (e) {
-      console.error('Error saving crop:', e);
+      //('Error saving crop:', e);
     }
   };
 

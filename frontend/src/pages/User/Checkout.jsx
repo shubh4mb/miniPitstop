@@ -101,7 +101,7 @@ const Checkout = () => {
       }
     } catch (error) {
       toast.error('Failed to fetch addresses');
-      console.error(error);
+      //(error);
     }
   };
 
@@ -206,7 +206,7 @@ const Checkout = () => {
               navigate('/profile/cart');
             }
           } catch (error) {
-            console.error('Payment verification error:', error);
+            //('Payment verification error:', error);
             toast.error(error?.message || 'Error verifying payment');
           }
         },
@@ -232,7 +232,7 @@ const Checkout = () => {
       const rzp = new window.Razorpay(options);
       rzp.open();
     } catch (error) {
-      console.error('Razorpay payment error:', error);
+      //('Razorpay payment error:', error);
       toast.error('Error initiating payment. Please try again.');
     }
   };
@@ -257,7 +257,7 @@ const Checkout = () => {
         navigate('/profile/orderHistory');
       }
     } catch (error) {
-      console.error('Order placement error:', error);
+      //('Order placement error:', error);
       toast.error('Error placing order');
     }
       
@@ -280,7 +280,7 @@ const Checkout = () => {
         navigate('/profile/orderHistory');
       }
     } catch (error) {
-      console.error('Order placement error:', error);
+      //('Order placement error:', error);
       toast.error('Error placing order');
     }
   };

@@ -9,7 +9,7 @@ export const getBrands = async (req, res) => {
             brands 
         });
     } catch (error) {
-        console.error('Error in getBrands:', error);
+        //('Error in getBrands:', error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ 
             message: HttpMessage.INTERNAL_SERVER_ERROR,
             error: error.message 
@@ -26,7 +26,7 @@ export const getBrand = async (req, res) => {
             brand 
         });
     } catch (error) {
-        console.error('Error in getBrand:', error);
+        //('Error in getBrand:', error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ 
             message: HttpMessage.INTERNAL_SERVER_ERROR,
             error: error.message 

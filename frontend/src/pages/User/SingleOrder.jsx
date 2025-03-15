@@ -15,7 +15,7 @@ const SingleOrder = () => {
       const response = await getSingleOrder(orderId);
       setOrder(response.order);
     } catch (error) {
-      console.error('Error fetching order:', error);
+      //('Error fetching order:', error);
       toast.error(error.message || 'Failed to fetch order details');
     } finally {
       setLoading(false);
@@ -106,7 +106,7 @@ const SingleOrder = () => {
             <h2 className="text-xl font-semibold mb-4">Shipping Address</h2>
             <div className="bg-gray-50 p-4 rounded-lg">
               <p className="font-medium">{order.shippingAddress.fullName}</p>
-              <p className="text-gray-600">{order.shippingAddress.phone}</p>
+              <p className="text-gray-600">{order.shippingAddress?.phone}</p>
               <p className="text-gray-600">{order.shippingAddress.address}</p>
               <p className="text-gray-600">
                 {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.pincode}

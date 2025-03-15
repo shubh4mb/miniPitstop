@@ -5,7 +5,7 @@ export const getCoupons = async () => {
         const coupons = await Coupon.find();
         
     } catch (error) {
-        console.error('Error fetching coupons:', error);
+        //('Error fetching coupons:', error);
         throw error;
     }
 };

@@ -17,7 +17,7 @@ const AdminProtectedRoute = ({ children }) => {
         setAuthenticated(authStatus);
         setUserRole(role);
       } catch (error) {
-        console.error('Auth check failed:', error);
+        //('Auth check failed:', error);
         setAuthenticated(false);
         setUserRole(null);
       } finally {

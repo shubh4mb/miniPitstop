@@ -19,7 +19,7 @@ export const uploadToCloudinary = async (buffer, options = {}) => {
         const result = await cloudinary.uploader.upload(dataURI, options);
         return result;
     } catch (error) {
-        console.error('Error uploading to Cloudinary:', error);
+        // //('Error uploading to Cloudinary:', error);
         throw error;
     }
 };
@@ -28,7 +28,7 @@ export const deleteFromCloudinary = async (public_id) => {
         const result = await cloudinary.uploader.destroy(public_id);
         return result;
     } catch (error) {
-        console.error('Error deleting from Cloudinary:', error);
+        // //('Error deleting from Cloudinary:', error);
         throw error;
     }
 };

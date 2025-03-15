@@ -94,7 +94,7 @@ const AddBrand = () => {
               const blob = await response.blob();
               return blob;
             } catch (error) {
-              console.error('Error converting URL to Blob:', error);
+              //('Error converting URL to Blob:', error);
               return null;
             }
           };
@@ -124,7 +124,7 @@ const AddBrand = () => {
           setLogoPreview(brand.logo?.url || null);
           setBannerPreview(brand.banner?.url || null);
         } catch (error) {
-          console.error('Error fetching brand:', error);
+          //('Error fetching brand:', error);
           toast.error(error.message || 'Failed to load brand details');
         }
       };

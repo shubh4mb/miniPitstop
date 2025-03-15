@@ -68,7 +68,7 @@ const getBestSellingProducts = async (req, res) => {
       products: topProducts
     });
   } catch (error) {
-    console.error('Error in getBestSellingProducts:', error);
+    //('Error in getBestSellingProducts:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to fetch best selling products'
@@ -169,7 +169,7 @@ const downloadBestSellingProductsPDF = async (req, res) => {
     doc.end();
 
   } catch (error) {
-    console.error('Error generating PDF:', error);
+    //('Error generating PDF:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to generate PDF report'

@@ -22,7 +22,7 @@ const OrderCard = ({ order, onOrderUpdate, isAdmin = false }) => {
          
         };
         script.onerror = () => {
-            console.error('Failed to load Razorpay script');
+            //('Failed to load Razorpay script');
         };
         document.body.appendChild(script);
         return () => {
@@ -156,7 +156,7 @@ const OrderCard = ({ order, onOrderUpdate, isAdmin = false }) => {
                             toast.error(verificationResult.message || 'Payment verification failed');
                         }
                     } catch (error) {
-                        console.error('Payment verification error:', error);
+                        //('Payment verification error:', error);
                         toast.error(error?.message || 'Error verifying payment');
                     }
                 },
@@ -171,7 +171,7 @@ const OrderCard = ({ order, onOrderUpdate, isAdmin = false }) => {
             const rzp = new window.Razorpay(options);
             rzp.open();
         } catch (error) {
-            console.error('Razorpay payment error:', error);
+            //('Razorpay payment error:', error);
             throw new Error('Error initiating payment');
         }
     };
@@ -261,10 +261,10 @@ const OrderCard = ({ order, onOrderUpdate, isAdmin = false }) => {
                         Order #{order._id.slice(-6)}
                     </h3>
                     <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusClass(order.orderStatus)}`}>
-                        {order.orderStatus}
+                       Order Status: {order.orderStatus}
                     </span>
                     <span>
-                        {order.paymentStatus}
+                       Payment: {order.paymentStatus}
                     </span>
                 </div>
                 <p className="text-gray-600 text-sm mb-4">

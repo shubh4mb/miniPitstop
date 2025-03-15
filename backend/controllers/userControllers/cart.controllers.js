@@ -58,7 +58,7 @@ export const addToCart = async (req, res) => {
             });
         }
     } catch (error) {
-        console.error("Error in addToCart:", error);
+        //("Error in addToCart:", error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: HttpMessage.INTERNAL_SERVER_ERROR,
@@ -111,7 +111,7 @@ export const getCart = async (req, res) => {
             cart
         });
     } catch (error) {
-        console.error("Error in getCart:", error);
+        //("Error in getCart:", error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: HttpMessage.INTERNAL_SERVER_ERROR,
@@ -219,7 +219,7 @@ export const updateCartItemQuantity = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Error in updateCartItemQuantity:", error);
+        //("Error in updateCartItemQuantity:", error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success:false,
             message: HttpMessage.INTERNAL_SERVER_ERROR,
@@ -255,7 +255,7 @@ export const clearCart = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Error in clearCart:", error);
+        //("Error in clearCart:", error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: HttpMessage.INTERNAL_SERVER_ERROR,
@@ -303,7 +303,7 @@ export const getCartProducts = async (req, res) => {
         // const products = await Product.find({ _id: { $in: cart.item } });
      
     } catch (error) {
-        console.error("Error in getCartProducts:", error);
+        //("Error in getCartProducts:", error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: HttpMessage.INTERNAL_SERVER_ERROR,

@@ -20,7 +20,7 @@ const ProductCard = ({ _id, name, scale, price, card_image, brand, buttonColor, 
      
       toast.success('Product added to cart successfully');
     } catch(error) {
-      console.error('Error adding to cart:', error);
+      //('Error adding to cart:', error);
       toast.error(error.message);
     }
   };
@@ -32,13 +32,13 @@ const ProductCard = ({ _id, name, scale, price, card_image, brand, buttonColor, 
       setIsWishlisted(!isWishlisted);
    toast.success(response.message)
     } catch (error) {
-      console.error('Error updating wishlist:', error);
+      //('Error updating wishlist:', error);
       toast.error('Failed to update wishlist');
     }
   };
 
   return (
-    <div className=' w-40 sm:w-56 md:w-56 pt-8 bg-red-400 '>
+    <div className=' w-40 sm:w-56 md:w-56 pt-8 '>
       <div
         className="rounded-md p-4 w-[80%] md:w-[90%] h-[185px] md:h-[250px] text-white flex flex-col relative transition-transform transform hover:scale-105"
         style={{
